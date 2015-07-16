@@ -1,0 +1,41 @@
+
+= Getting started with QEMU
+
+From the qemu monitor console run 'info mtree' to dump the memory map.
+Also 'info qtree' gives more details.
+'info roms' lists memory mapped (host) files.
+
+Use '-s -S' to setup the VM, but leave it halted when the CPU
+leaves reset.
+This is a great way to investigate the earliest boot situation with gdb.
+The state of the instruction pointer, along with 'info roms'
+is a good guide for starting a linker map (at least with -bios).
+
+The meanings of -kernel and -bios are different for each -machine
+although generally the same for each archetecture (i386, ppc, or arm).
+This specific meaning can be determined expermentally,
+and/or by looking through the QEMU source.
+
+In general the format needed will commonly be an ELF file,
+u-boot image (uimage),
+or a bin file (a al "objcopy -O bin").
+Generally more than one will be supported.
+
+When looking at -kernel in the QEMU source,
+ start with the *_init for the -machine
+in question (look for .name in a struct QEMUMachine).
+Look for calls passing '->kernel_filename' to load_image_targphys() (loads a bin file),
+load_elf(), load_uimage(), or something similar..
+Generally more than one will be tried.
+
+If the target's bootloader is uncooperative, it can be replaced with -bios.
+In source, look for the global variable 'bios_name'.
+Handling will be similar to -kernel.
+Note that BIOS images may have odd (aka. hardware) requirements,
+PC bios image sizes must be multiples of 64kb, while PPC PreP wants <1MB (for .bin).
+
+= References
+
+As a general reference the RTEMS source is a good place to start.
+Look under /mnt/source/rtems/c/src/lib/libbsp/ for start/start.S
+and startup/linkcmds.
