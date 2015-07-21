@@ -2,20 +2,7 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
               "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 
-ENTRY(_jump_start)
-
-/* QEMU places the first byte of the -bios image file
- * at 0xfff00000 and execution begins at 0xfff00100.
- * The length is actually the file length, but is set to 16MB here
- *
- * Code sections are executed directly from the file (>rom).
- * Data sections are loaded from rom, but executed in ram (>ram AT>rom).
- */
-MEMORY {
-  /* 'ram' can be marked non-executable (omit 'x') since .text will remain in 'rom' */
-  ram (rw) : ORIGIN = 0, LENGTH = 128M
-  rom (rx) : ORIGIN = 0xfff00000, LENGTH = 16M
-}
+ENTRY(_start)
 
 SECTIONS
 {
@@ -44,31 +31,31 @@ SECTIONS
    * .gcc_except_table
   */
 
+  /* placeholder for ISR vectors */
+  . = 0x2000;
+
+  /* TODO, do something with the ~16 MB between the vectors and .text */
+
+  . = 0x1000000;
+
   .text :
   {
-    . = 0x100; /* skip to the reset ISR vector */
     *(.text.start) /* ensure that _start() appears first */
-    . = 0x20000; /* skip past ISR vectors */
     *(.text)
-  } >rom =0 /* =0 zeros unused rom areas */
+  } =0 /* =0 zeros unused rom areas */
 
   .rodata :
   {
     *(.rodata .rodata.* .gnu.linkonce.r.*)
-    /* store load (LMA) addresses for >ram sections */
-  } >rom =0
-
-  .vectors (NOLOAD) :
-  {
-    . = . + 0x2000; /* skip */
-  } >ram
+    /* store load (LMA) addresses for sections */
+  } =0
 
   .sdata :
   {
     __sdata_start = .;
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     __sdata_end = .;
-  } >ram AT>rom
+  } =0
   __sdata_load = LOADADDR(.sdata);
 
   .sbss (NOLOAD) :
@@ -76,14 +63,14 @@ SECTIONS
     __sbss_start = .;
     *(.sbss .sbss.* .gnu.linkonce.sb.*)
     __sbss_end = .;
-  } >ram AT>rom
+  } =0
 
   .sdata2 :
   {
     __sdata2_start = .;
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
     __sdata2_end = .;
-  } >ram AT>rom
+  } =0
   __sdata2_load = LOADADDR(.sdata2);
 
   .sbss2 (NOLOAD) :
@@ -91,14 +78,14 @@ SECTIONS
     __sbss2_start = .;
     *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
     __sbss2_end = .;
-  } >ram AT>rom
+  } =0
 
   .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d.*)
     __data_end = .;
-  } >ram AT>rom
+  } =0
   __data_load = LOADADDR(.data);
 
   .bss (NOLOAD) :
@@ -108,7 +95,7 @@ SECTIONS
     *(.bss .bss.* .gnu.linkonce.b.*)
     *(.stack)
     __bss_end = .;
-  } >ram
+  }
 
   .note.gnu.build-id (NOLOAD) : {
     *(.note.*)

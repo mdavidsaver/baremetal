@@ -14,12 +14,15 @@ ASFLAGS=$(DEBUG)
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
-all: os.bin
+all: os.bin bios.bin
 
 os.elf: os.ld init.o main.o
+bios.elf: bios.ld bios.o
 
 clean:
-	rm -f init.o main.o os.elf os.bin os.map
+	rm -f *.o
+	rm -f os.elf os.bin os.map
+	rm -f bios.elf bios.bin bios.map
 
 %.o: %.c
 	$(GCC) -c $< -o $@ $(CFLAGS)
@@ -31,4 +34,4 @@ clean:
 	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
-	$(OBJCOPY) -S -O binary $< $@
+	$(OBJCOPY) -O binary $< $@

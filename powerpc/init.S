@@ -1,9 +1,3 @@
-.section .text.start
-.global _jump_start
-
-_jump_start:
-  b _start
-
 .section .text
 .global _start
 _start:

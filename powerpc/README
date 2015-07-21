@@ -1,6 +1,10 @@
 Bare PPC32 boot w/o bootloader (because I can't get Open Hack'Ware to boot)
 
-qemu-system-ppc -bios os.bin -m 128 -serial stdio -machine prep
+Builds in two parts.  bios.bin is a stub bootloader which just jumps to the main OS
+image (os.bin) to overcome the 1 MB BIOS code size limitation.
+(-bios will refuse to load .bin >1MB, or .elf with text+data size >1MB)
+
+qemu-system-ppc -no-reboot -M prep -m 128 -serial stdio -bios bios.bin -kernel os.bin
 
 
 OHW is still a good resource of low-level setup
