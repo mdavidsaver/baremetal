@@ -1,0 +1,44 @@
+Provoking QEMU to exit
+
+qemu_system_reset_request()
+  highbank.c -> register write
+  integratorcp.c -> register write
+  musicpal.c -> register write  (musicpal board)
+  omap1.c -> register write
+  omap2.c -> register write
+  pc.c -> register write (port 92)
+  pckbd.c -> register write (two different registers)
+  lpc_ich9.c -> register write
+  arm_sysctl.c -> register write (vexpress only or board_ids 0x100, 0x178, 0x182 only, )
+  cuda.c -> register write
+  slavio_misc.c -> register write
+  zynq_slcr.c -> register write  (xilinx-zynq-a9 board)
+  apb.c -> register write
+  bonito.c -> register write
+  piix.c -> register write
+  mpc8544_guts.c -> register write
+  ppc.c -> e500 only ppce500_irq_init() w/ PPCE500_INPUT_MCK
+  ppc405_uc.c -> store_40x_dbcr0()
+  spapr_hcall.c -> KVM only
+  spapr_rtas.c -> register RTAS_SYSTEM_REBOOT
+  etraxfs_timer.c -> watchdog timer expire
+  m48t59.c -> watchdog timer expire
+  milkymist-sysctl.c -> register write
+  pxa2xx_timer.c -> watchdog timer expire (bsp option)
+  watchdog.c -> generic watchdog timer expire
+  xtfpga.c -> register write
+
+cpu_exit()
+  pc.c -> DMA_init
+  prep.c -> DMA_init (broken)
+  spapr_rtas.c -> register RTAS_STOP_SELF
+
+cpu->exit_request
+
+
+---
+
+through:
+
+DMA_init (i8257.c)
+
