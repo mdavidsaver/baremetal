@@ -119,6 +119,7 @@ void Init(uint32_t mb_magic, const void* pmb)
   putval(foobar);
   puts("\r\nfoobar2=");
   putval(foobar2);
-  puts("\r\n");
+  puts("\r\nGoodbye\r\n");
+  outb(0x64, 0xfe); /* ask the KBC to reset us */
   while(1) {}
 }

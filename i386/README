@@ -11,4 +11,4 @@ https://cs.au.dk/~sortie/dopsys/osdev/
 
 To test
 
-qemu-system-i386 -kernel os.elf -m 128 -serial stdio -nographic --append 'this is a test'
+qemu-system-i386 -no-reboot -kernel os.elf -m 128 -serial stdio --append 'this is a test'
