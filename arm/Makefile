@@ -6,16 +6,18 @@ OBJCOPY=$(PREFIX)objcopy
 
 DEBUG=-g
 
-ASFLAGS=$(DEBUG)
-CFLAGS=-mcpu=arm926ej-s -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
+# cortex a9 is armv7-a
+ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
+CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
 LDFLAGS=-static
 
-all: os.bin
+all: os-flash.img os-kern.bin
 
-os.elf: os.ld init.o main.o
+os-flash.elf: os-flash.ld init.o main.o
+os-kern.elf: os-kern.ld init.o main.o
 
 clean:
-	rm -f init.o main.o os.elf os.bin os.map
+	rm -f *.o *.elf *.map *.bin *.img
 
 %.o: %.c
 	$(GCC) -c $< -o $@ $(CFLAGS)
@@ -24,7 +26,12 @@ clean:
 	$(AS) $< -o $@ $(ASFLAGS)
 
 %.elf:
-	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
+
+%.img: %.bin
+	rm -f $@
+	dd if=/dev/zero of=$@ bs=1M count=64 conv=sparse
+	dd if=$< of=$@ bs=1M conv=notrunc,sparse

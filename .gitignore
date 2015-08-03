@@ -1,10 +1,11 @@
 *.o
 *.elf
 *.bin
+*.img
 *.map
 *~
 
 *.config
-*.creator
+*.creator*
 *.files
 *.includes
