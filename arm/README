@@ -10,3 +10,16 @@ Can run -pflash with os-flash.img
 CPU: cortex-a9
 Flash size: 64 MB (-pflash file must be exactly this size)
 UART: pl011
+
+
+Basic memory map
+
+00000000-03ffffff - Flash 0 alias (where -pflash puts code)
+10000000-100e4fff - Various I/O periperials
+1e000000-1e00afff - More I/O CPU related
+40000000-43ffffff - Flash 0 real
+44000000-47ffffff - Flash 1
+48000000-49ffffff - SRAM ???
+4c000000-4c7fffff - VRAM ???
+4e000000-4e0000ff - NIC (lan9118)
+60000000-67ffffff - Main Memory (60010000 is start address for -kernel)

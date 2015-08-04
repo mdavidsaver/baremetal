@@ -22,10 +22,13 @@ _setup:
   /* look for bootloader info (-kernel mode only) */
   cmp r1, #0x8e0 /* boardid for vexpress-a9 */
   /* cmpne r1, #other */
+  ittee eq
   moveq r4, r1
-  movne r4, #0
   moveq r5, r2
+  movne r4, #0
   movne r5, #0
+
+  bl _cpu_cleanup
 
   /* show some life */
   ldr r0, =_early_string1
@@ -80,19 +83,7 @@ halt:
 _stuck:
   b _stuck
 
-/* output a single char to UART 1 */
-.global xputchar
-.align 4
-xputchar:
-  mov r2, #0x9000
-  movt r2, #0x1000
-
-  strb r0, [r2]
-
-  bx lr
-
 /* output a nil terminated string to UART 1 */
-.global xputs
 .align 4
 xputs:
   sub r0, #1 /* the pointer back by one to use pre-index load below */
@@ -103,26 +94,9 @@ xputs:
 _puts_loop:
   ldrb r1, [r0, #1]!
   cmp r1, #0
+  it ne
   strbne r1, [r2]
   bne _puts_loop
-
-  bx lr
-
-.global xnputs
-.align 4
-xnputs:
-  /* r0 is char*, r1 is size */
-  sub r0, #1
-
-  mov r3, #0x9000
-  movt r3, #0x1000
-
-_xnputs_loop:
-  cmp r1, #0
-  ldrbne r2, [r0, #1]!
-  strbne r2, [r3]
-  subne r1, #1
-  bne _xnputs_loop
 
   bx lr
 
@@ -131,13 +105,14 @@ _zero_bss:
   mov r0, #0
   ldr r1, =__bss_start
   ldr r2, =__bss_end
-  sub r2, r2, r1
+  sub r2, r1
 
   sub r1, #4          /* we will use pre-indexed store */
 
 _bss_loop:
   cmp r2, #0
-  strne r0, [r1, #4]!
+  itt ne
+  strne r0, [r1, #4]!  /* *(++r1) = r0 where r1 is uint32_t* */
   subne r2, #4
   bne _bss_loop
 
@@ -150,6 +125,7 @@ _move_data:
 
   /* if load==start then no move is necessary */
   cmp r0, r1
+  it eq
   bxeq lr
 
   ldr r2, =__data_end
@@ -160,6 +136,7 @@ _move_data:
 
 _data_loop:
   cmp r2, #0
+  itttt ne
   ldrne r3, [r0, #4]!
   strne r3, [r1, #4]!
   subne r2, #4
@@ -197,6 +174,54 @@ _setup_stacks:
 
   bx r3
 
+/* "cleanup" means shutting down CPU features which a
+ * careless bootloader might leave turned on.
+ * as per chapter 3 of the programmers guide.
+ * QEMU does not do this (so far).
+ */
+_cpu_cleanup:
+  /* read system control register */
+  mrc p15, 0, r0, c1, c0, 0
+  bic r0, #0x0005 /* Disable MMU and L1 D cache */
+  bic r0, #0x1800 /* disable L1 I cache and branch prediction */
+  mcr p15, 0, r0, c1, c0, 0
+
+  /* invalidate L1 caches */
+  mov r0, #0
+  mcr p15, 0, r0, c7, c5, 0 /* read ICIALLU ??? */
+
+  /* invalidate data cache */
+  /* read CCSIDR cache size id register
+   */
+  mrc p15, 1, r0, c0, c0, 0
+  mov r3, #0x0ff
+  orr r3, #0x100
+  /* r0 = r3 & (r0>>13) = number of cache sets */
+  and r0, r3, r0, lsr #13
+
+  mov r1, #0 /* way counter */
+way_loop:
+
+  mov r3, #0 /* set counter */
+set_loop:
+
+  mov r2, r1, lsl #30     /* r2  = r1<<30 */
+  orr r2, r2, r3, lsl #5  /* r2 |= r2<<5 */
+  mcr p15, 0, r2, c7, c6, 2 /* write DCISW to invalidate cache line */
+  add r3, #1
+  cmp r0, r3
+  bne set_loop
+
+  add r1, #1
+  cmp r1, #4 /* 4 way L1 cache */
+  bne way_loop
+
+  mcr p15, 0, r1, c8, c7, 0 /* write TLBIALL to invalidate TLB */
+
+  bx lr
+
+
+/* stub for PIC setup */
 .global irq_setup
 irq_setup:
   bx lr
