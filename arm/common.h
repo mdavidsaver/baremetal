@@ -10,6 +10,10 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#define NELEM(X) (sizeof(X)/sizeof(X[0]))
+
+typedef void(*isrfunc)(unsigned);
+
 extern uint32_t RamSize;
 
 /* Shutdown the system from init.S */
@@ -27,6 +31,12 @@ void puthex(uint32_t v);
 void putdec(int v);
 void vprintk(unsigned i, const char *fmt, va_list args) __attribute__((format(printf,2,0)));
 void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3)));
+
+/* from irq.c */
+void irq_setup(void);
+int isr_install(unsigned vect, isrfunc fn);
+int isr_enable(unsigned vect);
+int isr_disable(unsigned vect);
 
 /* register bases */
 #define A9_SYSCTRL_BASE ((volatile void*)0x10000000u)
@@ -89,5 +99,8 @@ uint32_t in8(volatile void *addr)
 {
     return *(volatile uint8_t*)addr;
 }
+
+unsigned irq_mask(void);
+void irq_unmask(unsigned m);
 
 #endif // COMMON_H

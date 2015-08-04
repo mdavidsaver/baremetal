@@ -5,10 +5,11 @@ GCC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
 
 DEBUG=-g
+OPT=-Os
 
 # cortex a9 is armv7-a
 ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
-CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
+CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) $(OPT) -Wall -Wextra -Werror
 LDFLAGS=-static
 
 all: minimal-flash.img os-kern.bin
@@ -16,7 +17,7 @@ all: minimal-flash.img os-kern.bin
 OBJS = init.o common.o printk.o
 
 minimal-flash.elf: os-flash.ld minimal.o $(OBJS)
-os-kern.elf: os-kern.ld main.o $(OBJS)
+os-kern.elf: os-kern.ld main.o $(OBJS) irq.o irq-setup.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img

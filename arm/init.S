@@ -14,6 +14,8 @@ _vec_abort: b _vec_abort
 _vec_irq  : b _vec_irq
 _vec_fiq  : b _vec_fiq
 
+.weak _vec_undef, _vec_swi, _vec_prfch, _vec_abort, _vec_irq, _vec_fiq
+
 .section .text
 .global _setup
 _setup:
@@ -42,18 +44,22 @@ _setup:
   mcr p15, 0, r0, c12, c0, 0
 
   mov r0, r5 /* board info */
-  bl processATAG
+  blx processATAG
+
+  blx irq_setup;
+
+  cpsie i /* enable IRQ */
 
   ldr r0, =_early_string2
   bl xputs
 
-  blx Init /* jump to C code */
+  blx Init /* jump to "main" */
 
   /* fall through to halt */
 
-.global _halt
+.global halt
 .align 4
-_halt:
+halt:
   /* request shutdown */
 
   ldr r0, =_late_string1
@@ -187,13 +193,17 @@ _setup_stacks:
   push {r0}
   pop {r0}
   cmp r0, #0x42
-  bne _halt
+  bne halt
 
   bx r3
 
-/* keep these strings in .text so they are available
- * before .data is moved
- */
+.global irq_setup
+irq_setup:
+  bx lr
+
+.weak irq_setup
+
+/* keep these strings in .text so they are always available */
 _early_string1:
 .string "booting...\n"
 _early_string2:

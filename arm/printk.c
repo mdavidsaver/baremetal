@@ -19,6 +19,7 @@ void putdec(int d)
     char buf[16];
     int s=d<0, m;
     unsigned p=sizeof(buf);
+    buf[--p]='\0';
 
     while(d && p>0)
     {
@@ -28,6 +29,8 @@ void putdec(int d)
     }
     if(s)
         buf[--p] = '-';
+    if(p==sizeof(buf)-1)
+        buf[--p] = '0';
 
     while(p<sizeof(buf))
         out8(A9_UART_BASE_1, buf[p++]);
