@@ -34,15 +34,19 @@ _setup:
   bl _move_data
   bl _setup_stacks
 
+  ldr r0, =board_id
+  str r4, [r0]
+
   /* set exception vector base address (needed when loaded to ram) */
   ldr r0, =_vec_reset
   mcr p15, 0, r0, c12, c0, 0
 
+  mov r0, r5 /* board info */
+  bl processATAG
+
   ldr r0, =_early_string2
   bl xputs
 
-  mov r0, r4 /* board id */
-  mov r1, r5 /* board info */
   blx Init /* jump to C code */
 
   /* fall through to halt */
@@ -191,11 +195,11 @@ _setup_stacks:
  * before .data is moved
  */
 _early_string1:
-.string "booting...\r\n"
+.string "booting...\n"
 _early_string2:
-.string "ready for C...\r\n"
+.string "Enter Init()\n"
 _late_string1:
-.string "halt\r\n"
+.string "halt\n"
 
 .section .bss
 .align 4
