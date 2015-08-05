@@ -5,37 +5,24 @@
  */
 
 #include "common.h"
+#include "mmu.h"
 
-static int done = 30;
+static volatile int foo = -424242; /* I'm in ram */
 
-static
-void timerisr(unsigned v)
-{
-    (void)v;
-    out32(A9_TIMER_BASE_1+0x2C, 0xffffffff);
-    out8(A9_UART_BASE_1, '.');
-    __sync_sub_and_fetch(&done, 1);
-}
+static volatile const int bar = -242424; /* I'm in ROM */
 
 void Init(void)
 {
-    printk(0, "hello\n");
+    putdec(0);
+    putdec(1);
+    putdec(-1);
+    putchar('\n');
+    putdec(10);
+    putdec(-10);
+    printk(0, "Init()\n");
+    mmu_setup();
+    printk(0, "Wow, still alive!\n");
 
-    // first timer is ID34 in the pic
-    isr_install(34, &timerisr); // disable ~ID34
-    isr_enable(34);
-
-    //out32(A9_PIC_CONF+0xf00, 0x2000001); // soft interrupt 1
-
-    /* Load register */
-    out32(A9_TIMER_BASE_1+0x20, 100000); /* 1MHz -> 10Hz */
-
-    /* enable 32-bit periodic w/ irq, scale/1 */
-    out32(A9_TIMER_BASE_1+0x28, 0b11100010);
-
-    printk(0, "\nGo\n");
-    {
-        while(__sync_fetch_and_add(&done,0)>0) {}
-    }
-    printk(0, "\nDone\n");
+    printk(0, "Read ROM %d\n", bar);
+    printk(0, "Read RAM %d\n", foo);
 }

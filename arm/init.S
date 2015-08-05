@@ -191,19 +191,22 @@ _setup_stacks:
 
 /* "cleanup" means shutting down CPU features which a
  * careless bootloader might leave turned on.
- * as per chapter 3 of the programmers guide.
  * QEMU does not do this (so far).
+ *
+ * based on chapter 3 of the programmers guide.
  */
 _cpu_cleanup:
-  /* read system control register */
+  /* read system control register (SCTLR) */
   mrc p15, 0, r0, c1, c0, 0
-  bic r0, #0x0005 /* Disable MMU and L1 D cache */
-  bic r0, #0x1800 /* disable L1 I cache and branch prediction */
+  /* Disable MMU and L1 D cache */
+  bic r0, #0b0000000000000101
+  /* disable L1 I cache and branch prediction */
+  bic r0, #0b0001100000000000
   mcr p15, 0, r0, c1, c0, 0
 
   /* invalidate L1 caches */
   mov r0, #0
-  mcr p15, 0, r0, c7, c5, 0 /* read ICIALLU ??? */
+  mcr p15, 0, r0, c7, c5, 0 /* read ICIALLU (QEMU nop) */
 
   /* invalidate data cache */
   /* read CCSIDR cache size id register
@@ -222,7 +225,8 @@ set_loop:
 
   mov r2, r1, lsl #30     /* r2  = r1<<30 */
   orr r2, r2, r3, lsl #5  /* r2 |= r2<<5 */
-  mcr p15, 0, r2, c7, c6, 2 /* write DCISW to invalidate cache line */
+  /* write DCISW to invalidate cache line (QEMU nop) */
+  mcr p15, 0, r2, c7, c6, 2
   add r3, #1
   cmp r0, r3
   bne set_loop
@@ -249,6 +253,7 @@ _bad_instr:
 
 .global _bad_code
 _bad_code:
+  /* TODO, read IFAR, IFSR, and AIDR */
   sub r2, lr, #4
   ldr r1, =_code_err_msg
   mov r0, #0
@@ -259,6 +264,7 @@ _bad_code:
 
 .global _bad_data
 _bad_data:
+  /* TODO, read DFAR, DFSR, and AIDR */
   sub r2, lr, #8
   ldr r1, =_data_err_msg
   mov r0, #0

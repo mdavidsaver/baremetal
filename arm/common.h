@@ -12,6 +12,14 @@
 
 #define NELEM(X) (sizeof(X)/sizeof(X[0]))
 
+/* mask with lower N bits set */
+#define BMASK(N) ((1ull<(N))-1)
+/* mask with bits m through N set (zero indexed)
+ * BMASK(31,0)==0xffffffff
+ * BMASK(23,16)==0x00ff0000
+ */
+#define BMASK2(M,N) (BMASK((M)+1)-BMASK(N))
+
 typedef void(*isrfunc)(unsigned);
 
 extern uint32_t RamSize;
