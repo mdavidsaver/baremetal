@@ -21,6 +21,7 @@ void halt(void);
 
 /* from common.c */
 void memcpy(void *dst, const void *src, size_t count);
+void memset(void *dst, uint8_t val, size_t count);
 
 int processATAG(uint32_t*);
 uint32_t board_id;
@@ -29,6 +30,7 @@ extern const char *cmd_line;
 /* from printk.c */
 void puthex(uint32_t v);
 void putdec(int v);
+void putchar(char c);
 void vprintk(unsigned i, const char *fmt, va_list args) __attribute__((format(printf,2,0)));
 void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3)));
 

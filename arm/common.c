@@ -21,6 +21,13 @@ void memcpy(void *dst, const void *src, size_t count)
         *cdst++ = *csrc++;
 }
 
+void memset(void *dst, uint8_t val, size_t count)
+{
+    char *cdst = dst;
+    while(count--)
+        *cdst++ = val;
+}
+
 int processATAG(uint32_t* info)
 {
     uint32_t alen, atag;

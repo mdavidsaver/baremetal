@@ -36,6 +36,11 @@ void putdec(int d)
         out8(A9_UART_BASE_1, buf[p++]);
 }
 
+void putchar(char c)
+{
+    out8(A9_UART_BASE_1, c);
+}
+
 void vprintk(unsigned i, const char *fmt, va_list args)
 {
     char c;
@@ -44,7 +49,7 @@ void vprintk(unsigned i, const char *fmt, va_list args)
     while( (c=*fmt++)!='\0')
     {
         if(c!='%') {
-            out8(A9_UART_BASE_1, c);
+            putchar(c);
             continue;
         }
 
@@ -61,7 +66,13 @@ void vprintk(unsigned i, const char *fmt, va_list args)
             puthex(v);
         }
             break;
+        case 'c': {
+            char v = va_arg(args, int);
+            putchar(v);
+        }
+            break;
         default:
+            putchar('!');
             out8(A9_UART_BASE_1, '!');
             return;
         }
