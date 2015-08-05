@@ -22,23 +22,19 @@ SECTIONS
       *(.rodata .rodata.*)
     } =0
 
-    .data :
+    .data ALIGN(4) : ALIGN(4)
     {
-    . += ALIGN(4);
       __data_start = .;
       *(.data .data.* .gnu.linkonce.d.*)
-      . += ALIGN(4);
       __data_end = .;
     }
     __data_load = LOADADDR(.data);
 
-  .bss (NOLOAD) :
+  .bss (NOLOAD) : ALIGN(4)
   {
-    . += ALIGN(4);
     __bss_start = .;
     *(COMMON)
     *(.bss .bss.* .gnu.linkonce.b.*)
-    . += ALIGN(4);
 
     __bss_end = .;
   }

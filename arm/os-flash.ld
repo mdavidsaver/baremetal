@@ -23,24 +23,20 @@ SECTIONS
       *(.rodata .rodata.*)
     } >rom =0
 
-    .data :
+    .data  : ALIGN(4)
     {
-    . += ALIGN(4);
-      __data_start = .;
+      __data_start = ALIGN(4);
       *(.data .data.* .gnu.linkonce.d.*)
-      . += ALIGN(4);
-      __data_end = .;
+      __data_end = ALIGN(4);
     } >ram AT>rom
     __data_load = LOADADDR(.data);
 
-  .bss (NOLOAD) :
+  .bss  (NOLOAD) : ALIGN(4)
   {
-    . += ALIGN(4);
-    __bss_start = .;
+    __bss_start = ALIGN(4);
     *(COMMON)
     *(.bss .bss.* .gnu.linkonce.b.*)
-    . += ALIGN(4);
-    __bss_end = .;
+    __bss_end = ALIGN(4);
   } >ram
 
   .note.gnu.build-id (NOLOAD) : {

@@ -24,7 +24,7 @@ os-kern.elf: os-kern.ld main.o $(OBJS)
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
 
-%.o: %.c
+%.o: %.c Makefile
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S

@@ -97,6 +97,9 @@ _puts_loop:
 
   bx lr
 
+/* Assumes that .bss load, start, and end addresses are aligned to 4 bytes.
+ * This must be ensured in the linker script
+ */
 _zero_bss:
   /* zero bss, aligned to 4 bytes */
   mov r0, #0
@@ -115,6 +118,9 @@ _bss_loop:
 
   bx lr
 
+/* Assumes that .data load, start, and end addresses are aligned to 4 bytes.
+ * This must be ensured in the linker script
+ */
 _move_data:
   /* move .data section to ram */
   ldr r0, =__data_load
