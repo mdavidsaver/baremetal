@@ -14,7 +14,7 @@ _vec_abort: b _bad_data
 _vec_irq  : b _vec_irq
 _vec_fiq  : b _vec_fiq
 
-.weak _vec_swi, _vec_prfch, _vec_abort, _vec_irq, _vec_fiq
+.weak _vec_swi, _vec_irq, _vec_fiq
 
 .section .text
 .global _setup
@@ -27,6 +27,7 @@ _setup:
   moveq r5, r2
   movne r4, #0
   movne r5, #0
+  /* careful to avoid clobbering r4 and r5 until they can stored */
 
   bl _cpu_cleanup
 
@@ -47,7 +48,7 @@ _setup:
   mcr p15, 0, r0, c12, c0, 0
 
   mov r0, r5 /* board info */
-  blx processATAG
+  blx processATAG /* first C function */
 
   blx irq_setup;
 
@@ -69,12 +70,10 @@ halt:
   bl xputs
 
   /* load sysctrl register base */
-  mov r0, #0
-  movt r0, #0x1000
+  ldr r0, =0x10000000
 
   /* load command function 8, site 0, device 0 (shutdown) */
-  mov r1, #0
-  movt r1, #0xc080
+  ldr r1, =0xc0800000
 
   str r1, [r0, #0xa4] /* write SYS_CFGCTRL */
 
@@ -87,8 +86,7 @@ _stuck:
 xputs:
   sub r0, #1 /* the pointer back by one to use pre-index load below */
 
-  mov r2, #0x9000
-  movt r2, #0x1000
+  ldr r2, =0x10009000
 
 _puts_loop:
   ldrb r1, [r0, #1]!
@@ -154,13 +152,21 @@ _setup_stacks:
   msr cpsr, r1
   ldr sp, =_und_stack_top
 
+  orr r1, r0, #23 /* abort Mode */
+  msr cpsr, r1
+  ldr sp, =_bad_stack_top
+
   orr r1, r0, #18 /* IRQ Mode */
   msr cpsr, r1
   ldr sp, =_irq_stack_top
 
-  orr r1, r0, #17 /* IRQ Mode */
+  orr r1, r0, #17 /* FIQ Mode */
   msr cpsr, r1
   ldr sp, =_fiq_stack_top
+
+  orr r1, r0, #0x19 /* Supvervisor Mode */
+  msr cpsr, r1
+  ldr sp, =_svc_stack_top
 
   orr r1, r0, #0x1f /* System Mode */
   msr cpsr, r1
@@ -291,5 +297,10 @@ _fiq_stack_top:
 _und_stack_top:
 
 .skip 0x400
-.global _sys_stack_top
+_bad_stack_top:
+
+.skip 0x400
 _sys_stack_top:
+
+.skip 0x400
+_svc_stack_top:
