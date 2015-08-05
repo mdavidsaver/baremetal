@@ -12,12 +12,14 @@ ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
 CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) $(OPT) -Wall -Wextra -Werror
 LDFLAGS=-static
 
-all: minimal-flash.img os-kern.bin
+all: minimal-flash.img timer-kern.bin os-kern.bin
 
-OBJS = init.o common.o printk.o
+OBJS = init.o common.o printk.o irq.o irq-setup.o
 
-minimal-flash.elf: os-flash.ld minimal.o $(OBJS)
-os-kern.elf: os-kern.ld main.o $(OBJS) irq.o irq-setup.o
+minimal-flash.elf: os-flash.ld example-minimal.o init.o common.o printk.o
+timer-kern.elf: os-kern.ld example-timer-irq.o init.o common.o printk.o irq.o irq-setup.o
+
+os-kern.elf: os-kern.ld main.o $(OBJS)
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
