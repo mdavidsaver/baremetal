@@ -6,15 +6,15 @@
 
 /* CPU exception vector table */
 _vec_reset: b _setup
-_vec_undef: b _vec_undef
+_vec_undef: b _bad_instr
 _vec_swi  : b _vec_swi
-_vec_prfch: b _vec_prfch
-_vec_abort: b _vec_abort
+_vec_prfch: b _bad_code
+_vec_abort: b _bad_data
   nop
 _vec_irq  : b _vec_irq
 _vec_fiq  : b _vec_fiq
 
-.weak _vec_undef, _vec_swi, _vec_prfch, _vec_abort, _vec_irq, _vec_fiq
+.weak _vec_swi, _vec_prfch, _vec_abort, _vec_irq, _vec_fiq
 
 .section .text
 .global _setup
@@ -84,7 +84,6 @@ _stuck:
   b _stuck
 
 /* output a nil terminated string to UART 1 */
-.align 4
 xputs:
   sub r0, #1 /* the pointer back by one to use pre-index load below */
 
@@ -150,6 +149,10 @@ _setup_stacks:
   mrs r0, cpsr
   bic r0, r0, #0x1f /* clear mode bits */
   orr r0, r0, #0xc0 /* set to disable IRQ and FIQ */
+
+  orr r1, r0, #27 /* UND Mode */
+  msr cpsr, r1
+  ldr sp, =_und_stack_top
 
   orr r1, r0, #18 /* IRQ Mode */
   msr cpsr, r1
@@ -220,8 +223,39 @@ set_loop:
 
   bx lr
 
+/* default handler for _vec_undef (undefined instruction) */
+.global _bad_instr
+_bad_instr:
+  sub r3, lr, #4
+  ldr r2, [r3]
+  ldr r1, =_und_err_msg
+  mov r0, #0
+  bl printk
+  b halt
 
-/* stub for PIC setup */
+.weak _bad_instr
+
+.global _bad_code
+_bad_code:
+  sub r2, lr, #4
+  ldr r1, =_code_err_msg
+  mov r0, #0
+  bl printk
+  b halt
+
+.weak _bad_code
+
+.global _bad_data
+_bad_data:
+  sub r2, lr, #8
+  ldr r1, =_data_err_msg
+  mov r0, #0
+  bl printk
+  b halt
+
+.weak _bad_data
+
+/* stub for early PIC setup */
 .global irq_setup
 irq_setup:
   bx lr
@@ -236,6 +270,14 @@ _early_string2:
 _late_string1:
 .string "halt\n"
 
+.section .rodata
+_und_err_msg:
+.string "Invalid instruction 0x%x at 0x%x\n"
+_code_err_msg:
+.string "Unable to execute instruction at 0x%x\n"
+_data_err_msg:
+.string "Unable to access memory at 0x%x\n"
+
 .section .bss
 .align 4
 
@@ -244,6 +286,9 @@ _irq_stack_top:
 
 .skip 0x400
 _fiq_stack_top:
+
+.skip 0x400
+_und_stack_top:
 
 .skip 0x400
 .global _sys_stack_top
