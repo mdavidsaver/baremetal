@@ -14,10 +14,11 @@ void puthex(uint32_t v)
     }
 }
 
-void putdec(int d)
+static
+void putdecnum(unsigned d, int neg)
 {
     char buf[16];
-    int s=d<0, m;
+    int m;
     unsigned p=sizeof(buf);
     buf[--p]='\0';
 
@@ -27,13 +28,25 @@ void putdec(int d)
         d /= 10;
         buf[--p] = hexchars[m];
     }
-    if(s)
+    if(neg)
         buf[--p] = '-';
     if(p==sizeof(buf)-1)
         buf[--p] = '0';
 
     while(p<sizeof(buf))
         out8(A9_UART_BASE_1, buf[p++]);
+}
+
+void putdec(int d)
+{
+    int s=d<0;
+    if(s) d = -d;
+    putdecnum(d, s);
+}
+
+void putudec(unsigned v)
+{
+    putdecnum(v, 0);
 }
 
 void putchar(char c)
@@ -61,6 +74,11 @@ void vprintk(unsigned i, const char *fmt, va_list args)
             putdec(v);
         }
             break;
+        case 'u': {
+            unsigned v = va_arg(args, unsigned);
+            putudec(v);
+        }
+            break;
         case 'x': {
             unsigned v = va_arg(args, unsigned);
             puthex(v);
@@ -69,6 +87,12 @@ void vprintk(unsigned i, const char *fmt, va_list args)
         case 'c': {
             char v = va_arg(args, int);
             putchar(v);
+        }
+            break;
+        case 's': {
+            char c, *v = va_arg(args, char*);
+            while((c=*v++)!='\0')
+                putchar(c);
         }
             break;
         default:

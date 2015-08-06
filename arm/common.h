@@ -38,6 +38,7 @@ extern const char *cmd_line;
 /* from printk.c */
 void puthex(uint32_t v);
 void putdec(int v);
+void putudec(unsigned v);
 void putchar(char c);
 void vprintk(unsigned i, const char *fmt, va_list args) __attribute__((format(printf,2,0)));
 void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3)));

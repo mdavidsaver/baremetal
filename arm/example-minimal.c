@@ -25,4 +25,22 @@ void Init(void)
     printk(0, "ioportbase2 %x\n", (unsigned)ioportbase2);
     printk(0, "foobar2 %x\n", (unsigned)foobar2);
     printk(0, "roval %x\n", (unsigned)roval);
+
+    {
+        static int I[] = {0, 1, -1, 10, -10, 11, -11, 503, -203};
+        unsigned i;
+
+        printk(0, "Test printing signed decimal\n");
+        for(i=0; i<NELEM(I); i++)
+        {
+            putdec(I[i]);
+            putchar('\n');
+        }
+    }
+
+    printk(0, "Unsigned %u\n", (unsigned)-1);
+
+    printk(0, "Hello %s!\n", "world");
+
+    printk(0, "Done\n");
 }
