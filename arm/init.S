@@ -6,13 +6,13 @@
 
 /* CPU exception vector table */
 _vec_reset: b _setup
-_vec_undef: b _bad_instr
-_vec_swi  : b _vec_swi
-_vec_prfch: b _bad_code
-_vec_abort: b _bad_data
+_vec_undef: ldr pc,=_bad_instr
+_vec_swi  : ldr pc,=_vec_swi
+_vec_prfch: ldr pc,=_bad_code
+_vec_abort: ldr pc,=_bad_data
   nop
-_vec_irq  : b _vec_irq
-_vec_fiq  : b _vec_fiq
+_vec_irq  : ldr pc,=_vec_irq
+_vec_fiq  : ldr pc,=_vec_fiq
 
 .weak _vec_swi, _vec_irq, _vec_fiq
 
@@ -27,7 +27,7 @@ _setup:
   moveq r5, r2
   movne r4, #0
   movne r5, #0
-  /* careful to avoid clobbering r4 and r5 until they can stored */
+  /* careful to avoid clobbering r4 and r5 until they can be stored */
 
   bl _cpu_cleanup
 
@@ -50,7 +50,8 @@ _setup:
   mov r0, r5 /* board info */
   blx processATAG /* first C function */
 
-  blx irq_setup;
+  ldr r0, =irq_setup /* weak symbol */
+  blx r0
 
   cpsie i /* enable IRQ */
 
@@ -242,7 +243,15 @@ set_loop:
 /* default handler for _vec_undef (undefined instruction) */
 .global _bad_instr
 _bad_instr:
-  sub r3, lr, #4
+  push {r0-r3,r12,lr}
+  mrs r0, spsr
+  push {r0}
+
+  tst r0, #(1<<5) /* test thumb */
+  it eq
+  subeq r3, lr, #4 /* ARM */
+  subne r3, lr, #2
+
   ldr r2, [r3]
   ldr r1, =_und_err_msg
   mov r0, #0
