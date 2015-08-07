@@ -32,7 +32,7 @@ _setup:
   bl _cpu_cleanup
 
   /* show some life */
-  ldr r0, =_early_string1
+  adr r0, _early_string1
   bl xputs
 
   /* prepare C environment */
@@ -55,7 +55,7 @@ _setup:
 
   cpsie i /* enable IRQ */
 
-  ldr r0, =_early_string2
+  adr r0, _early_string2
   bl xputs
 
   blx Init /* jump to "main" */
@@ -273,7 +273,6 @@ _bad_code:
 
 .global _bad_data
 _bad_data:
-  /* TODO, read DFAR, DFSR, and AIDR */
   sub r2, lr, #8
   ldr r1, =_data_err_msg
   mov r0, #0

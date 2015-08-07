@@ -14,7 +14,7 @@ LDFLAGS=-static
 
 all: minimal-flash.img timer-kern.bin os-kern.bin
 
-OBJS = init.o common.o printk.o irq.o irq-setup.o mmu.o
+OBJS = init.o common.o printk.o irq.o irq-setup.o mmu.o mmu-fault.o
 
 minimal-flash.elf: os-flash.ld example-minimal.o init.o common.o printk.o
 timer-kern.elf: os-kern.ld example-timer-irq.o init.o common.o printk.o irq.o irq-setup.o

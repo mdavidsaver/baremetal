@@ -89,6 +89,13 @@ void vprintk(unsigned i, const char *fmt, va_list args)
             putchar(v);
         }
             break;
+        case 'p': {
+            uint32_t v = (uint32_t)va_arg(args, void*);
+            out8(A9_UART_BASE_1, '0');
+            out8(A9_UART_BASE_1, 'x');
+            puthex(v);
+        }
+            break;
         case 's': {
             char c, *v = va_arg(args, char*);
             while((c=*v++)!='\0')

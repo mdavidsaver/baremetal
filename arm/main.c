@@ -13,16 +13,13 @@ static volatile const int bar = -242424; /* I'm in ROM */
 
 void Init(void)
 {
-    putdec(0);
-    putdec(1);
-    putdec(-1);
-    putchar('\n');
-    putdec(10);
-    putdec(-10);
-    printk(0, "Init()\n");
+    printk(0, "Enabling MMU\n");
     mmu_setup();
     printk(0, "Wow, still alive!\n");
 
     printk(0, "Read ROM %d\n", bar);
     printk(0, "Read RAM %d\n", foo);
+
+    printk(0, "But not for long!\n");
+    printk(0, "oops %x\n", (unsigned)in32((void*)0x30000000));
 }

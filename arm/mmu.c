@@ -105,6 +105,39 @@ void mmu_setup(void)
     asm volatile("isb\r\ndmb\r\ndsb" ::: "memory");
 }
 
+#define PBOOL(v) (v)?'T':'F'
+
+typedef struct __attribute__((packed)) {
+    uint32_t r[16];
+    uint32_t spsr;
+} arm_registers_t;
+
+int exc_data_fault(uint32_t *regs, uint32_t dfar, uint32_t dfsr, uint32_t* code)
+{
+    unsigned i;
+    printk(0, "Data fault while accessing %x\n", (unsigned)dfar);
+    printk(0, " CM %c ExT %c WnR %c FS %c DOM %d\n",
+           PBOOL(dfsr&(1<<13)), PBOOL(dfsr&(1<<12)),
+           PBOOL(dfsr&(1<<11)), PBOOL(dfsr&(1<<10)),
+           (int)((dfsr>>4)&0xf));
+    printk(0, "Address of instruction %p\n", code);
+
+    for(i=0; i<16; i++) {
+        printk(0, "r%u %x ", i, (unsigned)regs[i]);
+        if((i&3)==3)
+            putchar('\n');
+    }
+    printk(0, "CPSR %x\n", (unsigned)regs[16]);
+
+    /* TODO, walk the stack */
+
+    return 0;
+}
+
+/* The following would be useful if QEMU implemented the registers behind it, but alas it is not so.
+ * Would still be useful on real hardware though.
+ */
+
 void mmu_test_access(uint32_t addr, unsigned mask, mmu_test_result *ret)
 {
     uint32_t raw;
@@ -141,8 +174,6 @@ void mmu_test_access(uint32_t addr, unsigned mask, mmu_test_result *ret)
         ret->ss  = !!(raw&(1<<1));
     }
 }
-
-#define PBOOL(v) (v)?'T':'F'
 
 void mmu_test_print(unsigned t, const mmu_test_result* res)
 {
