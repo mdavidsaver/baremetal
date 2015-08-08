@@ -13,8 +13,8 @@ LDFLAGS=-static
 
 all: os-flash.img os-kern.bin
 
-os-flash.elf: os-flash.ld init.o main.o
-os-kern.elf: os-kern.ld init.o main.o
+os-flash.elf: vexpress-flash.ld init.o main.o
+os-kern.elf: vexpress-kern.ld init.o main.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
@@ -23,10 +23,10 @@ clean:
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(AS) $< -o $@ $(ASFLAGS)
+	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.elf:
-	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
