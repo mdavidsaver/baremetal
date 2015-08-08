@@ -12,14 +12,19 @@ ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
 CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) $(OPT) -Wall -Wextra -Werror
 LDFLAGS=-static
 
-all: minimal-flash.img timer-kern.bin os-kern.bin
+all: minimal-flash.img minimal-kern.bin timer-kern.bin os-kern.bin
 
 OBJS = init.o common.o printk.o irq.o irq-setup.o mmu.o mmu-fault.o
 
-minimal-flash.elf: os-flash.ld example-minimal.o init.o common.o printk.o
-timer-kern.elf: os-kern.ld example-timer-irq.o init.o common.o printk.o irq.o irq-setup.o
+minimal-kern.elf: vexpress.ld example-minimal.o init.o common.o printk.o
+timer-kern.elf: vexpress.ld example-timer-irq.o init.o common.o printk.o irq.o irq-setup.o
+os-kern.elf: vexpress.ld main.o $(OBJS)
 
-os-kern.elf: os-kern.ld main.o $(OBJS)
+minimal-flash.elf: vexpress-flash.ld boot-flash-minimal.o
+
+boot-flash-%.o: %-kern.bin boot-flash.S
+	$(GCC) -c boot-flash.S -o $@ $(CFLAGS) -DRAM_SIZE=64 -DBOARD_VEXPRESSA9 -DBIN_FILE="\"$<\""
+
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
@@ -28,10 +33,10 @@ clean:
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(AS) $< -o $@ $(ASFLAGS)
+	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.elf:
-	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
