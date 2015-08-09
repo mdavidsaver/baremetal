@@ -42,4 +42,6 @@ SECTIONS
   .note.gnu.build-id (NOLOAD) : {
     *(.note.*)
   }
+
+  __after_all_load = ALIGN(0x1000); /* align to a page at start of dynamic memory area */
 }

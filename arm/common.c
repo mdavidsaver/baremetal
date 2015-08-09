@@ -20,3 +20,12 @@ void memset(void *dst, uint8_t val, size_t count)
     while(count--)
         *cdst++ = val;
 }
+
+void _assert_fail(const char *cond,
+                  const char *file,
+                  unsigned int line)
+{
+    printk(0, "%s:%u assertion fails: %s\n",
+           file, line, cond);
+    halt();
+}

@@ -10,6 +10,8 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#define PAGE_SIZE (0x4000)
+
 #define NELEM(X) (sizeof(X)/sizeof(X[0]))
 
 /* mask with lower N bits set */
@@ -20,10 +22,6 @@
  */
 #define BMASK2(M,N) (BMASK((M)+1)-BMASK(N))
 
-typedef void(*isrfunc)(unsigned);
-
-extern uint32_t RamSize;
-
 /* Shutdown the system from init.S */
 void halt(void);
 
@@ -31,8 +29,10 @@ void halt(void);
 void memcpy(void *dst, const void *src, size_t count);
 void memset(void *dst, uint8_t val, size_t count);
 
+/* from atag.c */
 int processATAG(uint32_t*);
 uint32_t board_id;
+extern uint32_t RamSize;
 extern const char *cmd_line;
 
 /* from printk.c */
@@ -44,10 +44,20 @@ void vprintk(unsigned i, const char *fmt, va_list args) __attribute__((format(pr
 void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 /* from irq.c */
+
+typedef void(*isrfunc)(unsigned);
+
 void irq_setup(void);
 int isr_install(unsigned vect, isrfunc fn);
 int isr_enable(unsigned vect);
 int isr_disable(unsigned vect);
+
+unsigned irq_mask(void);
+void irq_unmask(unsigned m);
+
+/* from page-alloc.c */
+void* page_alloc(void);
+void page_free(void* addr);
 
 /* register bases */
 #define A9_SYSCTRL_BASE ((volatile void*)0x10000000u)
@@ -111,7 +121,6 @@ uint32_t in8(volatile void *addr)
     return *(volatile uint8_t*)addr;
 }
 
-unsigned irq_mask(void);
-void irq_unmask(unsigned m);
+#define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
 
 #endif // COMMON_H
