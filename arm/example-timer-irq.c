@@ -11,10 +11,11 @@ static int done = 30;
 static
 void timerisr(unsigned v)
 {
+    int i;
     (void)v;
     out32(A9_TIMER_BASE_1+0x2C, 0xffffffff);
-    out8(A9_UART_BASE_1, '.');
-    __sync_sub_and_fetch(&done, 1);
+    i = __sync_sub_and_fetch(&done, 1);
+    printk(0, "T%u\n", i);
 }
 
 void Init(void)

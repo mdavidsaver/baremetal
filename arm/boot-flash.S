@@ -79,14 +79,14 @@ _memcpy_loop:
 /* cf. hw/arm/boot.c in QEMU source */
 _atag_start:
 .word 5
-.word 0x54410001
+.word 0x54410001 /* ATAG_CORE */
 .word 1
 .word 0x1000
 .word 0
 
 
 .word 4
-.word 0x54410002
+.word 0x54410002 /* ATAG_MEM */
 .word 1024*1024*RAM_SIZE
 .word 0x60000000
 
