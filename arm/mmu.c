@@ -122,6 +122,27 @@ int exc_data_fault(uint32_t *regs, uint32_t dfar, uint32_t dfsr, uint32_t* code)
     return 0;
 }
 
+int exc_prefetch_fault(uint32_t *regs, uint32_t ifar, uint32_t ifsr, uint32_t* code)
+{
+    unsigned i;
+    printk(0, "Prefetch fault while accessing %x\n", (unsigned)ifar);
+    printk(0, " ExT %c FS %x\n",
+           PBOOL(ifsr&(1<<12)),
+           (unsigned)( ((ifsr>>7)&0x10) | (ifsr&0xf)));
+    printk(0, "Address of instruction %p\n", code);
+
+    for(i=0; i<16; i++) {
+        printk(0, "r%u %x ", i, (unsigned)regs[i]);
+        if((i&3)==3)
+            putchar('\n');
+    }
+    printk(0, "CPSR %x\n", (unsigned)regs[16]);
+
+    /* TODO, walk the stack */
+
+    return 0;
+}
+
 /* The following would be useful if QEMU implemented the registers behind it, but alas it is not so.
  * Would still be useful on real hardware though.
  */

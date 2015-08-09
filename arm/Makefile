@@ -12,12 +12,13 @@ ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
 CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) $(OPT) -Wall -Wextra -Werror
 LDFLAGS=-static
 
-all: minimal-flash.img minimal-kern.bin timer-kern.bin os-kern.bin
+all: minimal-flash.img minimal-kern.bin timer-kern.bin mmu-kern.bin os-kern.bin
 
 OBJS = init.o common.o atag.o printk.o irq.o irq-setup.o mmu.o mmu-fault.o
 
 minimal-kern.elf: vexpress.ld example-minimal.o init.o common.o atag.o printk.o
 timer-kern.elf: vexpress.ld example-timer-irq.o init.o common.o atag.o printk.o irq.o irq-setup.o
+mmu-kern.elf: vexpress.ld example-mmu.o init.o common.o atag.o printk.o mmu.o mmu-fault.o
 os-kern.elf: vexpress.ld main.o $(OBJS)
 
 minimal-flash.elf: vexpress-flash.ld boot-flash-minimal.o

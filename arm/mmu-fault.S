@@ -3,15 +3,15 @@
 
 .section .text
 
-.global _bad_data
-_bad_data:
-  /* step the stack point back to make room for 16 gp registers and spsr.
-   * store in increasing order
-   * we will pass this to the C handler
-   */
+/* Call on entry to an exception handler
+ * push the registers of the interrupted state
+ * onto this exception mode stack
+ * Move the stack pointer back by 17*4 bytes
+ */
+.macro except_entry mymode=23
+  /* make room for 16 registers + spsr */
   sub sp, #17*4
-  stmia sp!, {r0-r7}
-  /* ok, now some breathing room */
+  stmia sp!, {r0-r7} /* store the first registers which are never banked */
 
   /* copy our banked registers before mode switch */
   mov r5, sp
@@ -21,9 +21,10 @@ _bad_data:
   /* find mode of the faulting operation */
   and r1, r7, #0x1f
 
-  cmp r1, #23
+  cmp r1, #\mymode
   it eq
-  beq _done /* oh no, its me. break the loop */
+  ldreq r1, =halt
+  bxeq r1 /* oh no, its me. break the loop */
 
   cmp r1, #16
   it eq
@@ -39,11 +40,15 @@ _bad_data:
 
   msr cpsr, r2 /* restore mode */
 
-  sub r3, r6, #8 /* the address of the faulting instruction */
-  stmia r5!, {r3,r7} /* store pc and spsr */
+  stmia r5!, {r6,r7} /* store pc and spsr */
+  sub sp, r5, #17*4 /* points back to the top of the stack (value of r0) */
+.endm
 
-  sub r0, r5, #17*4 /* r0 points to value of r0 at fault */
-  mov sp, r0
+.global _bad_data
+_bad_data:
+  except_entry 23
+
+  sub r3, lr, #8 /* the address of the faulting instruction */
 
   mrc p15, 0, r2, c5, c0, 0 /* read DFSR */
   mrc p15, 0, r1, c6, c0, 0 /* read DFAR */
@@ -51,9 +56,24 @@ _bad_data:
   ldr r4, =exc_data_fault
   blx r4
 
-  mov sp, r5 /* sp back to its entry value */
+  add sp, #17*5 /* sp back to its entry value */
 
-_done:
   ldr r4, =halt
   bx r4
 
+.global _bad_code
+_bad_code:
+  except_entry 23
+
+  sub r3, lr, #4 /* the address of the faulting instruction */
+
+  mrc p15, 0, r2, c5, c0, 1 /* read IFSR */
+  mrc p15, 0, r1, c6, c0, 2 /* read IFAR */
+
+  ldr r4, =exc_prefetch_fault
+  blx r4
+
+  add sp, #17*5 /* sp back to its entry value */
+
+  ldr r4, =halt
+  bx r4

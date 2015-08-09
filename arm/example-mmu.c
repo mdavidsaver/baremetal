@@ -31,3 +31,4 @@ void Init(void)
     printk(0, "oops %x\n", (unsigned)in32((void*)0x30000000));
 #endif
 }
+
