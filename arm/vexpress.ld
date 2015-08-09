@@ -14,7 +14,7 @@ SECTIONS
     {
       *(.text.start) /* ensure that vector table appears first */
       . += 0x1000;
-      *(.text)
+      *(.text .text.*)
     } =0 /* =0 zeros unused */
 
     .rodata :

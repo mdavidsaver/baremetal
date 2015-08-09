@@ -32,17 +32,17 @@ void page_alloc_setup(void)
     startaddr += pages_for_info*PAGE_SIZE;
     page_start = startaddr;
 
+    page_info_base[0].prev = NULL;
     page_info_base[0].next = &page_info_base[1];
-    page_info_base[0].prev = 0;
     for(i=1; i<npages-1; i++)
     {
         page_info_base[i].prev = &page_info_base[i-1];
         page_info_base[i].next = &page_info_base[i+1];
     }
-    page_info_base[npages-1].next = 0;
+    page_info_base[npages-1].next = NULL;
     page_info_base[npages-1].prev = &page_info_base[npages-2];
 
-    first_free = &first_free[0];
+    first_free = &page_info_base[0];
 }
 
 
@@ -77,6 +77,8 @@ void page_free(void* addr)
     unsigned mask;
     size_t idx;
     page_info *info;
+
+    if(!addr) return;
 
     if(addr>page_start) goto badaddr;
     idx = (addr-page_start)/PAGE_SIZE;
