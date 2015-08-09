@@ -3,8 +3,6 @@
 
 #define BIGPAGE (1<<20)
 
-#define ROM0_BASE 0
-#define ROM0_SIZE 0x04000000
 
 #define IO1_BASE 0x10000000
 #define IO1_SIZE 0x000e5000
@@ -25,16 +23,6 @@ void mmu_build_L1(void)
     if(!ramsize) {
         ramsize = 64*(1<<20);
         printk(0, "Unknown RAM size, assuming %d\n", (int)ramsize);
-    }
-
-    /* Create read-only 1MB entries for ROM 0 alias */
-    for(i=ROM0_BASE; i<ROM0_BASE+ROM0_SIZE; i+=BIGPAGE)
-    {
-        uint32_t ent = (i&0xfff00000) | 2;
-        ent |= (1<<16) | (1<<3) | (1<<2); /* sharable, cachable, and bufferable (Normal memory) */
-        ent |= (1<<15) | (2<<10); /* read-only both privlaged and user */
-
-        mmu_L1_table[i/BIGPAGE] = ent;
     }
 
     /* mapping for first range of device I/O */
