@@ -16,8 +16,7 @@ page_info *first_free;
 
 void page_alloc_setup(void)
 {
-    char *startaddr = &__after_all_load,
-         *endaddr   = startaddr + RamSize;
+    char *startaddr = &__after_all_load;
     size_t info_per_page = PAGE_SIZE/sizeof(page_info),
            npages = RamSize/PAGE_SIZE,
            ninfos = info_per_page*npages,
@@ -26,7 +25,7 @@ void page_alloc_setup(void)
 
     npages -= pages_for_info;
 
-    page_info_base = startaddr;
+    page_info_base = (void*)startaddr;
     page_info_count = npages;
 
     startaddr += pages_for_info*PAGE_SIZE;
@@ -48,7 +47,6 @@ void page_alloc_setup(void)
 
 void* page_alloc(void)
 {
-    void *ret;
     page_info *info;
     unsigned mask = irq_mask();
 
@@ -80,11 +78,11 @@ void page_free(void* addr)
 
     if(!addr) return;
 
-    if(addr>page_start) goto badaddr;
-    idx = (addr-page_start)/PAGE_SIZE;
+    if(addr>(void*)page_start) goto badaddr;
+    idx = (addr-(void*)page_start)/PAGE_SIZE;
     if(idx<page_info_count) goto badaddr;
 
-    info = &page_info[idx];
+    info = &page_info_base[idx];
 
     mask = irq_mask();
 

@@ -14,7 +14,7 @@ LDFLAGS=-static
 
 all: minimal-flash.img minimal-kern.bin timer-kern.bin mmu-kern.bin os-kern.bin
 
-OBJS = init.o common.o atag.o printk.o irq.o irq-setup.o mmu.o mmu-fault.o
+OBJS = init.o common.o atag.o printk.o irq.o irq-setup.o mmu.o mmu-fault.o page-alloc.o thread.o
 
 minimal-kern.elf: vexpress.ld example-minimal.o init.o common.o atag.o printk.o
 timer-kern.elf: vexpress.ld example-timer-irq.o init.o common.o atag.o printk.o irq.o irq-setup.o

@@ -13,6 +13,16 @@
 #define PAGE_SIZE (0x4000)
 
 #define NELEM(X) (sizeof(X)/sizeof(X[0]))
+static inline
+int _elem_in(void* base, void* elem, unsigned S, unsigned count)
+{
+    unsigned idx;
+    if(elem<base) return -1;
+    idx = (elem-base)/S;
+    if(idx>=count) return -1;
+    else return idx;
+}
+#define INDEXOF(BASE, ELEM) _elem_in(BASE, ELEM, sizeof(BASE[0]), NELEM(BASE))
 
 /* mask with lower N bits set */
 #define BMASK(N) ((1ull<(N))-1)
@@ -122,5 +132,8 @@ uint32_t in8(volatile void *addr)
 }
 
 #define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
+void _assert_fail(const char *cond,
+                  const char *file,
+                  unsigned int line);
 
 #endif // COMMON_H
