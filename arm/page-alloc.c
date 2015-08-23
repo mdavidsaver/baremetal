@@ -64,9 +64,12 @@ void* page_alloc(void)
 
     assert(info>page_info_base);
     {
+        char *page;
         size_t idx = (info-page_info_base)/sizeof(*info);
         assert(idx<page_info_count);
-        return page_start + idx*PAGE_SIZE;
+        page = page_start + idx*PAGE_SIZE;
+        memset(page, 0, PAGE_SIZE);
+        return page;
     }
 }
 

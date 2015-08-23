@@ -5,29 +5,36 @@
  */
 
 #include "common.h"
-#include "mmu.h"
+#include "thread.h"
 
-static volatile int foo = -424242; /* I'm in ram */
+thread_id T0, T1, T2;
 
-static volatile const int bar = -242424; /* I'm in ROM */
+void* thread1(void *user)
+{
+    printk(0, "thread 1 %p\n", user);
+    return NULL;
+}
+
+void* thread2(void *user)
+{
+    printk(0, "thread 1 %p\n", user);
+    return NULL;
+}
 
 void Init(void)
 {
-    printk(0, "Enabling MMU\n");
-    mmu_setup();
-    printk(0, "Wow, still alive!\n");
+    thread_options opts;
 
-    printk(0, "Read ROM %d\n", bar);
-    printk(0, "Read RAM %d\n", foo);
+    opts.prio = 1;
 
-    printk(0, "But not for long!\n");
-#if 0
-    {
-        void (*fn)(void);
-        fn = 0;
-        (*fn)();
-    }
-#else
-    printk(0, "oops %x\n", (unsigned)in32((void*)0x30000000));
-#endif
+    printk(0, "Setup threading\n");
+    thread_setup();
+
+    T0 = thread_current();
+    T1 = thread_create(&opts, &thread1, &thread1);
+    T2 = thread_create(&opts, &thread2, &thread2);
+
+    printk(0, "main() is %u\n", T0);
+    printk(0, "thread1() is %u\n", T1);
+    printk(0, "thread2() is %u\n", T2);
 }

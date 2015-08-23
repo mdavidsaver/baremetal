@@ -43,6 +43,7 @@ _vec_irq:
   str r2, [r0, #0x10]
 
 _irq_done:
+  blx _thread_schedule
   pop {r0}
   msr spsr, r0
   pop {r0-r3,r12,lr}
@@ -59,6 +60,12 @@ _irq_bad:
   bl invalid_irq_vector
   b _irq_done
 
+/* thread scheduler stub */
+.global _thread_schedule
+_thread_schedule:
+  bx lr
+
+.weak _thread_schedule
 
 .global irq_mask
 irq_mask:
@@ -69,13 +76,11 @@ irq_mask:
   /* returns the previous value of the irq mask bit */
   /* return 0 if interrupt just disabled, 1 if previously disabled */
   dmb
-  isb
   bx lr
 
 .global irq_unmask
 irq_unmask:
   dmb
-  isb
   cmp r0, #0
   bxne lr
   mrs r1, cpsr
