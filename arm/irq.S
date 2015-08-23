@@ -30,6 +30,12 @@ _thread_schedule:
 
 .weak _thread_schedule
 
+.global isr_dispatch
+isr_dispatch:
+  b isr_dispatch /* get stuck */
+
+.weak isr_dispatch
+
 .global irq_mask
 irq_mask:
   mrs r1, cpsr
