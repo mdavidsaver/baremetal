@@ -1,6 +1,8 @@
 
 #include "common.h"
 
+/* start of physical RAM */
+char __ram_start;
 /* first byte in RAM after code and static data */
 char __after_all_load;
 
@@ -16,14 +18,26 @@ page_info *first_free;
 
 void page_alloc_setup(void)
 {
-    char *startaddr = &__after_all_load;
+    char *startaddr = _PAGE_UP(&__after_all_load),
+         *endaddr = _PAGE_UP((&__ram_start)+RamSize);
     size_t info_per_page = PAGE_SIZE/sizeof(page_info),
-           npages = RamSize/PAGE_SIZE,
-           ninfos = info_per_page*npages,
-           pages_for_info = ninfos/info_per_page,
+           dynsize = endaddr-startaddr,
+           npages = dynsize/PAGE_SIZE,
+           ninfos = 0,
+           pages_for_info = 0,
            i;
 
-    npages -= pages_for_info;
+    {
+        while(ninfos<npages) {
+            ninfos += info_per_page;
+            npages--;
+            pages_for_info++;
+        }
+    }
+
+    assert(npages>0);
+    assert(pages_for_info>0);
+    assert(ninfos>=npages);
 
     page_info_base = (void*)startaddr;
     page_info_count = npages;
@@ -33,13 +47,13 @@ void page_alloc_setup(void)
 
     page_info_base[0].prev = NULL;
     page_info_base[0].next = &page_info_base[1];
-    for(i=1; i<npages-1; i++)
+    for(i=1; i<page_info_count-1; i++)
     {
         page_info_base[i].prev = &page_info_base[i-1];
         page_info_base[i].next = &page_info_base[i+1];
     }
-    page_info_base[npages-1].next = NULL;
-    page_info_base[npages-1].prev = &page_info_base[npages-2];
+    page_info_base[page_info_count-1].next = NULL;
+    page_info_base[page_info_count-1].prev = &page_info_base[page_info_count-2];
 
     first_free = &page_info_base[0];
 }
@@ -62,7 +76,8 @@ void* page_alloc(void)
 
     if(!info) return NULL;
 
-    assert(info>page_info_base);
+    assert(info>=page_info_base);
+    assert((size_t)(info-page_info_base)<page_info_count);
     {
         char *page;
         size_t idx = (info-page_info_base)/sizeof(*info);

@@ -5,11 +5,17 @@ OUTPUT_ARCH (arm)
 ENTRY(_setup)
 
 MEMORY {
-  ram (rwx) : ORIGIN = 0x60010000, LENGTH = 16M
+  ram (rwx) : ORIGIN = 0x60000000, LENGTH = 16M
 }
 
 SECTIONS
 {
+    /* place holder for bootloader's ram */
+    .bootloader (NOLOAD) : {
+        __ram_start = .;
+        . += 0x10000;
+    }
+
     .text :
     {
       *(.text.start) /* ensure that vector table appears first */

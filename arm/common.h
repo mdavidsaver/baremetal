@@ -11,6 +11,11 @@
 #include <stddef.h>
 
 #define PAGE_SIZE (0x4000)
+#define PAGE_MASK (PAGE_SIZE-1)
+/* round address down to start of page */
+#define _PAGE_START(A) (void*)( (size_t)(A)&~PAGE_MASK)
+/* round address up to start of next page (if not already page aligned) */
+#define _PAGE_UP(A) (void*)( 1+(((size_t)(A)-1)|PAGE_MASK))
 
 #define NELEM(X) (sizeof(X)/sizeof(X[0]))
 static inline
@@ -44,6 +49,9 @@ int processATAG(uint32_t*);
 uint32_t board_id;
 extern uint32_t RamSize;
 extern const char *cmd_line;
+
+/* from page-alloc.c */
+void page_alloc_setup(void);
 
 /* from printk.c */
 void puthex(uint32_t v);
