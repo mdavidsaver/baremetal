@@ -1,4 +1,4 @@
-
+/* Handling of ARM Global Interrupt Controller */
 #include "common.h"
 
 isrfunc irq_table[64];
@@ -70,4 +70,22 @@ int isr_disable(unsigned vect)
     out32(A9_PIC_CONF+0x184+vect, 1<<bit);
     irq_unmask(mask);
     return 0;
+}
+
+void isr_dispatch(void)
+{
+    /* acknowledge/take responsibility for an active interrupt */
+    unsigned vec = in32(A9_PIC_CPU_SELF);
+
+    if(vec<32 || vec>=96)
+    {
+        if(vec==0x3ff)
+            return; /* ignore spurious */
+        invalid_irq_vector(vec);
+        return;
+    }
+
+    irq_table[vec-32](vec);
+
+    out32(A9_PIC_CPU_SELF+0x10, vec); /* IACK */
 }
