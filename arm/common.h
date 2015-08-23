@@ -66,6 +66,7 @@ void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3))
 typedef void(*isrfunc)(unsigned);
 
 void irq_setup(void);
+void irq_show(void);
 int isr_install(unsigned vect, isrfunc fn);
 int isr_enable(unsigned vect);
 int isr_disable(unsigned vect);

@@ -12,9 +12,11 @@ _vec_irq:
 
   /* TODO, VFP registers? */
 
-  blx isr_dispatch
+  ldr r0, =isr_dispatch
+  blx r0
 
-  blx _thread_schedule
+  ldr r0, =_thread_schedule
+  blx r0
 
   pop {r0}
   msr spsr, r0

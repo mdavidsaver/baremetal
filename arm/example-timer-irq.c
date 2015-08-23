@@ -35,6 +35,8 @@ void Init(void)
     /* enable 32-bit periodic w/ irq, scale/1 */
     out32(A9_TIMER_BASE_1+0x28, 0b11100010);
 
+    irq_show();
+
     printk(0, "\nGo\n");
     {
         while(__sync_fetch_and_add(&done,0)>0) {}
