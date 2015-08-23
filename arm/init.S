@@ -1,6 +1,8 @@
 .arm
 .syntax unified
 
+#include "armv7-ar.h"
+
 .section .text.start
 .global _vec_reset
 
@@ -19,6 +21,10 @@ _vec_fiq  : ldr pc,=_vec_fiq
 .section .text
 .global _setup
 _setup:
+  /* setup system mode stack */
+  cpsid if, #ARM_MODE_SYS
+  ldr sp, =_sys_stack_top
+
   /* look for bootloader info (-kernel mode only) */
   cmp r1, #0x8e0 /* boardid for vexpress-a9 */
   /* cmpne r1, #other */
@@ -29,11 +35,20 @@ _setup:
   movne r5, #0
   /* careful to avoid clobbering r4 and r5 until they can be stored */
 
-  bl _cpu_cleanup
+  /* do a little test that we can write to the stack.
+   * Will fail if the stack was placed in ROM.
+   */
+  mov r0, #0x42
+  push {r0}
+  pop {r0}
+  cmp r0, #0x42
+  bne halt
+
+  bl _cpu_cleanup /* disable MMU */
 
   /* show some life */
   adr r0, _early_string1
-  bl xputs
+  bl puts
 
   /* prepare C environment */
   bl _zero_bss
@@ -50,13 +65,8 @@ _setup:
   mov r0, r5 /* board info */
   blx processATAG /* first C function */
 
-  ldr r0, =irq_setup /* weak symbol */
-  blx r0
-
-  cpsie i /* enable IRQ */
-
   adr r0, _early_string2
-  bl xputs
+  bl puts
 
   blx Init /* jump to "main" */
 
@@ -65,10 +75,12 @@ _setup:
 .global halt
 .align 4
 halt:
+  ldr sp, =_sys_stack_top
+
   /* request shutdown */
 
   ldr r0, =_late_string1
-  bl xputs
+  bl puts
 
   /* load sysctrl register base */
   ldr r0, =0x10000000
@@ -83,21 +95,6 @@ halt:
 _stuck:
   b _stuck
 
-/* output a nil terminated string to UART 1 */
-xputs:
-  sub r0, #1 /* the pointer back by one to use pre-index load below */
-
-  ldr r2, =0x10009000
-
-_puts_loop:
-  ldrb r1, [r0, #1]!
-  cmp r1, #0
-  it ne
-  strbne r1, [r2]
-  bne _puts_loop
-
-  bx lr
-
 /* Assumes that .bss load, start, and end addresses are aligned to 4 bytes.
  * This must be ensured in the linker script
  */
@@ -106,16 +103,12 @@ _zero_bss:
   mov r0, #0
   ldr r1, =__bss_start
   ldr r2, =__bss_end
-  sub r2, r1
-
-  sub r1, #4          /* we will use pre-indexed store */
 
 _bss_loop:
-  cmp r2, #0
-  itt ne
-  strne r0, [r1, #4]!  /* *(++r1) = r0 where r1 is uint32_t* */
-  subne r2, #4
-  bne _bss_loop
+  cmp r1, r2
+  itt lt
+  strlt r0, [r1], #4  /* *r1++ = r0 where r1 is uint32_t* */
+  blt _bss_loop
 
   bx lr
 
@@ -133,60 +126,35 @@ _move_data:
   bxeq lr
 
   ldr r2, =__data_end
-  sub r2, r2, r1
-
-  sub r0, #4
-  sub r1, #4
 
 _data_loop:
-  cmp r2, #0
-  itttt ne
-  ldrne r3, [r0, #4]!
-  strne r3, [r1, #4]!
-  subne r2, #4
-  bne _data_loop
+  cmp r1, r2
+  ittt lt
+  ldrlt r3, [r0], #4
+  strlt r3, [r1], #4
+  blt _data_loop
+
   bx lr
 
 _setup_stacks:
   mov r3, lr /* msr clobbers lr */
 
-  /* setup CPSR */
-  mrs r0, cpsr
-  bic r0, r0, #0x1f /* clear mode bits */
-  orr r0, r0, #0xc0 /* set to disable IRQ and FIQ */
-
-  orr r1, r0, #27 /* UND Mode */
-  msr cpsr, r1
+  cpsid if, #ARM_MODE_UND
   ldr sp, =_und_stack_top
 
-  orr r1, r0, #23 /* abort Mode */
-  msr cpsr, r1
-  ldr sp, =_bad_stack_top
+  cpsid if, #ARM_MODE_ABT
+  ldr sp, =_und_stack_top
 
-  orr r1, r0, #18 /* IRQ Mode */
-  msr cpsr, r1
+  cpsid if, #ARM_MODE_IRQ
   ldr sp, =_irq_stack_top
 
-  orr r1, r0, #17 /* FIQ Mode */
-  msr cpsr, r1
+  cpsid if, #ARM_MODE_FIQ
   ldr sp, =_fiq_stack_top
 
-  orr r1, r0, #0x19 /* Supvervisor Mode */
-  msr cpsr, r1
+  cpsid if, #ARM_MODE_SVC
   ldr sp, =_svc_stack_top
 
-  orr r1, r0, #0x1f /* System Mode */
-  msr cpsr, r1
-  ldr sp, =_sys_stack_top
-
-  /* do a little test that we can write to the stack.
-   * Will fail if the stack was placed in ROM.
-   */
-  mov r0, #0x42
-  push {r0}
-  pop {r0}
-  cmp r0, #0x42
-  bne halt
+  cpsid if, #ARM_MODE_SYS
 
   bx r3
 
@@ -194,7 +162,7 @@ _setup_stacks:
  * careless bootloader might leave turned on.
  * QEMU does not do this (so far).
  *
- * based on chapter 3 of the programmers guide.
+ * based on chapter 3 of the cortex-a9 programmers guide.
  */
 _cpu_cleanup:
   /* read system control register (SCTLR) */
@@ -280,13 +248,6 @@ _bad_data:
   b halt
 
 .weak _bad_data
-
-/* stub for early PIC setup */
-.global irq_setup
-irq_setup:
-  bx lr
-
-.weak irq_setup
 
 /* keep these strings in .text so they are always available */
 _early_string1:

@@ -29,6 +29,8 @@ void irq_setup(void)
 
     out32(A9_PIC_CONF+0x104, 0x0000004);
     out32(A9_PIC_CONF+0, 1); /* PIC Enable */
+
+    asm volatile ("dmb\n cpsie i" ::: "memory");
 }
 
 int isr_install(unsigned vect, isrfunc fn)

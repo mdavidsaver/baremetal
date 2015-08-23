@@ -14,6 +14,24 @@ void memcpy(void *dst, const void *src, size_t count)
         *cdst++ = *csrc++;
 }
 
+void memmove(void *dst, const void *src, size_t count)
+{
+    char *cdst = dst;
+    const char *csrc = src;
+    if(cdst==csrc) return;
+    else if(cdst>csrc) {
+        /* copy from back to front */
+        cdst += count;
+        csrc += count;
+        while(count--)
+            *--cdst = *--csrc;
+    } else { /* cdst<csrc */
+        /* copy from front to back */
+        while(count--)
+            *cdst++ = *csrc++;
+    }
+}
+
 void memset(void *dst, uint8_t val, size_t count)
 {
     char *cdst = dst;

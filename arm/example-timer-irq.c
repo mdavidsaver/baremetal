@@ -20,6 +20,7 @@ void timerisr(unsigned v)
 
 void Init(void)
 {
+    irq_setup();
     printk(0, "hello\n");
 
     // first timer is ID34 in the pic

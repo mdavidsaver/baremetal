@@ -54,6 +54,13 @@ void putchar(char c)
     out8(A9_UART_BASE_1, c);
 }
 
+void puts(const char *str)
+{
+    char c;
+    while( (c=*str++)!='\0' )
+        out8(A9_UART_BASE_1, c);
+}
+
 void vprintk(unsigned i, const char *fmt, va_list args)
 {
     char c;

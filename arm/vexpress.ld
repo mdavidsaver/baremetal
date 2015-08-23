@@ -19,7 +19,6 @@ SECTIONS
     .text :
     {
       *(.text.start) /* ensure that vector table appears first */
-      . += 0x1000;
       *(.text .text.*)
     } =0 /* =0 zeros unused */
 
@@ -41,7 +40,6 @@ SECTIONS
     __bss_start = .;
     *(COMMON)
     *(.bss .bss.* .gnu.linkonce.b.*)
-
     __bss_end = .;
   }
 
