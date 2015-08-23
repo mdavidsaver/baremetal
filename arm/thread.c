@@ -2,6 +2,8 @@
 #include "common.h"
 #include "thread.h"
 
+//#define THREAD_DEBUG 1
+
 typedef struct {
     thread *first, *last;
 } thread_prio;
@@ -104,8 +106,6 @@ void thread_list_remove(thread *threadptr)
         prio->first = threadptr->next;
     if(threadptr == prio->last)
         prio->last = threadptr->prev;
-    if(threadptr == current_thread)
-        current_thread = NULL;
 }
 
 void thread_setup(void)
@@ -158,7 +158,7 @@ thread_id thread_current(void)
 
     if(!cur) return INVALID_THREAD;
 
-    return (cur-&all_threads[0])/sizeof(*cur);
+    return INDEXOF(all_threads, cur);
 }
 
 thread_id thread_create(thread_options* opt,
@@ -229,6 +229,12 @@ int thread_suspend(thread_id threadidx)
     threadptr = &all_threads[threadidx];
 
     mask = irq_mask();
+
+#ifdef THREAD_DEBUG
+    printk(0, "thread_suspend(%u) %u (%p %p)\n", threadidx,
+           threadptr->suspend_count, threadptr, current_thread);
+#endif
+
     switch(threadptr->state)
     {
     case thread_state_runable:
@@ -245,10 +251,18 @@ int thread_suspend(thread_id threadidx)
         break;
     default:
         ret = -1;
+        assert(0);
     }
 
-    if(threadptr==current_thread)
+    if(threadptr==current_thread && threadptr->state==thread_state_stopped) {
+#ifdef THREAD_DEBUG
+        printk(0, "Reschedule\n");
+#endif
+        /* suspend self must re-schedule */
         _thread_schedule();
+        assert(threadptr==current_thread);
+        assert(threadptr->state==thread_state_runable);
+    }
 
     irq_unmask(mask);
 
@@ -263,6 +277,11 @@ int thread_resume(thread_id threadidx)
 
     if(threadidx>NELEM(all_threads)) return -1;
     threadptr = &all_threads[threadidx];
+
+#ifdef THREAD_DEBUG
+    printk(0, "thread_resume(%u) %u\n", threadidx,
+           threadptr->suspend_count);
+#endif
 
     mask = irq_mask();
     switch(threadptr->state)
@@ -311,8 +330,13 @@ void _thread_schedule(void)
 {
     thread *cur = current_thread,
            *next = thread_schedule_next();
+#ifdef THREAD_DEBUG
+    printk(0, "_thread_schedule(%p, %p)\n", cur, next);
+#endif
     if(cur==next)
         return;
+    thread_list_remove(next);
+    thread_list_append(next);
     current_thread = next;
     _thread_switch(cur, next);
 }
