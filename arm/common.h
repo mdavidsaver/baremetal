@@ -70,6 +70,7 @@ void irq_show(void);
 int isr_install(unsigned vect, isrfunc fn);
 int isr_enable(unsigned vect);
 int isr_disable(unsigned vect);
+int isr_active(void);
 
 unsigned irq_mask(void);
 void irq_unmask(unsigned m);

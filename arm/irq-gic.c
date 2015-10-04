@@ -2,6 +2,8 @@
 #include "common.h"
 
 isrfunc irq_table[64];
+static
+int am_in_isr;
 
 void invalid_irq_vector(unsigned vect)
 {
@@ -39,7 +41,7 @@ int isr_install(unsigned vect, isrfunc fn)
     if(vect<32 || vect>=96)
         return 1;
     mask = irq_mask();
-    if(irq_table[vect-32])
+    if(irq_table[vect-32]!=&invalid_irq_vector)
         ret = 1;
     else
         irq_table[vect-32] = fn;
@@ -84,11 +86,21 @@ void isr_dispatch(void)
     {
         if(vec==0x3ff)
             return; /* ignore spurious */
+        am_in_isr = 1;
         invalid_irq_vector(vec);
-    } else
+    } else {
+        am_in_isr = 1;
         irq_table[vec-32](vec);
+    }
+
+    am_in_isr = 0;
 
     out32(A9_PIC_CPU_SELF+0x10, vec); /* EoI */
+}
+
+int isr_active(void)
+{
+    return !!am_in_isr;
 }
 
 void irq_show(void)
