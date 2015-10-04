@@ -46,6 +46,7 @@ void page_alloc_setup(void)
     printk(0, "npages %u\n", (unsigned)npages);
     printk(0, "ninfos %u\n", (unsigned)ninfos);
     printk(0, "pages_for_info %u\n", (unsigned)pages_for_info);
+    printk(0, "sizeof(page_info) 0x%x\n", (unsigned)sizeof(page_info));
 #endif
 
     assert(npages>0);
@@ -85,6 +86,7 @@ void* page_alloc(void)
 
     info = first_free;
     if(info) {
+        /* pop from head of list */
         first_free = info->next;
         if(info->next)
             info->next->prev = NULL;
@@ -97,16 +99,24 @@ void* page_alloc(void)
 
     irq_unmask(mask);
 
-    if(!info) return NULL;
+    if(!info) {
+#ifdef PAGE_DEBUG
+        printk(0, "page_alloc() -> NULL\n");
+#endif
+        return NULL;
+    }
 
     assert(info>=page_info_base);
     assert((size_t)(info-page_info_base)<page_info_count);
     {
         char *page;
-        size_t idx = (info-page_info_base)/sizeof(*info);
+        size_t idx = (info-page_info_base);
         assert(idx<page_info_count);
         page = page_start + idx*PAGE_SIZE;
         memset(page, 0, PAGE_SIZE);
+#ifdef PAGE_DEBUG
+        printk(0, "page_alloc() -> %p (%u %p)\n", page, (unsigned)idx, info);
+#endif
         return page;
     }
 }
@@ -117,7 +127,12 @@ void page_free(void* addr)
     size_t idx;
     page_info *info;
 
-    if(!addr) return;
+    if(!addr) {
+#ifdef PAGE_DEBUG
+        printk(0, "page_free(NULL)\n");
+#endif
+        return;
+    }
 
     if(addr<(void*)page_start) goto badaddr;
     idx = (addr-(void*)page_start)/PAGE_SIZE;
@@ -125,7 +140,15 @@ void page_free(void* addr)
 
     info = &page_info_base[idx];
 
+#ifdef PAGE_DEBUG
+        printk(0, "page_free(%p)  (%u %p)\n", addr, (unsigned)idx, info);
+#endif
+
     mask = irq_mask();
+    if(!info->allocd) {
+        printk(0, "Already free'd %p\n", addr);
+        halt();
+    }
     assert(info->allocd);
     info->allocd = 0;
     pages_free++;
