@@ -14,7 +14,7 @@ typedef struct page_info {
 } page_info;
 
 page_info *page_info_base;
-size_t page_info_count;
+size_t page_info_count, pages_free;
 char *page_start;
 
 page_info *first_free;
@@ -53,7 +53,7 @@ void page_alloc_setup(void)
     assert(ninfos>=npages);
 
     page_info_base = (void*)startaddr;
-    page_info_count = npages;
+    pages_free = page_info_count = npages;
 
     startaddr += pages_for_info*PAGE_SIZE;
     page_start = startaddr;
@@ -91,6 +91,8 @@ void* page_alloc(void)
         info->next = info->prev = NULL;
         assert(!info->allocd);
         info->allocd = 1;
+        assert(pages_free>0);
+        pages_free--;
     }
 
     irq_unmask(mask);
@@ -126,6 +128,8 @@ void page_free(void* addr)
     mask = irq_mask();
     assert(info->allocd);
     info->allocd = 0;
+    pages_free++;
+    assert(pages_free<=page_info_count);
 
     info->next = first_free;
     first_free = info;
@@ -137,4 +141,14 @@ void page_free(void* addr)
     return;
 badaddr:
     printk(0, "Can't free non-heap %p.  leaking\n", addr);
+}
+
+size_t page_free_count(void)
+{
+    size_t ret;
+    unsigned mask;
+    mask = irq_mask();
+    ret = pages_free;
+    irq_unmask(mask);
+    return ret;
 }
