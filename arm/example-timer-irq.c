@@ -24,7 +24,7 @@ void Init(void)
     printk(0, "hello\n");
 
     // first timer is ID34 in the pic
-    isr_install(34, &timerisr); // disable ~ID34
+    isr_install(34, &timerisr);
     isr_enable(34);
 
     //out32(A9_PIC_CONF+0xf00, 0x2000001); // soft interrupt 1

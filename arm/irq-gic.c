@@ -35,12 +35,16 @@ void irq_setup(void)
 int isr_install(unsigned vect, isrfunc fn)
 {
     unsigned mask;
+    int ret = 0;
     if(vect<32 || vect>=96)
         return 1;
     mask = irq_mask();
-    irq_table[vect-32] = fn;
+    if(irq_table[vect-32])
+        ret = 1;
+    else
+        irq_table[vect-32] = fn;
     irq_unmask(mask);
-    return 0;
+    return ret;
 }
 
 int isr_enable(unsigned vect)

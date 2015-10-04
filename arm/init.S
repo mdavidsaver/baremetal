@@ -1,6 +1,7 @@
 .arm
 .syntax unified
 
+#include "asm.h"
 #include "armv7-ar.h"
 
 .section .text.start
@@ -20,7 +21,10 @@ _vec_fiq  : ldr pc,=_vec_fiq
 
 .section .text
 .global _setup
+.type _setup, function
 _setup:
+.fnstart
+.cantunwind
   /* setup system mode stack */
   cpsid if, #ARM_MODE_SYS
   ldr sp, =_sys_stack_top
@@ -70,9 +74,12 @@ _setup:
 
   blx Init /* jump to "main" */
 
+.fnend
+.size _setup, .-_setup
   /* fall through to halt */
 
 .global halt
+.type halt, function
 .align 4
 halt:
   ldr sp, =_sys_stack_top
@@ -94,6 +101,7 @@ halt:
 
 _stuck:
   b _stuck
+.size halt, .-halt
 
 /* Assumes that .bss load, start, and end addresses are aligned to 4 bytes.
  * This must be ensured in the linker script

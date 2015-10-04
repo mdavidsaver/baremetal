@@ -9,5 +9,6 @@
 #define ARM_MODE_ABT 23
 #define ARM_MODE_UND 27
 #define ARM_MODE_SYS 31
+#define ARM_MODE_MASK 0x1f
 
 #endif // ARM_H
