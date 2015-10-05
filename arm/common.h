@@ -51,7 +51,7 @@ void memset(void *dst, uint8_t val, size_t count);
 
 /* from atag.c */
 int processATAG(uint32_t*);
-uint32_t board_id;
+extern uint32_t board_id;
 extern uint32_t RamSize;
 extern const char *cmd_line;
 
