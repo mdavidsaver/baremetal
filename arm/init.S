@@ -48,7 +48,7 @@ _setup:
   cmp r0, #0x42
   bne halt
 
-  bl _cpu_cleanup /* disable MMU */
+  blx cpu_cleanup /* disable and clear MMU and caches */
 
   /* show some life */
   adr r0, _early_string1
@@ -175,56 +175,6 @@ _setup_stacks:
   cpsid if, #ARM_MODE_SYS
 
   bx r3
-
-/* "cleanup" means shutting down CPU features which a
- * careless bootloader might leave turned on.
- * QEMU does not do this (so far).
- *
- * based on chapter 3 of the cortex-a9 programmers guide.
- */
-_cpu_cleanup:
-  /* read system control register (SCTLR) */
-  mrc p15, 0, r0, c1, c0, 0
-  /* Disable MMU and L1 D cache */
-  bic r0, #0b0000000000000101
-  /* disable L1 I cache and branch prediction */
-  bic r0, #0b0001100000000000
-  mcr p15, 0, r0, c1, c0, 0
-
-  /* invalidate L1 caches */
-  mov r0, #0
-  mcr p15, 0, r0, c7, c5, 0 /* read ICIALLU (QEMU nop) */
-
-  /* invalidate data cache */
-  /* read CCSIDR cache size id register
-   */
-  mrc p15, 1, r0, c0, c0, 0
-  mov r3, #0x0ff
-  orr r3, #0x100
-  /* r0 = r3 & (r0>>13) = number of cache sets */
-  and r0, r3, r0, lsr #13
-
-  mov r1, #0 /* way counter */
-way_loop:
-
-  mov r3, #0 /* set counter */
-set_loop:
-
-  mov r2, r1, lsl #30     /* r2  = r1<<30 */
-  orr r2, r2, r3, lsl #5  /* r2 |= r2<<5 */
-  /* write DCISW to invalidate cache line (QEMU nop) */
-  mcr p15, 0, r2, c7, c6, 2
-  add r3, #1
-  cmp r0, r3
-  bne set_loop
-
-  add r1, #1
-  cmp r1, #4 /* 4 way L1 cache */
-  bne way_loop
-
-  mcr p15, 0, r1, c8, c7, 0 /* write TLBIALL to invalidate TLB */
-
-  bx lr
 
 /* default handler for _vec_undef (undefined instruction) */
 .global _bad_instr

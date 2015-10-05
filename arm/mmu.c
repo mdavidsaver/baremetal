@@ -3,7 +3,7 @@
 
 #define BIGPAGE (1<<20)
 
-
+/* for vexpress-a9 board */
 #define IO1_BASE 0x10000000
 #define IO1_SIZE 0x000e5000
 
@@ -87,7 +87,7 @@ void mmu_setup(void)
         uint32_t ctrl;
         asm volatile("mrc p15, 0, %0, c1, c0, 0" : "=r"(ctrl):: "memory"); /* read SCTLR */
         ctrl |= (1<<0); /* MMU Enable */
-        asm volatile("mcr p15, 0, %0, c1, c0, 0" :: "r"(ctrl): "memory"); /* read SCTLR */
+        asm volatile("mcr p15, 0, %0, c1, c0, 0" :: "r"(ctrl): "memory"); /* write SCTLR */
     }
 
     asm volatile("isb\r\ndmb\r\ndsb" ::: "memory");
