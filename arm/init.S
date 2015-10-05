@@ -67,20 +67,27 @@ _setup:
   mcr p15, 0, r0, c12, c0, 0
 
   mov r0, r5 /* board info */
-  blx processATAG /* first C function */
+  blx processATAG
 
   adr r0, _early_string2
   bl puts
 
+  blx __run_init /* run C++ static ctors */
+
   blx Init /* jump to "main" */
 
-.fnend
-.size _setup, .-_setup
+  blx __run_fini /* run C++ static dtors */
+
   /* fall through to halt */
+
+.global abort
+.type abort, function
+.align 4
 
 .global halt
 .type halt, function
 .align 4
+abort:
 halt:
   ldr sp, =_sys_stack_top
 
@@ -101,6 +108,9 @@ halt:
 
 _stuck:
   b _stuck
+.fnend
+.size _setup, .-_setup
+.size abort, .-abort
 .size halt, .-halt
 
 /* Assumes that .bss load, start, and end addresses are aligned to 4 bytes.
