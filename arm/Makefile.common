@@ -1,0 +1,43 @@
+libos.a: $(OBJS) magic-crt0
+
+magic-crt0: crt0.o
+
+.PHONY: magic-crt0
+
+boot-flash-%.o: %-kern.bin ../boot-flash.S
+	$(GCC) -c ../boot-flash.S -o $@ $(CFLAGS) -DRAM_SIZE=64 -DBOARD_VEXPRESSA9 -DBIN_FILE="\"$<\""
+
+
+clean:
+	rm -f *.o *.elf *.map *.bin *.img *.a
+
+%.o: %.c
+	$(GCC) -c $< -o $@ $(CFLAGS)
+
+%.o: %.cpp Makefile
+	$(GXX) -c $< -o $@ $(CFLAGS)
+
+%.o: %.S
+	$(GCC) -c $< -o $@ $(CFLAGS)
+
+%.a:
+	rm -f $@.tmp
+	$(AR) rcsD $@.tmp $(filter %.o,$^)
+	mv $@.tmp $@
+
+%.elf:
+	$(GXX) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) $(filter %.a,$^) -lgcc
+
+%.bin: %.elf
+	$(OBJCOPY) -S -O binary $< $@
+
+%.img: %.bin
+	rm -f $@
+	dd if=/dev/zero of=$@ bs=1M count=64 conv=sparse
+	dd if=$< of=$@ bs=1M conv=notrunc,sparse
+
+.PRECIOUS: %.bin %.img
+
+.SUFFIXES:
+
+vpath % . ..
