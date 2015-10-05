@@ -1,6 +1,10 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct thread thread;
 
 typedef unsigned thread_id;
@@ -28,5 +32,9 @@ int thread_resume(thread_id threadidx);
 thread_id thread_current(void);
 
 void thread_sleep(uint32_t systicks);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // THREAD_H

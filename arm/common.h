@@ -10,6 +10,10 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PAGE_SIZE (0x4000)
 #define PAGE_MASK (PAGE_SIZE-1)
 /* round address down to start of page */
@@ -21,9 +25,10 @@
 static inline
 int _elem_in(void* base, void* elem, unsigned S, unsigned count)
 {
+    char *cbase=(char*)base, *celem=(char*)elem;
     unsigned idx;
-    if(elem<base) return -1;
-    idx = (elem-base)/S;
+    if(celem<cbase) return -1;
+    idx = (celem-cbase)/S;
     if(idx>=count) return -1;
     else return idx;
 }
@@ -145,5 +150,9 @@ uint32_t in8(volatile void *addr)
 void _assert_fail(const char *cond,
                   const char *file,
                   unsigned int line);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // COMMON_H

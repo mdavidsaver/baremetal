@@ -3,6 +3,10 @@
 
 #include "common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MMU_READ  0x00
 #define MMU_WRITE 0x01
 //#define MMU_EXEC  0x02
@@ -35,5 +39,9 @@ void mmu_test(unsigned t, uint32_t addr, unsigned mask)
     mmu_test_access(addr, mask, &res);
     mmu_test_print(t, &res);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MMU_H
