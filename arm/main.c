@@ -6,6 +6,8 @@
 
 #include "common.h"
 #include "thread.h"
+#include "systick.h"
+#include "mmu.h"
 
 thread_id T0, T1, T2;
 
@@ -27,16 +29,38 @@ void* thread2(void *user)
     return NULL;
 }
 
+void* thread3(void *user)
+{
+    printk(0, "enter thread 3 %p\n", user);
+    thread_sleep(SYSTICK_RATE/2);
+    printk(0, "leave thread 3 %p\n", user);
+    return NULL;
+}
+
+static systick_cb fail_cb;
+static uint32_t fail_cnt = SYSTICK_RATE*2;
+static void failme(systick_cb *cb)
+{
+    (void)cb;
+    if(--fail_cnt) return;
+    printk(0, "Program timeout\n");
+    halt();
+}
+
 void Init(void)
 {
     thread_options opts;
 
+    memset(&opts, 0, sizeof(opts));
     opts.prio = 1;
 
+    mmu_setup();
+    irq_setup();
     printk(0, "Setup page allocator\n");
     page_alloc_setup();
     printk(0, "Setup threading\n");
     thread_setup();
+    systick_setup();
 
     T0 = thread_current();
     T1 = thread_create(&opts, &thread1, &thread1);
@@ -60,5 +84,16 @@ void Init(void)
     printk(0, "current3 %u\n", thread_current());
     assert(thread_current()==T0);
 
-    printk(0, "back in Init()\n");
+    printk(0, "back in Init()\n\n");
+
+    fail_cb.cb = &failme;
+    systick_add(&fail_cb);
+
+    T2 = thread_create(&opts, &thread3, &thread3);
+    if(thread_resume(T2))
+        printk(0, "failed to resume T3");
+
+    printk(0, "Sleeping\n");
+    thread_sleep(SYSTICK_RATE); /* 1 second */
+    printk(0, "Awake\n");
 }

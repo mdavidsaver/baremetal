@@ -27,4 +27,6 @@ int thread_resume(thread_id threadidx);
 
 thread_id thread_current(void);
 
+void thread_sleep(uint32_t systicks);
+
 #endif // THREAD_H

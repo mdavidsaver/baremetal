@@ -1,6 +1,7 @@
 
 #include "common.h"
 #include "thread.h"
+#include "systick.h"
 
 //#define THREAD_DEBUG 1
 
@@ -69,10 +70,10 @@ void thread_init_context(thread_options* opt,
 
     threadptr->registers[REG(4)] = (uint32_t)fn;
     threadptr->registers[REG(5)] = (uint32_t)user;
-    threadptr->registers[REG(13)] = (uint32_t)threadptr->stack; /* SP */
+    threadptr->registers[REG(13)] = (uint32_t)threadptr->stack+PAGE_SIZE; /* SP */
     threadptr->registers[REG(14)] = (uint32_t)&_thread_start; /* LR */
 
-    threadptr->registers[CPSR] = opt && opt->user ? 16 : 31; /* user or system mode */
+    threadptr->registers[CPSR] = (opt && opt->user) ? 16 : 31; /* user or system mode */
     if(threadptr->registers[REG(4)]&1)
         threadptr->registers[CPSR] |= (1<<5); /* _thread_start is thumb? */
 
@@ -145,6 +146,11 @@ void thread_setup(void)
 
     /* don't call _thread_schedule() */
     irq_unmask(mask);
+
+#ifdef THREAD_DEBUG
+    printk(0, "thread_create(...) -> 0 (%p)\n", &all_threads[0]);
+    printk(0, "thread_create(...) -> 1 (%p)\n", &all_threads[1]);
+#endif
 }
 
 thread_id thread_current(void)
@@ -199,6 +205,9 @@ thread_id thread_create(thread_options* opt,
 
     threadptr->prio = &all_thread_prio[prioidx];
 
+#ifdef THREAD_DEBUG
+    printk(0, "thread_create(...) -> %u (%p)\n", (unsigned)threadidx, threadptr);
+#endif
     return threadidx;
 error:
     page_free(stack);
@@ -210,6 +219,9 @@ error:
  */
 void _thread_free(thread *threadptr)
 {
+#ifdef THREAD_DEBUG
+    printk(0, "_thread_free(%p)\n", threadptr);
+#endif
     if(threadptr->state==thread_state_runable)
         thread_list_remove(threadptr);
     threadptr->state = thread_state_stopped;
@@ -256,12 +268,15 @@ int thread_suspend(thread_id threadidx)
 
     if(threadptr==current_thread && threadptr->state==thread_state_stopped) {
 #ifdef THREAD_DEBUG
-        printk(0, "Reschedule\n");
+        printk(0, "Reschedule %u %p\n", threadidx, threadptr);
 #endif
         /* suspend self must re-schedule */
         _thread_schedule();
         assert(threadptr==current_thread);
         assert(threadptr->state==thread_state_runable);
+#ifdef THREAD_DEBUG
+        printk(0, "Resume %u %p\n", threadidx, threadptr);
+#endif
     }
 
     irq_unmask(mask);
@@ -291,6 +306,9 @@ int thread_resume(thread_id threadidx)
         if(0==--threadptr->suspend_count) {
             thread_list_append(threadptr);
             threadptr->state = thread_state_runable;
+#ifdef THREAD_DEBUG
+        printk(0, "Runnable %u %p\n", threadidx, threadptr);
+#endif
         }
         ret = 0;
         break;
@@ -300,8 +318,12 @@ int thread_resume(thread_id threadidx)
 
     assert(current_thread);
 
-    if(threadptr->prio < current_thread->prio)
+    if(threadptr->prio < current_thread->prio) {
+#ifdef THREAD_DEBUG
+        printk(0, "Schedule %u %p\n", threadidx, threadptr);
+#endif
         _thread_schedule();
+    }
 
     irq_unmask(mask);
 
@@ -331,14 +353,17 @@ void _thread_schedule(void)
     thread *cur = current_thread,
            *next = thread_schedule_next();
 #ifdef THREAD_DEBUG
-    printk(0, "_thread_schedule(%p, %p)\n", cur, next);
+    printk(0, "_thread_schedule(%p, %p) %d\n", cur, next, isr_active());
 #endif
-    if(cur==next)
+    if(cur==next || isr_active())
         return;
     thread_list_remove(next);
     thread_list_append(next);
     current_thread = next;
     _thread_switch(cur, next);
+#ifdef THREAD_DEBUG
+    printk(0, "_thread_schedule2(%p, %p) %p %d\n", cur, next, current_thread, isr_active());
+#endif
 }
 
 void _thread_cleanup_now(void)
@@ -354,4 +379,32 @@ void *thread_join(unsigned threadidx)
 {
     (void)threadidx;
     return NULL;
+}
+
+typedef struct {
+    systick_cb cb;
+    thread_id id;
+    uint32_t ticks;
+} thread_wakeup;
+
+static
+void thread_wakeup_tick(systick_cb *cb)
+{
+    thread_wakeup *W=(void*)cb;
+    if(--W->ticks)
+        return;
+    systick_del(&W->cb);
+    thread_resume(W->id);
+}
+
+void thread_sleep(uint32_t systicks)
+{
+    thread_wakeup W;
+    if(!systicks)
+        return;
+    W.cb.cb = &thread_wakeup_tick;
+    W.id = thread_current();
+    W.ticks = systicks;
+    systick_add(&W.cb);
+    thread_suspend(W.id);
 }

@@ -11,8 +11,9 @@ _thread_switch:
  stmia r0, {r3,r4-r12,sp,lr} /* save cpsr and all general, stack, and link */
 
 _resume:
- ldmia r1, {r3,r4-r12,sp,lr}
+ ldr r3, [r1], #4
  msr cpsr, r3 /* may change mode */
+ ldmia r1, {r4-r12,sp,lr}
  bx lr
 
 /* start running a thread and allow the current context to be lost */
