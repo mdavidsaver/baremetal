@@ -21,7 +21,7 @@ OBJS += mmu.o mmu-fault.o page-alloc.o thread.o thread-switch.o systick.o
 minimal-kern.elf: vexpress.ld example-minimal.o libos.a
 timer-kern.elf: vexpress.ld example-timer-irq.o libos.a
 mmu-kern.elf: vexpress.ld example-mmu.o libos.a
-thread-kern.elf: vexpress.ld main.o libos.a
+thread-kern.elf: vexpress.ld example-thread.o libos.a
 os-kern.elf: vexpress.ld main.o libos.a
 
 minimal-flash.elf: vexpress-flash.ld boot-flash-minimal.o
