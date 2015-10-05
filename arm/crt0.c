@@ -8,7 +8,7 @@
  * used here
  */
 
-extern char __TMC_END__; /* implicit from linker? */
+extern char __dso_handle; /* implicit from linker? */
 
 /* see linker script */
 extern void (*__preinit_array_start []) (void) __attribute__((weak));
@@ -66,7 +66,7 @@ int __aeabi_atexit(void *obj, void (*dtor)(void*), void *handle)
     /* since we don't support dynamic linking or DSOs there
      * will only ever be one handle
      */
-    if(handle!=&__TMC_END__) {
+    if(handle!=&__dso_handle) {
         puts("__aeabi_atexit w/ invalid handle\n");
         abort();
         return -1;

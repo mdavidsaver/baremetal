@@ -7,10 +7,7 @@
 #include "common.h"
 
 #define ATAG_DEBUG
-
 uint32_t board_id;
-uint32_t RamSize;
-
 const char *cmd_line;
 static char *cmd_line_buf[64];
 

@@ -1,5 +1,6 @@
 #include <stdarg.h>
 
+#include "bsp.h"
 #include "common.h"
 
 /* IEEE 754 (1985) floating point format (double precision)
@@ -54,7 +55,7 @@ void puthex(uint32_t v)
     uint8_t n = sizeof(v)*2;
 
     while(n--) {
-        out8(A9_UART_BASE_1, hexchars[v>>28]);
+        out8(UART_BASE_1, hexchars[v>>28]);
         v<<=4;
     }
 }
@@ -79,7 +80,7 @@ void putdecnum(unsigned d, int neg)
         buf[--p] = '0';
 
     while(p<sizeof(buf))
-        out8(A9_UART_BASE_1, buf[p++]);
+        out8(UART_BASE_1, buf[p++]);
 }
 
 void putdec(int d)
@@ -96,14 +97,14 @@ void putudec(unsigned v)
 
 void putchar(char c)
 {
-    out8(A9_UART_BASE_1, c);
+    out8(UART_BASE_1, c);
 }
 
 void puts(const char *str)
 {
     char c;
     while( (c=*str++)!='\0' )
-        out8(A9_UART_BASE_1, c);
+        out8(UART_BASE_1, c);
 }
 
 static
@@ -185,8 +186,8 @@ void vprintk(unsigned i, const char *fmt, va_list args)
         }
         case 'p': {
             uint32_t v = (uint32_t)va_arg(args, void*);
-            out8(A9_UART_BASE_1, '0');
-            out8(A9_UART_BASE_1, 'x');
+            out8(UART_BASE_1, '0');
+            out8(UART_BASE_1, 'x');
             puthex(v);
         }
             break;
@@ -198,7 +199,7 @@ void vprintk(unsigned i, const char *fmt, va_list args)
             break;
         default:
             putchar('!');
-            out8(A9_UART_BASE_1, '!');
+            out8(UART_BASE_1, '!');
             return;
         }
     }

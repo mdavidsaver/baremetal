@@ -1,8 +1,11 @@
-qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -pflash os-flash.img
+
+= vexpress-a9 =
+
+qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -pflash build-vexpress-a9/os-flash.img
 
 or
 
-qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -kernel os-kern.bin
+qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -kernel build-vexpress-a9/os-kern.bin
 
 Can run -kernel either os-flash.elf, os-kern.elf, or os-kern.bin.
 Can run -pflash with os-flash.img
@@ -23,3 +26,8 @@ Basic memory map
 4c000000-4c7fffff - VRAM ???
 4e000000-4e0000ff - NIC (lan9118)
 60000000-67ffffff - Main Memory (60010000 is start address for -kernel)
+
+
+= lm3s6965evb =
+
+qemu-system-arm -no-reboot -M lm3s6965evb -m 128 -serial stdio -kernel build-lm3s6965evb/os-kern.bin

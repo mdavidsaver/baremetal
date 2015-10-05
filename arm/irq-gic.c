@@ -1,4 +1,5 @@
 /* Handling of ARM Generic Interrupt Controller */
+#include "bsp.h"
 #include "common.h"
 
 isrfunc irq_table[64];

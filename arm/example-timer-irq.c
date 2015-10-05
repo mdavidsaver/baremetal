@@ -4,6 +4,7 @@
  * Michael Davidsaver <mdavidsaver@gmail.com>
  */
 
+#include "bsp.h"
 #include "common.h"
 
 static int done = 30;

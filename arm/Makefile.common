@@ -1,8 +1,4 @@
-libos.a: $(OBJS) magic-crt0
-
-magic-crt0: crt0.o
-
-.PHONY: magic-crt0
+libos.a: $(OBJS)
 
 boot-flash-%.o: %-kern.bin ../boot-flash.S
 	$(GCC) -c ../boot-flash.S -o $@ $(CFLAGS) -DRAM_SIZE=64 -DBOARD_VEXPRESSA9 -DBIN_FILE="\"$<\""
@@ -11,7 +7,10 @@ boot-flash-%.o: %-kern.bin ../boot-flash.S
 clean:
 	rm -f *.o *.elf *.map *.bin *.img *.a
 
-%.o: %.c
+bsp.h:
+	echo "#include "\""${BSP}.h"\" > $@
+
+%.o: %.c bsp.h
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.cpp Makefile
@@ -25,8 +24,8 @@ clean:
 	$(AR) rcsD $@.tmp $(filter %.o,$^)
 	mv $@.tmp $@
 
-%.elf:
-	$(GXX) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) $(filter %.a,$^) -lgcc
+%.elf: crt0.o
+	$(GXX) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter-out crt0.o,$(filter %.o,$^)) $(filter %.a,$^) -lgcc $(LDADD) $(*_LDADD)
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
@@ -39,5 +38,7 @@ clean:
 .PRECIOUS: %.bin %.img
 
 .SUFFIXES:
+
+-include $(wildcard *.d)
 
 vpath % . ..

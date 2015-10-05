@@ -1,0 +1,15 @@
+include ../Makefile.config
+
+MCPU=cortex-m3
+CFLAGS+=-mthumb
+# give libos.a twice so that -lgcc can find memcpy
+LDADD=libos.a
+
+OBJS = init-m.o common.o printk.o
+
+all: minimal-kern.bin cxx-kern.bin
+
+minimal-kern.elf: cortexm.ld example-minimal.o libos.a
+cxx-kern.elf: cortexm.ld example-cxx.o example-cxx2.o libos.a
+
+include ../Makefile.common

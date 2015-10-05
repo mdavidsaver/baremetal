@@ -6,6 +6,12 @@
 
 #include "common.h"
 
+#ifdef DEF_RAM_SIZE
+uint32_t RamSize = DEF_RAM_SIZE;
+#else
+uint32_t RamSize;
+#endif
+
 void memcpy(void *dst, const void *src, size_t count)
 {
     char *cdst = dst;

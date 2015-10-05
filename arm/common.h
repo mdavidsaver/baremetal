@@ -85,18 +85,6 @@ void irq_unmask(unsigned m);
 void* page_alloc(void);
 void page_free(void* addr);
 
-/* register bases */
-#define A9_SYSCTRL_BASE ((volatile void*)0x10000000u)
-
-#define A9_UART_BASE_1  ((volatile void*)0x10009000u)
-
-/* interrupt controller */
-#define A9_PIC_CPU_SELF ((volatile void*)0x1e000100u)
-#define A9_PIC_CONF     ((volatile void*)0x1e001000u)
-
-/* ARM sp804 */
-#define A9_TIMER_BASE_1 ((volatile void*)0x10011000u)
-
 /* byte order swap */
 
 static inline __attribute__((always_inline,unused))
