@@ -33,7 +33,7 @@ _vec_fiq: b _vec_fiq
 _setup:
   ldr sp, =_boot_stack
 
-  ldr r4, =0x60000000 /* RAM Base address */
+  ldr r4, =0x60000000 /* RAM Base address for vexpress-a9 */
 
   /* copy in board info */
   mov r0, r4
@@ -59,19 +59,17 @@ _setup:
 
 /* r0 dest, r1 src, r2 count */
 _memcpy:
+  /* skip if dest==src, otherwise assume not overlapping */
   cmp r0, r1
   it eq
   bxeq lr
-
-  sub r0, #1
-  sub r1, #1
 
 _memcpy_loop:
   cmp r2, #0
   it eq
   bxeq lr
-  ldrb r3, [r1, #1]!
-  strb r3, [r0, #1]!
+  ldrb r3, [r1], #1
+  strb r3, [r0], #1
   sub r2, #1
   b _memcpy_loop
 
