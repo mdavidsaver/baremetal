@@ -17,20 +17,22 @@ all: minimal-flash.img minimal-kern.bin timer-kern.bin mmu-kern.bin thread-kern.
 OBJS = init.o common.o atag.o printk.o irq.o irq-gic.o
 OBJS += mmu.o mmu-fault.o page-alloc.o thread.o thread-switch.o systick.o
 
-minimal-kern.elf: vexpress.ld example-minimal.o init.o common.o atag.o printk.o
-timer-kern.elf: vexpress.ld example-timer-irq.o init.o common.o atag.o printk.o irq.o irq-gic.o
-mmu-kern.elf: vexpress.ld example-mmu.o init.o common.o atag.o printk.o mmu.o mmu-fault.o
-thread-kern.elf: vexpress.ld main.o init.o common.o atag.o printk.o mmu.o mmu-fault.o page-alloc.o irq.o irq-gic.o thread.o thread-switch.o systick.o
-os-kern.elf: vexpress.ld main.o $(OBJS)
+minimal-kern.elf: vexpress.ld example-minimal.o libos.a
+timer-kern.elf: vexpress.ld example-timer-irq.o libos.a
+mmu-kern.elf: vexpress.ld example-mmu.o libos.a
+thread-kern.elf: vexpress.ld main.o libos.a
+os-kern.elf: vexpress.ld main.o libos.a
 
 minimal-flash.elf: vexpress-flash.ld boot-flash-minimal.o
+
+libos.a: $(OBJS)
 
 boot-flash-%.o: %-kern.bin boot-flash.S
 	$(GCC) -c boot-flash.S -o $@ $(CFLAGS) -DRAM_SIZE=64 -DBOARD_VEXPRESSA9 -DBIN_FILE="\"$<\""
 
 
 clean:
-	rm -f *.o *.elf *.map *.bin *.img
+	rm -f *.o *.elf *.map *.bin *.img *.a
 
 %.o: %.c Makefile
 	$(GCC) -c $< -o $@ $(CFLAGS)
@@ -38,8 +40,13 @@ clean:
 %.o: %.S
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
+%.a:
+	rm -f $@.tmp
+	$(AR) rcsD $@.tmp $(filter %.o,$^)
+	mv $@.tmp $@
+
 %.elf:
-	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) $(filter %.a,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
