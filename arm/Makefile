@@ -2,6 +2,7 @@
 PREFIX=arm-none-eabi-
 AS=$(PREFIX)as
 GCC=$(PREFIX)gcc
+AR=$(PREFIX)ar
 OBJCOPY=$(PREFIX)objcopy
 
 DEBUG=-g
@@ -55,3 +56,5 @@ clean:
 	rm -f $@
 	dd if=/dev/zero of=$@ bs=1M count=64 conv=sparse
 	dd if=$< of=$@ bs=1M conv=notrunc,sparse
+
+.PRECIOUS: %.bin %.img
