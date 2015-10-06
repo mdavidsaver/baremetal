@@ -6,15 +6,17 @@
 
 #include "bsp.h"
 #include "common.h"
+#include "systick.h"
 
 static int done = 30;
 
+static systick_cb cb;
+
 static
-void timerisr(unsigned v)
+void timertick(systick_cb *X)
 {
     int i;
-    (void)v;
-    out32(A9_TIMER_BASE_1+0x2C, 0xffffffff);
+    (void)X;
     i = __sync_sub_and_fetch(&done, 1);
     printk(0, "T%u\n", i);
 }
@@ -22,22 +24,15 @@ void timerisr(unsigned v)
 void Init(void)
 {
     irq_setup();
+    systick_setup();
     printk(0, "hello\n");
 
-    // first timer is ID34 in the pic
-    isr_install(34, &timerisr);
-    isr_enable(34);
-
-    //out32(A9_PIC_CONF+0xf00, 0x2000001); // soft interrupt 1
-
-    /* Load register */
-    out32(A9_TIMER_BASE_1+0x20, 100000); /* 1MHz -> 10Hz */
-
-    /* enable 32-bit periodic w/ irq, scale/1 */
-    out32(A9_TIMER_BASE_1+0x28, 0b11100010);
+    cb.cb = &timertick;
+    systick_add(&cb);
 
     irq_show();
 
+    assert(done>0);
     printk(0, "\nGo\n");
     {
         while(__sync_fetch_and_add(&done,0)>0) {}

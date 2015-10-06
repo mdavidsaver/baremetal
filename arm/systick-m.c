@@ -1,3 +1,5 @@
+/* System tick using the armv7-m systick timer
+ */
 
 #include "bsp.h"
 #include "common.h"
@@ -5,21 +7,19 @@
 
 //#define SYSTICK_DEBUG
 
+#define SYSTIMER_RATE 100 /* Hz */
+
 uint32_t systick;
 
 static systick_cb *systick_head, *systick_tail;
 
-#define SYSTICK_VECTOR 34
-
-static
-void systick_handler(unsigned vect)
+void systick_handler(void)
 {
     systick_cb *cur = systick_head, *next;
-    out32(A9_TIMER_BASE_1+0x2C, 0xffffffff);
+    out32(M_SYS_SHCSR, 1<<11);
 #ifdef SYSTICK_DEBUG
-    printk(0, "systick_handler() %u %u\n", (unsigned)systick, (unsigned)systimer_get());
+    printk(0, "systick_handler() %u\n", (unsigned)systick);
 #endif
-    (void)vect;
     __sync_fetch_and_add(&systick, 1);
     for(next=cur?cur->next:NULL;
         cur;
@@ -29,33 +29,37 @@ void systick_handler(unsigned vect)
     }
 }
 
+void systick_setup(void)
+{
+    uint32_t cal = in32(M_SYSTICK_CAL);
+
+    if(cal&0x40000000)
+        printk(0, "SYSTICK clock skew\n");
+
+    cal &= BMASK(23); /* 100 Hz value */
+    if(cal==0) {
+        printk(0, "No timer calibration, using a default\n");
+        cal = 10000; /* default for QEMU */
+    }
+
+    cal *= SYSTIMER_RATE/SYSTICK_RATE;
+    cal &= BMASK(23);
+
+    if(cal==0) {
+        printk(0, "Invalid timer calibration and/or tick rate, using a default\n");
+        cal = 100000; /* 10Hz for QEMU */
+    }
+
+    out32(M_SYSTICK_RVR, cal);
+
+    out32(M_SYSTICK_CSR, 0x3); /* enable timer and IRQ */
+}
+
 uint32_t systick_get(void)
 {
     return __sync_fetch_and_add(&systick, 0);
 }
 
-uint32_t systimer_get(void)
-{
-    return (SYSTIMER_RATE/SYSTICK_RATE)-in32(A9_TIMER_BASE_1+0x24);
-}
-
-void systick_setup(void)
-{
-    // first timer is ID34 in the pic
-    if(isr_install(SYSTICK_VECTOR, &systick_handler))
-        assert(0);
-
-    /* Load register */
-    out32(A9_TIMER_BASE_1+0x20, SYSTIMER_RATE/SYSTICK_RATE); /* 1MHz -> 10Hz */
-
-    /* enable 32-bit periodic w/ irq, scale/1 */
-    out32(A9_TIMER_BASE_1+0x28, 0b11100010);
-
-    systick = 0;
-
-    if(isr_enable(SYSTICK_VECTOR))
-        assert(0);
-}
 
 int systick_add(struct systick_cb* T)
 {
@@ -94,10 +98,10 @@ int systick_del(struct systick_cb* T)
     return 0;
 }
 
-void systimer_spin(uint32_t wait)
+void systick_spin(uint32_t wait)
 {
-    uint32_t start = systimer_get(), cur;
+    uint32_t start = systick_get(), cur;
     do {
-        cur = systimer_get();
+        cur = systick_get();
     } while((cur-start)<wait);
 }

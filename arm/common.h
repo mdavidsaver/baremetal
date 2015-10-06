@@ -35,10 +35,10 @@ int _elem_in(void* base, void* elem, unsigned S, unsigned count)
 #define INDEXOF(BASE, ELEM) _elem_in(BASE, ELEM, sizeof(BASE[0]), NELEM(BASE))
 
 /* mask with lower N bits set */
-#define BMASK(N) ((1ull<(N))-1)
+#define BMASK(N) ((1ull<<(N))-1)
 /* mask with bits m through N set (zero indexed)
- * BMASK(31,0)==0xffffffff
- * BMASK(23,16)==0x00ff0000
+ * BMASK2(31,0)==0xffffffff
+ * BMASK2(23,16)==0x00ff0000
  */
 #define BMASK2(M,N) (BMASK((M)+1)-BMASK(N))
 

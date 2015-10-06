@@ -52,7 +52,7 @@ _setup:
 
   /* show some life */
   adr r0, _early_string1
-  bl puts
+  blx puts
 
   /* prepare C environment */
   bl _zero_bss
@@ -70,7 +70,7 @@ _setup:
   blx processATAG
 
   adr r0, _early_string2
-  bl puts
+  blx puts
 
   blx __run_init /* run C++ static ctors */
 
@@ -94,7 +94,7 @@ halt:
   /* request shutdown */
 
   ldr r0, =_late_string1
-  bl puts
+  blx puts
 
   /* load sysctrl register base */
   ldr r0, =0x10000000
@@ -191,7 +191,7 @@ _bad_instr:
   ldr r2, [r3]
   ldr r1, =_und_err_msg
   mov r0, #0
-  bl printk
+  blx printk
   b halt
 
 .weak _bad_instr
@@ -202,7 +202,7 @@ _bad_code:
   sub r2, lr, #4
   ldr r1, =_code_err_msg
   mov r0, #0
-  bl printk
+  blx printk
   b halt
 
 .weak _bad_code
@@ -212,7 +212,7 @@ _bad_data:
   sub r2, lr, #8
   ldr r1, =_data_err_msg
   mov r0, #0
-  bl printk
+  blx printk
   b halt
 
 .weak _bad_data

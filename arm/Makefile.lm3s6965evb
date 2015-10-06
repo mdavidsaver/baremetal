@@ -5,11 +5,12 @@ CFLAGS+=-mthumb
 # give libos.a twice so that -lgcc can find memcpy
 LDADD=libos.a
 
-OBJS = init-m.o common.o printk.o
+OBJS = init-m.o common.o printk.o systick-m.o irq-m.o
 
-all: minimal-kern.bin cxx-kern.bin
+all: minimal-kern.bin timer-kern.bin cxx-kern.bin
 
 minimal-kern.elf: cortexm.ld example-minimal.o libos.a
+timer-kern.elf: cortexm.ld example-timer-irq.o libos.a
 cxx-kern.elf: cortexm.ld example-cxx.o example-cxx2.o libos.a
 
 include ../Makefile.common

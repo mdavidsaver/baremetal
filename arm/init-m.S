@@ -31,37 +31,77 @@ _boot_reset:
 _vec_reset:
 .word _main_stack_top
 .word _setup  /* Reset */
-.word _stuck  /* NMI */
-.word _stuck  /* HardFault */
-.word _stuck  /* MemManage */
-.word _stuck  /* BusFault */
-.word _stuck  /* UsageFault */
-.word _stuck  /* Reserved */
-.word _stuck  /* SVCall */
-.word _stuck  /* Debug Mon. */
-.word _stuck  /* Reserved */
-.word _stuck  /* PendSV */
-.word _stuck  /* SysTick */
-.word _stuck  /* Ext. IRQ 0 */
-.word _stuck  /* Ext. IRQ 1 */
-.word _stuck  /* Ext. IRQ 2 */
+.word _stuck_NM  /* NMI */
+.word _stuck_HF  /* HardFault */
+.word _stuck_MM  /* MemManage */
+.word _stuck_BF  /* BusFault */
+.word _vec_usage /* UsageFault */
+.word _stuck_RV  /* Reserved */
+.word _stuck_RV  /* Reserved */
+.word _stuck_RV  /* Reserved */
+.word _stuck_RV  /* Reserved */
+.word _stuck_SV  /* SVCall */
+.word _stuck_DM  /* Debug Mon. */
+.word _stuck_RV  /* Reserved */
+.word _stuck_PS  /* PendSV */
+.word _vec_systick  /* SysTick */
+.word _stuck_EX  /* Ext. IRQ 0 */
+.word _stuck_EX  /* Ext. IRQ 1 */
+.word _stuck_EX  /* Ext. IRQ 2 */
+
+.thumb_func
+_stuck_NM : b _stuck_NM
+.thumb_func
+_stuck_HF : b _stuck_HF
+.thumb_func
+_stuck_MM : b _stuck_MM
+.thumb_func
+_stuck_BF : b _stuck_BF
+.thumb_func
+_stuck_UF : b _stuck_UF
+.thumb_func
+_stuck_RV : b _stuck_RV
+.thumb_func
+_stuck_SV : b _stuck_SV
+.thumb_func
+_stuck_DM : b _stuck_DM
+.thumb_func
+_stuck_PS : b _stuck_PS
+.thumb_func
+_stuck_ST : b _stuck_ST
+.thumb_func
+_stuck_EX : b _stuck_EX
 
 .global _setup
 .type _setup, function
 .thumb_func
 _setup:
+  cpsid if
 
   /* prepare C environment */
   bl _zero_bss
   bl _move_data
+
+  ldr r0, =_proc_stack_top
+  msr psp, r0
+
+  mov r0, #(1<<9)|(1<<3) /* STKALIGN | UNALIGN_TRP */
+  ldr r1,=0xe000ed14 /* CCR */
+  str r0, [r1]
 
   /* set exception vector base address (needed when loaded to ram) */
   ldr r0, =_vec_reset
   ldr r1, =0xe000ed08 /* VTOR */
   str r0, [r1]
 
+  /* Enable UsageFault, BusFault, and MemManage */
+  mov r0, #(1<<18)|(1<<17)|(1<<16)
+  ldr r1, =0xe000ed24 /* SHCSR */
+  str r0, [r1]
+  cpsie f
+
   adr r0, _early_string2
-  bl puts
+  blx puts
 
   blx __run_init /* run C++ static ctors */
 
@@ -77,6 +117,7 @@ _setup:
 
 .global halt
 .type halt, function
+.thumb_func
 .align 4
 abort:
 halt:
@@ -85,7 +126,7 @@ halt:
   /* request shutdown */
 
   ldr r0, =_late_string1
-  bl puts
+  blx puts
 
   ldr r0, =0xe000ed0c /* AIRCR */
   ldr r1, =0x05fa0004 /* external reset */
@@ -94,6 +135,7 @@ halt:
 
   /* fall through to spin */
 
+.thumb_func
 _stuck:
   b _stuck
 
@@ -139,6 +181,43 @@ _data_loop:
 
   bx lr
 
+.global _data_loop
+.thumb_func
+.align 2
+_vec_usage:
+  ldr r0, =_und_err_msg
+  blx puts
+  blx halt
+
+.global _vec_systick
+.thumb_func
+.align 2
+_vec_systick:
+  nop
+  nop
+  nop
+  nop
+  push {lr}
+  blx systick_handler
+  pop {lr}
+  bx lr
+
+.global irq_mask
+.thumb_func
+irq_mask:
+  mrs r0, faultmask
+  cpsid i
+  blx lr /* return 0 if IRQ was active, 1 if was masked */
+
+.global irq_unmask
+.thumb_func
+irq_unmask:
+  cmp r0, #0
+  it ne
+  blxne lr
+  cpsie i
+  blx lr
+
 /* keep these strings in .text so they are always available */
 _early_string1:
 .string "booting...\n"
@@ -147,6 +226,9 @@ _early_string2:
 _late_string1:
 .string "halt\n"
 
+.section .rodata
+_und_err_msg:
+.string "UsageFault\n"
 
 .section .bss
 .align 4
@@ -155,4 +237,4 @@ _late_string1:
 _main_stack_top:
 
 .skip 0x400
-_fiq_stack_top:
+_proc_stack_top:
