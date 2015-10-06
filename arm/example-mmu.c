@@ -30,5 +30,7 @@ void Init(void)
 #else
     printk(0, "oops %x\n", (unsigned)in32((void*)0x30000000));
 #endif
+
+    printk(0, "... err, something failed to bang...\n");
 }
 

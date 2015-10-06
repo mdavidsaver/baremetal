@@ -33,7 +33,7 @@ _vec_reset:
 .word _setup  /* Reset */
 .word _stuck_NM  /* NMI */
 .word _stuck_HF  /* HardFault */
-.word _stuck_MM  /* MemManage */
+.word memfault_handler  /* MemManage */
 .word _stuck_BF  /* BusFault */
 .word _vec_usage /* UsageFault */
 .word _stuck_RV  /* Reserved */
@@ -53,8 +53,6 @@ _vec_reset:
 _stuck_NM : b _stuck_NM
 .thumb_func
 _stuck_HF : b _stuck_HF
-.thumb_func
-_stuck_MM : b _stuck_MM
 .thumb_func
 _stuck_BF : b _stuck_BF
 .thumb_func
@@ -193,10 +191,6 @@ _vec_usage:
 .thumb_func
 .align 2
 _vec_systick:
-  nop
-  nop
-  nop
-  nop
   push {lr}
   blx systick_handler
   pop {lr}
