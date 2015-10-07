@@ -42,12 +42,17 @@ int _elem_in(void* base, void* elem, unsigned S, unsigned count)
  */
 #define BMASK2(M,N) (BMASK((M)+1)-BMASK(N))
 
+#define EXTRACT(V, S, E) (((V)>>(S))&BMASK((E)-(S)+1))
+
 /* Shutdown the system from init.S */
 void halt(void);
 
 /* from common.c */
 void memcpy(void *dst, const void *src, size_t count);
+void memmove(void *dst, const void *src, size_t count);
 void memset(void *dst, uint8_t val, size_t count);
+unsigned log2(uint32_t v);
+unsigned log2_ceil(uint32_t v);
 
 /* from atag.c */
 int processATAG(uint32_t*);

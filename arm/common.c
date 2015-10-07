@@ -5,6 +5,7 @@
  */
 
 #include "common.h"
+#include "bsp.h"
 
 #ifdef DEF_RAM_SIZE
 uint32_t RamSize = DEF_RAM_SIZE;
@@ -43,6 +44,38 @@ void memset(void *dst, uint8_t val, size_t count)
     char *cdst = dst;
     while(count--)
         *cdst++ = val;
+}
+
+/* floor(log(v, 2))
+ *  log2(31) -> 5
+ *  log2(32) -> 6
+ *  log2(33) -> 6
+ */
+unsigned log2(uint32_t v)
+{
+    unsigned r=0;
+    while(v) {
+        v>>=1;
+        r++;
+    }
+    return r;
+}
+
+/* ceil(log(v, 2))
+ *  log2_ceil(31) -> 6
+ *  log2_ceil(32) -> 6
+ *  log2_ceil(33) -> 7
+ */
+unsigned log2_ceil(uint32_t v)
+{
+    unsigned r=0, c=0;
+    while(v) {
+        c += v&1;
+        v >>= 1;
+        r++;
+    }
+    if(c>1) r++;
+    return r;
 }
 
 void _assert_fail(const char *cond,

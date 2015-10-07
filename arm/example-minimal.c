@@ -17,9 +17,12 @@ static const uint32_t roval = 0x12345678;
 
 static double val = 42.0;
 
+void show_arm_id(void);
+
 void Init(void)
 {
     printk(0, "hello world!\n");
+    show_arm_id();
 
     /* check that .bss and .data are setup correctly */
     printk(0, "ioportbase %x expect zero\n", (unsigned)ioportbase);

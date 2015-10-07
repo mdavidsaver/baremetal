@@ -5,7 +5,9 @@ SECTIONS
 
     .text :
     {
-      *(.text.start) /* ensure that vector table appears first */
+      *(.text.start) /* ensure that entry point appears first */
+      . = ALIGN(64);
+      __rom_start = .;
       *(.text .text.*)
     } >ROM =0 /* =0 zeros unused */
 
@@ -44,6 +46,8 @@ SECTIONS
     .jcr            : { KEEP (*(.jcr)) } >ROM
 
     /* end c++ stuff */
+
+    __rom_end = .;
     
     .data : ALIGN(4)
     {

@@ -5,7 +5,7 @@ CFLAGS+=-mthumb
 # give libos.a twice so that -lgcc can find memcpy
 LDADD=libos.a
 
-OBJS = init-m.o common.o printk.o systick-m.o irq-m.o mpu.o
+OBJS = init-m.o arm-id.o common.o printk.o systick-m.o irq-m.o mpu.o
 
 TARGETS = minimal-kern.bin timer-kern.bin mmu-kern.bin cxx-kern.bin
 all: $(TARGETS)
