@@ -25,7 +25,7 @@ bsp.h:
 	mv $@.tmp $@
 
 %.elf: crt0.o
-	$(GXX) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter-out crt0.o,$(filter %.o,$^)) $(filter %.a,$^) -lgcc $(LDADD) $(*_LDADD)
+	$(GXX) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter-out crt0.o,$(filter %.o,$^)) $(filter %.a,$^) -lgcc $(LDADD) $(*_LDADD)
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
