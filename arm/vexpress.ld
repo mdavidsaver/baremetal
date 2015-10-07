@@ -5,45 +5,20 @@ OUTPUT_ARCH (arm)
 ENTRY(_setup)
 
 MEMORY {
-  ram (rwx) : ORIGIN = 0x60010000, LENGTH = 16M
+  RAM (rwx) : ORIGIN = 0x60000000, LENGTH = 16M
 }
+
+REGION_ALIAS("ROM", RAM)
 
 SECTIONS
 {
-    .text :
-    {
-      *(.text.start) /* ensure that vector table appears first */
-      . += 0x1000;
-      *(.text)
-    } =0 /* =0 zeros unused */
-
-    .rodata :
-    {
-      *(.rodata .rodata.*)
-    } =0
-
-    .data :
-    {
-    . += ALIGN(4);
-      __data_start = .;
-      *(.data .data.* .gnu.linkonce.d.*)
-      . += ALIGN(4);
-      __data_end = .;
-    }
-    __data_load = LOADADDR(.data);
-
-  .bss (NOLOAD) :
-  {
-    . += ALIGN(4);
-    __bss_start = .;
-    *(COMMON)
-    *(.bss .bss.* .gnu.linkonce.b.*)
-    . += ALIGN(4);
-
-    __bss_end = .;
-  }
-
-  .note.gnu.build-id (NOLOAD) : {
-    *(.note.*)
-  }
+    /* place holder for bootloader's ram */
+    .bootloader (NOLOAD) : {
+        . += 0x10000;
+    } >ROM
 }
+
+INCLUDE "common.ld"
+
+ASSERT(LOADADDR(.bootloader)==ORIGIN(ROM), "LMA doesn't start when it should")
+ASSERT(ADDR(.bootloader)==ORIGIN(ROM), "VMA doesn't start when it should")
