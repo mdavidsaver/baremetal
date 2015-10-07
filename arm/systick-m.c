@@ -29,6 +29,11 @@ void systick_handler(void)
     }
 }
 
+void systick_shutdown(void)
+{
+    out32(M_SYSTICK_CSR, 0);
+}
+
 void systick_setup(void)
 {
     uint32_t cal = in32(M_SYSTICK_CAL);

@@ -74,6 +74,8 @@ _stuck_EX : b _stuck_EX
 .type _setup, function
 .thumb_func
 _setup:
+.fnstart
+.cantunwind
   cpsid if
 
   /* prepare C environment */
@@ -111,6 +113,7 @@ _setup:
 
 .global abort
 .type abort, function
+.thumb_func
 .align 4
 
 .global halt
@@ -119,7 +122,10 @@ _setup:
 .align 4
 abort:
 halt:
+  cpsid if
   ldr sp, =_main_stack_top
+
+  blx systick_shutdown
 
   /* request shutdown */
 
@@ -136,6 +142,10 @@ halt:
 .thumb_func
 _stuck:
   b _stuck
+.fnend
+.size _setup, .-_setup
+.size abort, .-abort
+.size halt, .-halt
 
 
 /* Assumes that .bss load, start, and end addresses are aligned to 4 bytes.

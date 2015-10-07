@@ -89,6 +89,7 @@ _setup:
 .align 4
 abort:
 halt:
+  cpsid if
   ldr sp, =_sys_stack_top
 
   /* request shutdown */
