@@ -2,7 +2,7 @@
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH (arm)
 
-ENTRY(_setup)
+ENTRY(_start)
 
 MEMORY {
   ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 64M

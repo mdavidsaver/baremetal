@@ -6,15 +6,19 @@ OBJCOPY=$(PREFIX)objcopy
 
 DEBUG=-g
 
-# cortex a9 is armv7-a
-ASFLAGS=-mcpu=cortex-a9 -W --fatal-warnings $(DEBUG)
-CFLAGS=-mcpu=cortex-a9 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
+ASFLAGS=-mcpu=cortex-m3 -W --fatal-warnings $(DEBUG)
+CFLAGS=-mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
 LDFLAGS=-static
 
-all: os-flash.img os-kern.bin
+all: test1-kern.bin
+all: test2-kern.bin
+all: test3-kern.bin
+all: test4-kern.bin
 
-os-flash.elf: vexpress-flash.ld common.ld init.o main.o
-os-kern.elf: vexpress.ld common.ld init.o main.o
+test1-kern.elf: cortexm.ld common.ld init-m.o test1.o
+test2-kern.elf: cortexm.ld common.ld init-m.o test2.o
+test3-kern.elf: cortexm.ld common.ld init-m.o test3.o
+test4-kern.elf: cortexm.ld common.ld init-m.o test4.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
