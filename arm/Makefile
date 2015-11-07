@@ -14,11 +14,13 @@ all: test1-kern.bin
 all: test2-kern.bin
 all: test3-kern.bin
 all: test4-kern.bin
+all: test5-kern.bin
 
 test1-kern.elf: cortexm.ld common.ld init-m.o test1.o
 test2-kern.elf: cortexm.ld common.ld init-m.o test2.o
 test3-kern.elf: cortexm.ld common.ld init-m.o test3.o
 test4-kern.elf: cortexm.ld common.ld init-m.o test4.o
+test5-kern.elf: cortexm.ld common.ld init-m.o test5.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img

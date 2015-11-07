@@ -109,8 +109,14 @@ hexchars:
 .section .bss
 .align 4
 
+.global _main_stack_bot
+_main_stack_bot:
 .skip 0x400
+.global _main_stack_top
 _main_stack_top:
 
+.global _proc_stack_bot
+_proc_stack_bot:
 .skip 0x400
+.global _proc_stack_top
 _proc_stack_top:

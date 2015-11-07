@@ -59,7 +59,7 @@ void putc(char c)
 }
 
 static inline __attribute__((unused))
-void puts(char *s)
+void puts(const char *s)
 {
 	char c;
 	while((c=*s++)!='\0')
