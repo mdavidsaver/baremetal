@@ -68,10 +68,12 @@ void main(void)
 {
 	run_table.hard = hardx;
 	run_table.usage = usagex;
+	__asm__ ("cpsie f" :::);
+	__asm__ ("cpsid i" :::);
 	puts("1. Fault to HardFault\n");
 	/* this would trigger a usage error, except that
 	 * UsageFault isn't enabled and
-	 * FAULTMASK and PRIMASK are set
+	 * PRIMASK are set
 	 */
 	__asm__ (".word 0xffff; recover0:" :::);
 	puts("3. Back in main\n");
@@ -80,7 +82,7 @@ void main(void)
 
 	test = 1;
 	puts("4. Fault to HardFault\n");
-	__asm__ ("cpsid f" :::); /* FAULTMASK auto-cleared when HardFault returns */
+	__asm__ ("cpsid i" :::); /* FAULTMASK auto-cleared when HardFault returns */
 	/* this would trigger a usage error, except that
 	 * FAULTMASK and PRIMASK are set
 	 */
@@ -88,7 +90,7 @@ void main(void)
 	puts("6. Back in main\n");
 	
 	test = 2;
-	__asm__ ("cpsie if" :::);
+	__asm__ ("cpsie i" :::);
 	puts("7. Faulting to UsageFault\n");
 	/* This time really trigger UsageFault
 	 */

@@ -79,7 +79,7 @@ void main(void)
 	test = 3;
 	__asm__ ("cpsie i" :::);
 	temp = 1;
-	__asm__ ("msr BASEPRI, %0" : : "r"(temp) :);
+	__asm__ ("msr BASEPRI, %0" : : "r"(temp) :); /* mask prio <= 0 */
 
 	puts("10. trigger HardFault\n");
 	__asm__ ("svc 42" :::);
