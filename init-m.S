@@ -75,7 +75,10 @@ _data_loop:
   ldr r0, =run_table
   ldr r1, =0xe000ed08 /* VTOR */
   str r0, [r1]
-  
+
+  mov r0, _proc_stack_top
+  msr PSP, r0
+
   blx main
   
   /* fall through to abort() */

@@ -4,7 +4,6 @@
 
 static int test;
 
-static __attribute__((unused))
 void hard(uint32_t *sp)
 {
 	uint32_t temp;
@@ -28,7 +27,6 @@ void hard(uint32_t *sp)
 	sp[6] = temp;
 }
 
-static __attribute__((unused))
 void usage(uint32_t *sp)
 {
 	uint32_t temp;

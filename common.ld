@@ -44,7 +44,8 @@ SECTIONS
     .jcr            : { KEEP (*(.jcr)) } >ROM
 
     /* end c++ stuff */
-    
+    __end_rom = .;
+
     .data : ALIGN(4)
     {
       __data_start = .;
