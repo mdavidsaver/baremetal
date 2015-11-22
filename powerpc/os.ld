@@ -53,6 +53,7 @@ SECTIONS
   .sdata :
   {
     __sdata_start = .;
+    PROVIDE(_SDA_BASE_ = .);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     __sdata_end = .;
   } =0
@@ -68,6 +69,7 @@ SECTIONS
   .sdata2 :
   {
     __sdata2_start = .;
+    PROVIDE(_SDA2_BASE_ = .);
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
     __sdata2_end = .;
   } =0
