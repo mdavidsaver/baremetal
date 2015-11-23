@@ -1,5 +1,5 @@
 
-PREFIX=powerpc-rtems4.9-
+PREFIX=powerpc-rtems4.10-
 AS=$(PREFIX)as
 GCC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
@@ -9,26 +9,25 @@ OBJCOPY=$(PREFIX)objcopy
 DEBUG=-gdwarf-2
 #DEBUG=-g -O2
 
-ASFLAGS=$(DEBUG)
 # PREP is -mcpu=602
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
-all: os.bin bios.bin
+all: os.bin bios.bin tomload.bin
 
 os.elf: os.ld init.o main.o
 bios.elf: bios.ld bios.o
+tomload.elf: tomload.ld init.o tomload.o init-tom.o
 
 clean:
 	rm -f *.o
-	rm -f os.elf os.bin os.map
-	rm -f bios.elf bios.bin bios.map
+	rm -f *.elf *.bin *.map
 
 %.o: %.c
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(AS) $< -o $@ $(ASFLAGS)
+	$(GCC) -o $@ -c $< $(CFLAGS)
 
 %.elf:
 	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
