@@ -14,6 +14,19 @@
 /* TI GPIO */
 #define GPIO(N,OFF) ((OFF)+0x1000*(N)+(void*)0x40058000)
 
+/* The TMC1294 only implements 3 bit priority fields.
+ * So PRIGROUP 0-4 imply 4 with no sub-priority
+ */
+#define PRIGROUP_BITS 3
+#define PRIO_MASK (((1<<3)-1)<<(8-PRIGROUP_BITS))
+
+#define PRIGROUP 4
+#define PRIO_SUB_MASK ((1<<(PRIGROUP+1))-1)
+#define PRIO_GRP_MASK ((PRIO_SUB_MASK)^0xff)
+#define PRIO_GRP(P) (((P)<<(PRIGROUP+1))&PRIO_GRP_MASK)
+#define PRIO_SUB(S) ((S)&PRIO_SUB_MASK)
+#define PRIO(P,S) (PRIO_GRP(P)|PRIO_SUB(S))
+
 typedef void (*vectfn)(void);
 
 typedef struct {
@@ -35,7 +48,7 @@ typedef struct {
 
 extern vect_table run_table;
 
-static inline __attribute__((unused))
+static inline
 void out8(void *addr, uint8_t val)
 {
 	volatile uint8_t *A = addr;
@@ -43,7 +56,7 @@ void out8(void *addr, uint8_t val)
 	__asm__ volatile ("dsb" ::: "memory");
 }
 
-static inline __attribute__((unused))
+static inline
 void out32(void *addr, uint32_t val)
 {
 	volatile uint32_t *A = addr;
@@ -51,7 +64,7 @@ void out32(void *addr, uint32_t val)
 	__asm__ volatile ("dsb" ::: "memory");
 }
 
-static inline __attribute__((unused))
+static inline
 uint32_t in32(void *addr)
 {
 	volatile uint32_t *A = addr;
@@ -70,7 +83,7 @@ uint32_t in32(void *addr)
 
 void abort(void) __attribute__((noreturn));
 
-static inline __attribute__((unused))
+static inline
 void putc(char c)
 {
     if(c=='\n')
@@ -79,7 +92,7 @@ void putc(char c)
     out8(UART_DATA, c);
 }
 
-static inline __attribute__((unused))
+static inline
 void puts(const char *s)
 {
 	char c;
@@ -87,7 +100,7 @@ void puts(const char *s)
 		putc(c);
 }
 
-static inline __attribute__((unused))
+static inline
 void flush(void)
 {
     /* wait for TX FIFO empty */
@@ -96,7 +109,7 @@ void flush(void)
 
 extern char hexchars[16];
 
-static inline __attribute__((unused))
+static inline
 void puthex(uint32_t v)
 {
 	unsigned i;
@@ -105,6 +118,17 @@ void puthex(uint32_t v)
 	}
 }
 
+#define CPSIE(MASK) __asm__ volatile ("cpsie " #MASK ::: "memory")
+#define CPSID(MASK) __asm__ volatile ("cpsid " #MASK ::: "memory")
+
+static inline
+void basepri(uint8_t prio)
+{
+    prio = PRIO_GRP(prio);
+    __asm__ volatile ("msr BASEPRI, %0" : : "r"(prio) : "memory");
+}
+
+#define SVC(N) __asm__ volatile ("svc " #N ::: "memory")
 
 #define MPU_XN (1<<28)
 
