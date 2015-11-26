@@ -5,17 +5,18 @@
 static
 void hard(void)
 {
-	puts("In HardFault\noops...\n");
-	abort();
+    puts("In HardFault\noops...\n");
+    abort();
 }
 
 void main(void)
 {
-	run_table.hard = &hard;
-	puts("Faulting...\n");
-	/* Trigger a UsageFault, which will escalate to unrecoverable
-	 * since FAULTMASK is set on start
-	 */
-	__asm__ volatile (".word 0xffff");
-	puts("Oops, I shouldn't be here...\n");
+    run_table.hard = &hard;
+    CPSID(if);
+    puts("Faulting...\n");
+    /* Trigger a UsageFault, which will escalate to unrecoverable
+     * since FAULTMASK is set
+     */
+    __asm__ volatile (".word 0xffff");
+    puts("Oops, I shouldn't be here...\n");
 }
