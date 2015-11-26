@@ -3,7 +3,16 @@
 
 #include <stdint.h>
 
-#define UART_DATA ((void*)0x4000c000)
+#define UART(N) ((N)+(void*)0x4000c000)
+#define UART_DATA UART(0)
+#define UART_FLAG UART(0x18)
+
+/* ARM System Control Block */
+#define SCB(N) ((N)+(void*)0xe000e000)
+/* TI System Control registers */
+#define SYSCON(N) ((N)+(void*)0x400fe000)
+/* TI GPIO */
+#define GPIO(N,OFF) ((OFF)+0x1000*(N)+(void*)0x40058000)
 
 typedef void (*vectfn)(void);
 
@@ -50,12 +59,24 @@ uint32_t in32(void *addr)
 	return *A;
 }
 
+#define rmw(N, ADDR, MASK, VAL) \
+    do{uint##N##_t temp = in##N(ADDR);\
+    temp&=~(MASK); temp|=(VAL)&(MASK);\
+    out##N(ADDR, temp);\
+    }while(0)
+
+#define loop_until(N, ADDR, MASK, OP, VAL) \
+    do{}while(!((in##N(ADDR)&(MASK))OP VAL))
+
 void abort(void) __attribute__((noreturn));
 
 static inline __attribute__((unused))
 void putc(char c)
 {
-	out8(UART_DATA, c);
+    if(c=='\n')
+        putc('\r');
+    loop_until(32, UART_FLAG, 0x20, ==, 0); /* wait for TX FIFO not full */
+    out8(UART_DATA, c);
 }
 
 static inline __attribute__((unused))
@@ -64,6 +85,13 @@ void puts(const char *s)
 	char c;
 	while((c=*s++)!='\0')
 		putc(c);
+}
+
+static inline __attribute__((unused))
+void flush(void)
+{
+    /* wait for TX FIFO empty */
+    loop_until(32, UART_FLAG, 0x80, ==, 0x80);
 }
 
 extern char hexchars[16];

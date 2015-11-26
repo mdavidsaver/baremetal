@@ -21,19 +21,19 @@ all: test6-kern.bin
 all: test7-kern.bin
 all: test8-kern.bin
 
-test1-kern.elf: cortexm.ld common.ld init-m.o test1.o
-test2-kern.elf: cortexm.ld common.ld init-m.o test2.o
-test3-kern.elf: cortexm.ld common.ld init-m.o test3.o
-test4-kern.elf: cortexm.ld common.ld init-m.o test4.o
-test5-kern.elf: cortexm.ld common.ld init-m.o test5.o
-test6-kern.elf: cortexm.ld common.ld init-m.o test6.o
-test7-kern.elf: cortexm.ld common.ld init-m.o test7.o
-test8-kern.elf: cortexm.ld common.ld init-m.o test8.o inst_skip.o
+test1-kern.elf: cortexm.ld common.ld setup.o init-m.o test1.o
+test2-kern.elf: cortexm.ld common.ld setup.o init-m.o test2.o
+test3-kern.elf: cortexm.ld common.ld setup.o init-m.o test3.o
+test4-kern.elf: cortexm.ld common.ld setup.o init-m.o test4.o
+test5-kern.elf: cortexm.ld common.ld setup.o init-m.o test5.o
+test6-kern.elf: cortexm.ld common.ld setup.o init-m.o test6.o
+test7-kern.elf: cortexm.ld common.ld setup.o init-m.o test7.o
+test8-kern.elf: cortexm.ld common.ld setup.o init-m.o test8.o inst_skip.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
 
-%.o: %.c
+%.o: %.c armv7m.h
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S

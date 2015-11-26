@@ -79,6 +79,7 @@ _data_loop:
   mov r0, _proc_stack_top
   msr PSP, r0
 
+  blx board_setup
   blx main
   
   /* fall through to abort() */
