@@ -116,6 +116,7 @@ void main(void)
     test_equal("ENA ", 3, in32(SCB(0x100)));
     test_equal("PEND", 0, in32(SCB(0x200)));
     test_equal("ACT ", 0, in32(SCB(0x300)));
+    test_equal("ICSR", 0x00000000, in32(SCB(0xd04)));
 
     puts("2. Pend IRQ0 (shouldn't run)\n");
     out32(SCB(0x200), 1);
