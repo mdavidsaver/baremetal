@@ -14,18 +14,22 @@
 /* TI GPIO */
 #define GPIO(N,OFF) ((OFF)+0x1000*(N)+(void*)0x40058000)
 
+#ifndef PRIGROUP
+#define PRIGROUP 4
+#endif
+
+#define PRIO_SUB_MASK ((1<<(PRIGROUP+1))-1)
+#define PRIO_GRP_MASK ((PRIO_SUB_MASK)^0xff)
+#define PRIO_GRP(P) (((P)<<(PRIGROUP+1))&PRIO_GRP_MASK)
+#define PRIO_SUB(S) ((S)&PRIO_SUB_MASK)
+#define PRIO(P,S) (PRIO_GRP(P)|PRIO_SUB(S))
+
 /* The TMC1294 only implements 3 bit priority fields.
  * So PRIGROUP 0-4 imply 4 with no sub-priority
  */
 #define PRIGROUP_BITS 3
 #define PRIO_MASK (((1<<3)-1)<<(8-PRIGROUP_BITS))
 
-#define PRIGROUP 4
-#define PRIO_SUB_MASK ((1<<(PRIGROUP+1))-1)
-#define PRIO_GRP_MASK ((PRIO_SUB_MASK)^0xff)
-#define PRIO_GRP(P) (((P)<<(PRIGROUP+1))&PRIO_GRP_MASK)
-#define PRIO_SUB(S) ((S)&PRIO_SUB_MASK)
-#define PRIO(P,S) (PRIO_GRP(P)|PRIO_SUB(S))
 
 typedef void (*vectfn)(void);
 

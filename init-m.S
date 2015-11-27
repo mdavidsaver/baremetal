@@ -73,8 +73,8 @@ _data_loop:
   bne _data_loop
 
   ldr r0, =run_table
-  ldr r1, =0xe000ed08 /* VTOR */
-  str r0, [r1]
+  ldr r1, =0xe000e000
+  str r0, [r1, #0xd08] /* VTOR */
 
   mov r0, _proc_stack_top
   msr PSP, r0
@@ -90,8 +90,8 @@ abort:
   ldr sp, =_main_stack_top
 
   ldr r0, =0x05fa0004 /* reset request */
-  ldr r1, =0xe000ed0c /* AIRCR */
-  str r0, [r1]
+  ldr r1, =0xe000e000
+  str r0, [r1, #0xd0c] /* AIRCR */
   dsb
 
 _stuck:
@@ -102,6 +102,8 @@ _stuck:
 _vec_stuck:
   mov r0, #'S'
   ldr r1, =0x4000c000
+  str r0, [r1]
+  mrs r0, IPSR
   str r0, [r1]
   bl abort
 
