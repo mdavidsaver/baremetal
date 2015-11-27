@@ -10,6 +10,11 @@ uint32_t* get_src_stack(uint32_t *sp)
 			icsr = in32((void*)0xe000ed04);
 	__asm__ ("mrs %r0, CONTROL" : "=r"(ctrl) ::);
 
+    /* TODO: this test can't work since CONTROL<1> always reads
+     * zero from a handler.
+     * Seems like there is no way to tell from handler mode
+     * which stack thread mode was using...
+     */
 	if((ctrl&2) && (icsr&(1<<11)))
 		__asm__ ("mrs %r0, PSP" : "=r"(sp) ::);
 
