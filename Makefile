@@ -20,6 +20,8 @@ all: test5-kern.bin
 all: test6-kern.bin
 all: test7-kern.bin
 all: test8-kern.bin
+all: test9-kern.bin
+all: test10-kern.bin
 
 test1-kern.elf: cortexm.ld common.ld setup.o init-m.o test1.o
 test2-kern.elf: cortexm.ld common.ld setup.o init-m.o test2.o
@@ -29,6 +31,8 @@ test5-kern.elf: cortexm.ld common.ld setup.o init-m.o test5.o
 test6-kern.elf: cortexm.ld common.ld setup.o init-m.o test6.o
 test7-kern.elf: cortexm.ld common.ld setup.o init-m.o test7.o
 test8-kern.elf: cortexm.ld common.ld setup.o init-m.o test8.o inst_skip.o
+test9-kern.elf: cortexm.ld common.ld setup.o init-m-test9.o test9.o
+test10-kern.elf:cortexm.ld common.ld setup.o init-m.o test10.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
