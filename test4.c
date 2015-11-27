@@ -6,6 +6,18 @@
 
 #include "armv7m.h"
 
+static
+void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
+{
+    puts(lhs==rhs ? "ok - " : "fail - ");
+    puthex(lhs);
+    puts(" == ");
+    puthex(rhs);
+    puts(" # ");
+    puts(msg);
+    putc('\n');
+}
+
 static int test;
 
 static
@@ -14,21 +26,17 @@ void irq0(void)
     switch(test) {
     case 1:
         puts("4. in IRQ0\n");
-        if(in32(SCB(0x100))!=3) {
-            puts("Fail, not enabled\n");
-            abort();
-        }
-        if(in32(SCB(0x200))!=0) {
-            puts("Fail, pending\n");
-            abort();
-        }
-        if(in32(SCB(0x300))!=1) {
-            puts("Fail, active\n");
-            abort();
-        }
+        test_equal("ENA ", 3, in32(SCB(0x100)));
+        test_equal("PEND", 0, in32(SCB(0x200)));
+        test_equal("ACT ", 1, in32(SCB(0x300)));
+        test_equal("ICSR", 0x00000810, in32(SCB(0xd04)));
         break;
     case 3:
         puts("8. in IRQ0\n");
+        test_equal("ENA ", 3, in32(SCB(0x100)));
+        test_equal("PEND", 0, in32(SCB(0x200)));
+        test_equal("ACT ", 1, in32(SCB(0x300)));
+        test_equal("ICSR", 0x00000810, in32(SCB(0xd04)));
         break;
     case 4:
         test = 5;
@@ -61,6 +69,11 @@ void irq1(void)
     case 2:
         puts("7. in IRQ1\n");
         test = 3;
+        test_equal("ENA ", 3, in32(SCB(0x100)));
+        test_equal("PEND", 1, in32(SCB(0x200)));
+        test_equal("ACT ", 2, in32(SCB(0x300)));
+        /* ISRPENDING, VECTPENDING==16, RETTOBASE, and VECACTIVE=17 */
+        test_equal("ICSR", 0x00410811, in32(SCB(0xd04)));
         break;
     case 5:
         puts("12. in IRQ1\n");
@@ -94,61 +107,32 @@ void main(void)
 
     rmw(32,SCB(0xd0c),0x700, PRIGROUP<<8);
 
-    __asm__ ("cpsid i" :::);
-    __asm__ ("cpsie f" :::);
+    CPSID(i);
 
     test = 0;
     puts("1. Enable IRQ0/1\n");
-    if(in32(SCB(0x100))!=0) {
-        puts("Fail, enabled\n");
-        abort();
-    }
     out32(SCB(0x100), 3);
-    if(in32(SCB(0x100))!=3) {
-        puts("Fail, not enabled\n");
-        abort();
-    }
-    if(in32(SCB(0x200))!=0) {
-        puts("Fail, pending\n");
-        abort();
-    }
-    if(in32(SCB(0x300))!=0) {
-        puts("Fail, active\n");
-        abort();
-    }
+
+    test_equal("ENA ", 3, in32(SCB(0x100)));
+    test_equal("PEND", 0, in32(SCB(0x200)));
+    test_equal("ACT ", 0, in32(SCB(0x300)));
 
     puts("2. Pend IRQ0 (shouldn't run)\n");
     out32(SCB(0x200), 1);
-    if(in32(SCB(0x100))!=3) {
-        puts("Fail, not enabled\n");
-        abort();
-    }
-    if(in32(SCB(0x200))!=1) {
-        puts("Fail, not pending\n");
-        abort();
-    }
-    if(in32(SCB(0x300))!=0) {
-        puts("Fail, active\n");
-        abort();
-    }
+    test_equal("ENA ", 3, in32(SCB(0x100)));
+    test_equal("PEND", 1, in32(SCB(0x200)));
+    test_equal("ACT ", 0, in32(SCB(0x300)));
+    /* ISRPENDING and VECTPENDING==16 */
+    test_equal("ICSR", 0x00410000, in32(SCB(0xd04)));
 
     test = 1;
     puts("3. Unmask (should run now)\n");
-    __asm__ ("cpsie i;dsb" :::);
+    CPSIE(i);
 
     puts("5. Back in main\n");
-    if(in32(SCB(0x100))!=3) {
-        puts("Fail, not enabled\n");
-        abort();
-    }
-    if(in32(SCB(0x200))!=0) {
-        puts("Fail, pending\n");
-        abort();
-    }
-    if(in32(SCB(0x300))!=0) {
-        puts("Fail, active\n");
-        abort();
-    }
+    test_equal("ENA ", 3, in32(SCB(0x100)));
+    test_equal("PEND", 0, in32(SCB(0x200)));
+    test_equal("ACT ", 0, in32(SCB(0x300)));
 
     test = 2;
     out32(SCB(0x400), (PRIO(1,0)<<8)|PRIO(2,0)); /* Give IRQ1 priority over IRQ0 */
