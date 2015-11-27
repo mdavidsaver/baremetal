@@ -13,7 +13,7 @@ void main(void)
 {
     run_table.hard = &hard;
     CPSID(if);
-    puts("Faulting...\n");
+    puts("Faulting to unrecoverable...\n");
     /* Trigger a UsageFault, which will escalate to unrecoverable
      * since FAULTMASK is set
      */
