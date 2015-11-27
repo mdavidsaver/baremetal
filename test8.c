@@ -143,6 +143,7 @@ void main(void)
 	run_table.mem = &mem_entry;
 
 	asm("cpsid if");
+    out32(SCB(0xd24), 1<<16); // enable MemFault with SHCSR
 
 	puts("1. In Main\n");
 	expect_fault = 1;
