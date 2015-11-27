@@ -79,7 +79,7 @@ void main(void)
         putc('\n');
     }
 
-    rmw(32,SCB(0xd0c),0x700, PRIGROUP<<8);
+    out32(SCB(0xd0c), 0x05fa0000 | (PRIGROUP<<8));
     out32(SCB(0xd1c), PRIO(2,0)<<24); /* SVC prio 2 */
     out32(SCB(0xd20), PRIO(1,0)<<16); /* PendSV prio 1 */
 

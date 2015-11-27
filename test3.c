@@ -59,7 +59,7 @@ void main(void)
     run_table.pendsv = pendsv;
     run_table.svc = svc;
 
-    rmw(32,SCB(0xd0c),0x700, PRIGROUP<<8);
+    out32(SCB(0xd0c), 0x05fa0000 | (PRIGROUP<<8));
 
     test = 0;
     CPSIE(if);

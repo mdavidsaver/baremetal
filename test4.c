@@ -105,7 +105,7 @@ void main(void)
     run_table.irq[0] = irq0;
     run_table.irq[1] = irq1;
 
-    rmw(32,SCB(0xd0c),0x700, PRIGROUP<<8);
+    out32(SCB(0xd0c), 0x05fa0000 | (PRIGROUP<<8));
 
     CPSID(i);
 
