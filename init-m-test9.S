@@ -55,7 +55,7 @@ _start:
   ldr r0, [r2, #0xd04] /* ICSR */
   str r0, [r3], #4
 
-  ldr r0, [r2, #0xd04] /* VTOR */
+  ldr r0, [r2, #0xd08] /* VTOR */
   str r0, [r3], #4
 
   ldr r0, [r2, #0xd0c] /* AIRCR */
