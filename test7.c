@@ -13,7 +13,7 @@ static
 void func(void)
 {
 	uint32_t temp = 0xfffffff9; /* return to thread mode, main stack */
-	__asm__ volatile ("mov lr,%0" ::"r"(temp):);
+    __asm__ volatile ("mov lr,%0; bx lr" ::"r"(temp):);
 	return;
 }
 
