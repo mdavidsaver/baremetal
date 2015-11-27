@@ -175,7 +175,7 @@ void main(void)
 	checkfault(1);
 
 	puts("3. Enable MPU\n");
-	enable_mpu(1,0);
+    enable_mpu(1,1,0);
 
 	asm("cpsie if");
 
@@ -216,7 +216,7 @@ void main(void)
 	checkfault(11);
 
 	puts("15. Enable MPU w/ HFNMIENA\n");
-	enable_mpu(1,1);
+    enable_mpu(1,1,1);
 	puts("16. fault to hardfault (will escalate to unrecoverable)\n");
 	expect_fault = 10;
 	try(offlimits);

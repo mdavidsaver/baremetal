@@ -186,10 +186,11 @@ void set_mpu(unsigned region, uint32_t base, uint32_t size,
 }
 
 static inline
-void enable_mpu(unsigned ena, unsigned hfnmiena)
+void enable_mpu(unsigned usrena, unsigned privena, unsigned hfnmiena)
 {
-	uint32_t val = 4 | (ena ? 1 : 0) | (hfnmiena ? 2 : 0);
+    uint32_t val = (usrena ? 1 : 0) | (hfnmiena ? 2 : 0) | (privena ? 0 : 4);
 	out32((void*)0xe000ed94, val);
+    __asm__ volatile ("dsb\nisb" :::);
 }
 
 uint32_t* get_src_stack(uint32_t *sp);
