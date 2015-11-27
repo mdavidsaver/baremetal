@@ -140,7 +140,7 @@ void main(void)
 {
 	run_table.hard = &hard_entry;
 	run_table.svc = &svc_entry;
-	run_table.mem = &mem_entry;
+    run_table.mem = &mem_entry;
 
 	asm("cpsid if");
     out32(SCB(0xd24), 1<<16); // enable MemFault with SHCSR
@@ -150,18 +150,10 @@ void main(void)
 
 	/* priority of entries is highest to lowest (0 checked last) */
 
-	/* base for ROM */
-	set_mpu(0, 0, (uint32_t)&__end_rom,
-			MPU_NORMAL|MPU_RORO);
-	/* prevent accidental *NULL */
-//	set_mpu(1, 0, 64,
-//			MPU_XN|MPU_NORMAL|MPU_NANA);
-	/* base for RAM */
-	set_mpu(2, 0x20000000, (uint32_t)(&__after_all_load)-0x20000000,
-			MPU_NORMAL|MPU_RWRW);
-	/* allow unpriv uart access */
-	set_mpu(3, (uint32_t)UART_DATA, 1024,
-			MPU_XN|MPU_DEVICE|MPU_RWRW);
+    set_mpu(0, 0x00000000, (uint32_t)&__end_rom, MPU_NORMAL|MPU_RORO);
+    set_mpu(1, 0x20000000, 0x00080000, MPU_NORMAL|MPU_RWRW|MPU_XN);
+    set_mpu(2, 0x4000c000, 0x00001000, MPU_DEVICE|MPU_RWRW|MPU_XN);
+    set_mpu(3, 0xe000e000, 0x00001000, MPU_DEVICE|MPU_RWRW|MPU_XN);
 
 	/* disable all access to offlimits[] */
 	set_mpu(4, (uint32_t)offlimits, sizeof(offlimits),
