@@ -6,7 +6,7 @@ extern char _main_stack_top, _proc_stack_top;
 extern char _main_stack_bot, _proc_stack_bot;
 
 static
-unsigned test;
+volatile unsigned test;
 
 static
 void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
@@ -86,8 +86,8 @@ void svc(void)
     case 4:
         puts("15. SVC\n");
         show_masks(0);
-        __asm__ volatile ("cpsid if" :::);
-        show_masks(3);
+        __asm__ volatile ("cpsid i" :::);
+        show_masks(1);
         break;
     default:
         puts("Fail SVC\n");
@@ -95,9 +95,24 @@ void svc(void)
     }
 }
 
+static
+void hard(void)
+{
+    if(test==5) {
+        uint32_t val = 0;
+        puts("18. HardFault\n");
+        __asm__ volatile ("msr CONTROL, %0" :: "r"(val):);
+        test = 6;
+        return;
+    }
+    puts("Unexpected HardFault\n");
+    abort();
+}
+
 void main(void)
 {
     run_table.svc = svc;
+    run_table.hard = hard;
 
     {
         uint32_t temp = (uint32_t)&_proc_stack_top;
@@ -165,6 +180,18 @@ void main(void)
 
     puts("16. Back in main\n");
     show_masks(0); /* unprivlaged doesn't see mask */
+
+    test = 5;
+    puts("17. trigger HardFault (restores priv)\n");
+    SVC(42);
+    puts("19. Back in main\n");
+    show_control(2, 0);
+    puts("restore MSP\n");
+    {
+        uint32_t val = 0;
+        __asm__ volatile ("msr CONTROL,%0" :: "r"(val):);
+    }
+    show_control(0, 0);
 
     puts("Done.\n");
 }
