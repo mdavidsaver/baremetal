@@ -60,6 +60,25 @@ void main(void)
     run_table.svc = &svc;
     run_table.pendsv = &pendsv;
 
+    {
+        /* attempt to detect the number of usable
+         * bits in the priority fields.
+         */
+        uint32_t val = 0xff;
+        __asm__ ("msr BASEPRI, %0" :: "r"(val) :);
+        __asm__ ("mrs %0, BASEPRI" : "=r"(val) ::);
+        puts("BASEPRI mask ");
+        puthex(val);
+        val = 0;
+        __asm__ ("msr BASEPRI, %0" :: "r"(val) :);
+        rmw(32, SCB(0xd20), 0xff, 0xff);
+        val = in32(SCB(0xd20))&0xff;
+        rmw(32, SCB(0xd20), 0xff, 0);
+        puts("\nDEBUG prio ");
+        puthex(val);
+        putc('\n');
+    }
+
     rmw(32,SCB(0xd0c),0x700, PRIGROUP<<8);
     out32(SCB(0xd1c), PRIO(2,0)<<24); /* SVC prio 2 */
     out32(SCB(0xd20), PRIO(1,0)<<16); /* PendSV prio 1 */
