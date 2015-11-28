@@ -55,25 +55,26 @@ extern vect_table run_table;
 static inline
 void out8(void *addr, uint8_t val)
 {
-	volatile uint8_t *A = addr;
-	*A = val;
-	__asm__ volatile ("dsb" ::: "memory");
+    volatile uint8_t *A = addr;
+    __asm__ volatile ("dmb" ::: "memory");
+    *A = val;
 }
 
 static inline
 void out32(void *addr, uint32_t val)
 {
-	volatile uint32_t *A = addr;
-	*A = val;
-	__asm__ volatile ("dsb" ::: "memory");
+    volatile uint32_t *A = addr;
+    __asm__ volatile ("dmb" ::: "memory");
+    *A = val;
 }
 
 static inline
 uint32_t in32(void *addr)
 {
 	volatile uint32_t *A = addr;
-	__asm__ volatile ("dsb" ::: "memory");
-	return *A;
+    uint32_t ret = *A;
+    __asm__ volatile ("dmb" ::: "memory");
+    return ret;
 }
 
 #define rmw(N, ADDR, MASK, VAL) \
