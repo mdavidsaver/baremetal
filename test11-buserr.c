@@ -37,9 +37,8 @@ void set_fault(unsigned actual)
         puts("Secondary fault ");
         puthex(actual);
         putc('\n');
-        abort();
-    }
-    fault_type = actual;
+    } else
+        fault_type = actual;
 }
 
 static
@@ -81,7 +80,7 @@ void bus(uint32_t *sp)
 
     putc('\n');
 
-    if(sts&0x0200) {
+    if(sts&0x0300) {
         /* precise faults would return to the faulting
          * instruction, which would then fault again
          * since we change nothing, so skip it.
@@ -96,7 +95,7 @@ void bus(uint32_t *sp)
     }
     putc('\n');
 
-    if(sp[6]>=0xfffffff0) {
+    if(sp[6]>=0xf0000000) {
         /* evil hack since we know this was a bx instruction */
         sp[6] = sp[5]&~1; /* jump to LR */
     }
@@ -142,7 +141,7 @@ void mem(uint32_t *sp)
     puthex(sp[6]);
     putc('\n');
 
-    if(sp[6]>=0xfffffff0) {
+    if(sp[6]>=0xf0000000) {
         /* evil hack since we know this was a bx instruction */
         sp[6] = sp[5]&~1; /* jump to LR */
     } else {
@@ -226,8 +225,8 @@ void main(void)
 
     puts("# w/o MPU, hits background mapping\n");
 
-    puts("1. Cause BusFault 0xe100ffff\n");
-    out32((void*)0xe100fff0, 0);
+    puts("1. Cause BusFault 0xe1000ff0\n");
+    out32((void*)0xe1000ff0, 0);
     check_fault(2);
     puts("Back in Main\n");
 
@@ -246,11 +245,10 @@ void main(void)
     check_fault(2);
     puts("Back in Main\n");
 
-// this jump works, and TI has hidden so data here
-//    puts("5. MemFault (jump to 0x01000001)\n");
-//    jumpff(0x01000001);
-//    check_fault(1);
-//    puts("Back in Main\n");
+    puts("5.1 MemFault (jump to 0xf1000001)\n");
+    jumpff(0xf1000001);
+    check_fault(1);
+    puts("Back in Main\n");
 
     puts("5. MemFault (jump to 0xfffffff9)\n");
     jumpff(0xfffffff9);
@@ -261,8 +259,8 @@ void main(void)
          " still hits background mapping\n");
     enable_mpu(1,0,0);
 
-    puts("6. Cause BusFault 0xe100ffff\n");
-    out32((void*)0xe100ffff, 0);
+    puts("6. Cause BusFault 0xe1000ff0\n");
+    out32((void*)0xe1000ff0, 0);
     check_fault(2);
     puts("Back in Main\n");
 
@@ -295,17 +293,17 @@ void main(void)
     // ROM region is made larger than actual rom to pass through 0x05000000
     set_mpu(0, 0x00000000, 0x08000000, MPU_NORMAL|MPU_RORO);
     set_mpu(1, 0x20000000, 0x00080000, MPU_NORMAL|MPU_RWRW|MPU_XN);
-    set_mpu(2, 0x400fe000, 0x00100000, MPU_DEVICE|MPU_RWRW|MPU_XN);
+    set_mpu(2, 0x4000c000, 0x00001000, MPU_DEVICE|MPU_RWRW|MPU_XN);
     set_mpu(3, 0xe000e000, 0x00001000, MPU_DEVICE|MPU_RWRW|MPU_XN);
     // Allow through access to unconnected address space
-    set_mpu(4, 0xe100e000, 0x00020000, MPU_DEVICE|MPU_RWRW|MPU_XN);
+    set_mpu(4, 0xe100e000, 0x00001000, MPU_DEVICE|MPU_RWRW|MPU_XN);
 
     puts("# Enable MPU, including privlaged\n");
     enable_mpu(1,1,0);
 
     // MPU allows through, but no one is home == BusFault
-    puts("11. Cause BusFault 0xe100ffff\n");
-    out32((void*)0xe100ffff, 0);
+    puts("11. Cause BusFault 0xe1000ff0\n");
+    out32((void*)0xe1000ff0, 0);
     check_fault(2);
     puts("Back in Main\n");
 
