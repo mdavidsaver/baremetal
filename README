@@ -11,8 +11,25 @@ Others should change PREFIX= in the Makefile.
 
 = Run tests
 
+# Basic load test
 qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test1-kern.bin
-qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test2-kern.bin
-qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test3-kern.bin
+# Check initial register states
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test9-kern.bin
+# Check register exception handling register states
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test10-kern.bin
+# Handling of external (NVIC) exceptions
 qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test4-kern.bin
+# Thread mode Unprivlaged and processs stack
 qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test5-kern.bin
+# Exception masking and escalation
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test3-kern.bin
+# Test unrecoverable exception
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test6-kern.bin
+# Test magic exception return from thread mode
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test7-kern.bin
+# Test MPU
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test8-kern.bin
+# Various access fault handling and recovery
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test11-kern.bin
+# Invalid exception table entry (not thumb mode)
+qemu-system-arm -M lm3s6965evb -m 16 -no-reboot -serial stdio -d unimp,guest_errors -kernel test12-kern.bin
