@@ -227,7 +227,7 @@ void main(void)
     puts("# w/o MPU, hits background mapping\n");
 
     puts("1. Cause BusFault 0xe100ffff\n");
-    out32((void*)0xe100ffff, 0);
+    out32((void*)0xe100fff0, 0);
     check_fault(2);
     puts("Back in Main\n");
 

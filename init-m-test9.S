@@ -47,6 +47,12 @@ _start:
   mrs r0, CONTROL
   str r0, [r3], #4
 
+  mrs r0, MSP
+  str r0, [r3], #4
+
+  mrs r0, PSP
+  str r0, [r3], #4
+
   ldr r2, =0xe000e000
 
   ldr r0, [r2, #0xd00] /* CPUID */

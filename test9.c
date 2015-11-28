@@ -2,6 +2,8 @@
  */
 #include "armv7m.h"
 
+char _main_stack_top;
+
 static
 void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
 {
@@ -21,6 +23,8 @@ struct early_state_t {
     uint32_t FAULTMASK;
     uint32_t BASEPRI;
     uint32_t CONTROL;
+    uint32_t MSP;
+    uint32_t PSP;
     uint32_t cpuid;
     uint32_t icsr;
     uint32_t vtor;
@@ -46,6 +50,8 @@ void main(void)
     TEST(FAULTMASK, 0);
     TEST(BASEPRI, 0);
     TEST(CONTROL, 0);
+    TEST(MSP, (uint32_t)&_main_stack_top);
+    TEST(PSP, 0);
     puts("# cpuid ");
     puthex(early_state.cpuid);
     putc('\n');
