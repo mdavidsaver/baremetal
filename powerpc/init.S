@@ -54,8 +54,8 @@ _stuck:
 
 _mzero:
   /* r1 start address, r2 end address */
-  cmplw cr1, %r1, %r2
-  bge- cr1,_mzero_done
+  cmplw %r1, %r2
+  bge- _mzero_done
 
   sub %r4, %r2, %r1
   mtctr %r4
@@ -71,7 +71,7 @@ _mzero_done:
 
 _mcopy:
   /* r1 dst start address, r2 dst end address, r3 src start address */
-  cmplw cr1, %r1, %r2
+  cmplw %r1, %r2
   bge- _mcopy_done
 
   sub %r4, %r2, %r1
