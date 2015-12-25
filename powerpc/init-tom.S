@@ -8,7 +8,13 @@
 #define MAS0_ENT(N) (((N)&0xf)<<(63-47))
 
 #define MAS1_V (1<<(63-32))
+/* TODO, what does TS set mean? */
+#define MAS1_DS 0
+#define MAS1_IS 0
 #define MAS1_TID(N) (((N)&0xff)<<(63-47))
+/* Size in bytes is 4**N
+ * e500 only support some sizes: N in [1,9] (4k -> 256MB)
+ */
 #define MAS1_TSIZE(N) (((N)&0xf)<<(63-55))
 
 #define MAS2_EPN(ADR) ((ADR)&0xfffff000)
@@ -27,47 +33,80 @@
 /* ALL RW, no exec */
 #define MAS3_DEVICE 0x0f
 
+/* Initial static TLB configuration.
+ * TLB1 provides 16 entries, each with a max. size of 256MB
+ * which allows the entire 4 GB address space to be mapped.
+ */
 .section .rodata
 _tlb_data:
+/* map the ROM first since that is where we execute from */
 .long MAS0_TLB1|MAS0_ENT(0)
-.long MAS1_V|MAS1_TSIZE(0x9)
-.long MAS2_EPN(0)|MAS2_RAM
-.long MAS3_RPN(0)|MAS3_RAM
-
-.long MAS0_TLB1|MAS0_ENT(1)
-.long MAS1_V|MAS1_TSIZE(0x7)
+.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
 .long MAS2_EPN(0xff000000)|MAS2_ROM
 .long MAS3_RPN(0xff000000)|MAS3_ROM
 
+/* RAM */
+.long MAS0_TLB1|MAS0_ENT(1)
+.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0)|MAS2_RAM
+.long MAS3_RPN(0)|MAS3_RAM
+
+/* CCSR */
+/* TODO: use CCSRBAR isstead of TLB tricks */
 .long MAS0_TLB1|MAS0_ENT(2)
-.long MAS1_V|MAS1_TSIZE(0x9)
-.long MAS2_EPN(0x80000000)|MAS2_DEVICE
-.long MAS3_RPN(0x80000000)|MAS3_DEVICE
-
-.long MAS0_TLB1|MAS0_ENT(3)
-.long MAS1_V|MAS1_TSIZE(0x9)
-.long MAS2_EPN(0x81000000)|MAS2_DEVICE
-.long MAS3_RPN(0x81000000)|MAS3_DEVICE
-
-.long MAS0_TLB1|MAS0_ENT(4)
-.long MAS1_V|MAS1_TSIZE(0x7)
-.long MAS2_EPN(0xe0000000)|MAS2_DEVICE
-.long MAS3_RPN(0xe0000000)|MAS3_DEVICE
-
-.long MAS0_TLB1|MAS0_ENT(5)
-.long MAS1_V|MAS1_TSIZE(0x5)
+.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
 .long MAS2_EPN(0xe1000000)|MAS2_DEVICE
 .long MAS3_RPN(0xff700000)|MAS3_DEVICE
 
-.long MAS0_TLB1|MAS0_ENT(6)
-.long MAS1_V|MAS1_TSIZE(0x7)
+/* mvme3100 CPLD registers */
+.long MAS0_TLB1|MAS0_ENT(3)
+.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
 .long MAS2_EPN(0xe2000000)|MAS2_DEVICE
 .long MAS3_RPN(0xe2000000)|MAS3_DEVICE
+
+/* PCI IO ports */
+.long MAS0_TLB1|MAS0_ENT(4)
+.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
+.long MAS2_EPN(0xe0000000)|MAS2_DEVICE
+.long MAS3_RPN(0xe0000000)|MAS3_DEVICE
+
+/* PCI (cf. setup_host()) */
+.long MAS0_TLB1|MAS0_ENT(5)
+.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x80000000)|MAS2_DEVICE
+.long MAS3_RPN(0x80000000)|MAS3_DEVICE
+
+/* PCI (cf. setup_host()) */
+.long MAS0_TLB1|MAS0_ENT(6)
+.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xc0000000)|MAS2_DEVICE
+.long MAS3_RPN(0xc0000000)|MAS3_DEVICE
 
 .long MAS0_TLB1|MAS0_ENT(7)
 .long 0, 0, 0
 
 .long MAS0_TLB1|MAS0_ENT(8)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(9)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(10)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(11)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(12)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(13)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(14)
+.long 0, 0, 0
+
+.long MAS0_TLB1|MAS0_ENT(15)
 .long 0, 0, 0
 _tlb_data_end:
 
