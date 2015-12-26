@@ -1,132 +1,91 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void load_os(void);
+#include "mmio.h"
+#include "tlb.h"
 
-#define CCSRBASE 0xe1000000
+#define NELEMENTS(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
-#define PCI_CONF_IDX (CCSRBASE+0x8000)
-#define PCI_CONF_DATA (CCSRBASE+0x8004)
+void load_os(uint32_t); /* in init-tom.S */
 
-/* 0x80000000 - enable
- * 0x00ff0000 - bus
- * 0x0000f800 - device
- * 0x00000700 - function
- * 0x000000fc - address
- * 0x00000003 - data offset
- */
-#define PCI_CONF_ADDR(B,D,F,REG) \
- ((1<<31)|(((B)&0xff)<<16)|(((D)&0x1f)<<11)|(((F)&7)<<8)|((REG)&0xff))
+static const
+tlbentry initial_mappings[] = {
+	/* leave initial ROM and RAM mappings in place (first 3) */
 
-static inline
-uint16_t bswap16(uint16_t v)
+	/* CCSR (after relocation) */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x5), /* 1 MB */
+	 .mas2 = MAS2_EPN(0xe1000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0xe1000000)|MAS3_DEVICE,
+	},
+
+	/* mvme3100 CPLD registers */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x7), /* 16 MB */
+	 .mas2 = MAS2_EPN(0xe2000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0xe2000000)|MAS3_DEVICE,
+	},
+
+	/* PCI IO ports */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x7), /* 16 MB */
+	 .mas2 = MAS2_EPN(0xe0000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0xe0000000)|MAS3_DEVICE,
+	},
+
+	/* PCI (cf. setup_host()) */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
+	 .mas2 = MAS2_EPN(0x80000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0x80000000)|MAS3_DEVICE,
+	},
+
+	/* PCI (cf. setup_host()) */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
+	 .mas2 = MAS2_EPN(0xc0000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0xc0000000)|MAS3_DEVICE,
+	},
+};
+
+static
+void setup_tlb(void)
 {
-	return (v<<8)|(v>>8);
+	tlbentry disabled;
+	unsigned idx, n;
+	/* Leave first 3 mappings (ROM and RAM) in place,
+	 * copy in remaining
+	 */
+	for(idx=0, n=3; idx<NELEMENTS(initial_mappings); idx++, n++)
+	{
+		tlbentry ent = initial_mappings[idx];
+		ent.mas0 |= MAS0_ENT(n);
+		tlb_update(&ent);
+	}
+	/* disable remaining entries */
+	disabled.mas0 = disabled.mas1 = disabled.mas2 = disabled.mas3 = 0;
+	for(;n<16;n++)
+	{
+		disabled.mas0 |= MAS0_ENT(n);
+		tlb_update(&disabled);
+	}
 }
 
-static inline
-uint32_t bswap32(uint32_t v)
-{
-	return (v<<24)|
-		((v<<16)&0x00ff0000)|
-		((v>>16)&0x0000ff00)|
-		(v>>24);
-}
-
-#define le8toh(V) (V)
-#define be8toh(V) (V)
-#define le16toh(V) bswap16(V)
-#define le32toh(V) bswap32(V)
-#define be16toh(V) (V)
-#define be32toh(V) (V)
-#define htole8(V) (V)
-#define htobe8(V) (V)
-#define htole16(V) bswap16(V)
-#define htole32(V) bswap32(V)
-#define htobe16(V) (V)
-#define htobe32(V) (V)
-
-static inline uint8_t in8x(uint32_t base, uint32_t off) {
-	uint8_t val;
-	__asm__ ("eieio\n\t lbzx %0, %1, %2" : "=r"(val) : "b"(base), "r"(off) : "memory");
-	return val;
-}
-static inline uint16_t in16x(uint32_t base, uint32_t off) {
-	uint16_t val;
-	__asm__ ("eieio\n\t lhzx %0, %1, %2" : "=r"(val) : "b"(base), "r"(off) : "memory");
-	return val;
-}
-static inline uint32_t in32x(uint32_t base, uint32_t off) {
-	uint32_t val;
-	__asm__ ("eieio\n\t lwzx %0, %1, %2" : "=r"(val) : "b"(base), "r"(off) : "memory");
-	return val;
-}
-
-static inline void out8x(uint32_t base, uint32_t off, uint8_t val) {
-	__asm__("stbx %0, %1, %2\n\t eieio" :: "r"(val), "b"(base), "r"(off) : "memory");
-}
-static inline void out16x(uint32_t base, uint32_t off, uint16_t val) {
-	__asm__("sthx %0, %1, %2\n\t eieio" :: "r"(val), "b"(base), "r"(off) : "memory");
-}
-static inline void out32x(uint32_t base, uint32_t off, uint32_t val) {
-	__asm__("stwx %0, %1, %2\n\t eieio" :: "r"(val), "b"(base), "r"(off) : "memory");
-}
-
-static inline uint8_t pci_in8x(uint32_t paddr) {
-	uint32_t base = PCI_CONF_IDX;
-	out32x(base, 0, paddr&~3);
-	return in8x(base, 4+(paddr&3));
-}
-static inline uint16_t pci_in16x(uint32_t paddr) {
-	uint32_t base = PCI_CONF_IDX;
-	uint16_t val;
-	out32x(base, 0, paddr&~3);
-	__asm__ ("eieio\n\t lhbrx %0, %1, %2" : "=r"(val) : "b"(base), "r"(4+(paddr&3)) : "memory");
-	return val;
-}
-static inline uint32_t pci_in32x(uint32_t paddr) {
-	uint32_t base = PCI_CONF_IDX;
-	uint32_t val;
-	out32x(base, 0, paddr);
-	__asm__ ("eieio\n\t lwbrx %0, %1, %2" : "=r"(val) : "b"(base), "r"(4) : "memory");
-	return val;
-}
-#define pci_in8(B,D,F,ADDR) pci_in8x(PCI_CONF_ADDR(B,D,F,ADDR))
-#define pci_in16(B,D,F,ADDR) pci_in16x(PCI_CONF_ADDR(B,D,F,ADDR))
-#define pci_in32(B,D,F,ADDR) pci_in32x(PCI_CONF_ADDR(B,D,F,ADDR))
-
-static inline void pci_out8x(uint32_t paddr, uint8_t val) {
-	uint32_t base = PCI_CONF_IDX;
-	out32x(base, 0, paddr&~3);
-	out8x(base, 4+(paddr&3), val);
-}
-static inline void pci_out16x(uint32_t paddr, uint16_t val) {
-	uint32_t base = PCI_CONF_IDX;
-	out32x(base, 0, paddr&~3);
-	__asm__("sthbrx %0, %1, %2\n\t eieio" :: "r"(val), "b"(base), "r"(4+(paddr&3)) : "memory");
-}
-static inline void pci_out32x(uint32_t paddr, uint32_t val) {
-	uint32_t base = PCI_CONF_IDX;
-	out32x(base, 0, paddr&~3);
-	__asm__("stwbrx %0, %1, %2\n\t eieio" :: "r"(val), "b"(base), "r"(4) : "memory");
-}
-#define pci_out8(B,D,F,ADDR,VAL) pci_out8x(PCI_CONF_ADDR(B,D,F,ADDR),VAL)
-#define pci_out16(B,D,F,ADDR,VAL) pci_out16x(PCI_CONF_ADDR(B,D,F,ADDR),VAL)
-#define pci_out32(B,D,F,ADDR,VAL) pci_out32x(PCI_CONF_ADDR(B,D,F,ADDR),VAL)
-
+/* for PCI address assignment */
 static
 uint32_t next_mmio = 0x80000000,
          next_io   = 0xe0000000;
 
+/* prepare the PCI host bridge */
 static
-void setup_host(void)
+void setup_pci_host(void)
 {
 	/* Setup MMIO window 256 MB */
 	out32x(CCSRBASE, 0x8c20, next_mmio>>12);
 	out32x(CCSRBASE, 0x8c24, 0x00000000);
 	out32x(CCSRBASE, 0x8c28, next_mmio>>12);
 	out32x(CCSRBASE, 0x8c30, 0x8004401b);
-	/* Setup IO window 16 MB */
+	/* Setup IO port window 16 MB */
 	out32x(CCSRBASE, 0x8c40, next_io>>12);
 	out32x(CCSRBASE, 0x8c44, 0x00000000);
 	out32x(CCSRBASE, 0x8c48, next_io>>12);
@@ -290,6 +249,7 @@ void prepare_tsi148(void)
 	out32x(bar, 0x604, 1<<27); /* master enable on */
 }
 
+/* on entry only ROM, RAM, and CCSR are accessible */
 void Init(void)
 {
 	uint16_t vend = pci_in16(0,0,0,0),
@@ -297,9 +257,11 @@ void Init(void)
 	if(vend!=0x1957 || device!=0x30)
 		return; /* wrong host bridge, something is really wrong here */
 
+	setup_tlb(); /* PCI memory regions now accessible */
+
 	/* TODO: enable I2C bus */
-	setup_host();
+	setup_pci_host();
 	walk_bus(0);
 	prepare_tsi148();
-	load_os();
+	load_os(0x10000);
 }

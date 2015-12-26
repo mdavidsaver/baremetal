@@ -13,9 +13,7 @@ SECTIONS
 {
   .rodata :
   {
-    . = 0x10;
     *(.rodata .rodata.* .gnu.linkonce.r.*)
-    /* store load (LMA) addresses for sections */
   } >rom
 
   .sdata :
@@ -72,7 +70,13 @@ SECTIONS
 	  __text_start = .;
       *(.text)
 
-      /* ensure the initial symbol is an the end of the image */
+      /* as per the mpc8540 ref. manual, assume that after reset the TLB
+       * only maps the last 4kb and place early setup code here.
+       */
+      . += 0xfffff000 - ABSOLUTE(.);
+      *(.text.early)
+
+      /* reset vector */
       . += 0xfffffffc - ABSOLUTE(.);
       *(.text.init)
   } >rom

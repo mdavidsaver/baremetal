@@ -13,24 +13,20 @@ DEBUG=-gdwarf-2
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
+#CFLAGS+=-Os
+
 all: os.bin bios.bin tomload.bin
 
-os.elf: os.ld init.o main.o
-bios.elf: bios.ld bios.o
-tomload.elf: tomload.ld init.o tomload.o init-tom.o
+os.elf: init.S main.c
+bios.elf: bios.S
+tomload.elf: init.S tomload.c init-tom.S tlb.h mmio.h
 
 clean:
 	rm -f *.o
 	rm -f *.elf *.bin *.map
 
-%.o: %.c
-	$(GCC) -c $< -o $@ $(CFLAGS)
-
-%.o: %.S
-	$(GCC) -o $@ -c $< $(CFLAGS)
-
-%.elf:
-	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+%.elf: %.ld
+	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.c,$^) $(filter %.S,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@

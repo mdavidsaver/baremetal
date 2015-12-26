@@ -1,138 +1,118 @@
-#define SPR_MAS0 624
-#define SPR_MAS1 625
-#define SPR_MAS2 626
-#define SPR_MAS3 627
 
-#define MAS0_TLB0 0
-#define MAS0_TLB1 (1<<(63-35))
-#define MAS0_ENT(N) (((N)&0xf)<<(63-47))
-
-#define MAS1_V (1<<(63-32))
-/* TODO, what does TS set mean? */
-#define MAS1_DS 0
-#define MAS1_IS 0
-#define MAS1_TID(N) (((N)&0xff)<<(63-47))
-/* Size in bytes is 4**N
- * e500 only support some sizes: N in [1,9] (4k -> 256MB)
- */
-#define MAS1_TSIZE(N) (((N)&0xf)<<(63-55))
-
-#define MAS2_EPN(ADR) ((ADR)&0xfffff000)
-/* mem coherence */
-#define MAS2_RAM  0x4
-/* mem coherence */
-#define MAS2_ROM  0x4
-/* cache inhibit, mem coherence, guarded */
-#define MAS2_DEVICE 0xe
-
-#define MAS3_RPN(ADR) ((ADR)&0xfffff000)
-/* All RWX */
-#define MAS3_RAM 0x3f
-/* All RX, no write */
-#define MAS3_ROM 0x33
-/* ALL RW, no exec */
-#define MAS3_DEVICE 0x0f
-
-/* Initial static TLB configuration.
- * TLB1 provides 16 entries, each with a max. size of 256MB
- * which allows the entire 4 GB address space to be mapped.
- */
-.section .rodata
-_tlb_data:
-/* map the ROM first since that is where we execute from */
-.long MAS0_TLB1|MAS0_ENT(0)
-.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
-.long MAS2_EPN(0xff000000)|MAS2_ROM
-.long MAS3_RPN(0xff000000)|MAS3_ROM
-
-/* RAM */
-.long MAS0_TLB1|MAS0_ENT(1)
-.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
-.long MAS2_EPN(0)|MAS2_RAM
-.long MAS3_RPN(0)|MAS3_RAM
-
-/* CCSR */
-/* TODO: use CCSRBAR isstead of TLB tricks */
-.long MAS0_TLB1|MAS0_ENT(2)
-.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
-.long MAS2_EPN(0xe1000000)|MAS2_DEVICE
-.long MAS3_RPN(0xff700000)|MAS3_DEVICE
-
-/* mvme3100 CPLD registers */
-.long MAS0_TLB1|MAS0_ENT(3)
-.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
-.long MAS2_EPN(0xe2000000)|MAS2_DEVICE
-.long MAS3_RPN(0xe2000000)|MAS3_DEVICE
-
-/* PCI IO ports */
-.long MAS0_TLB1|MAS0_ENT(4)
-.long MAS1_V|MAS1_TSIZE(0x7) /* 16 MB */
-.long MAS2_EPN(0xe0000000)|MAS2_DEVICE
-.long MAS3_RPN(0xe0000000)|MAS3_DEVICE
-
-/* PCI (cf. setup_host()) */
-.long MAS0_TLB1|MAS0_ENT(5)
-.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
-.long MAS2_EPN(0x80000000)|MAS2_DEVICE
-.long MAS3_RPN(0x80000000)|MAS3_DEVICE
-
-/* PCI (cf. setup_host()) */
-.long MAS0_TLB1|MAS0_ENT(6)
-.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
-.long MAS2_EPN(0xc0000000)|MAS2_DEVICE
-.long MAS3_RPN(0xc0000000)|MAS3_DEVICE
-
-.long MAS0_TLB1|MAS0_ENT(7)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(8)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(9)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(10)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(11)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(12)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(13)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(14)
-.long 0, 0, 0
-
-.long MAS0_TLB1|MAS0_ENT(15)
-.long 0, 0, 0
-_tlb_data_end:
+#include "tlb.h"
 
 .macro load_const rD, expr
   lis \rD, \expr@h
   ori \rD, \rD, \expr@l
 .endm
 
-.section .text
-_setup_tlb:
-  /* Early setup of TLB to allow access to RAM */
+/* The mpc8540 ref. manual states that the initial tlb mapping
+ * is only the high 4KB.
+ * The mvme3100 programers reference states that the initial
+ * mappings cover the whole ROM and CCSR.
+ *
+ * We take a conservative approach and assume only the high 4KB,
+ * which contains only .text.early and .text.init, are accessible.
+ * Impose the _tlb_data_early mappings before entering C code.
+ */
+.section .text.early
 
-  load_const %r1, _tlb_data
 
-  li %r2, (_tlb_data_end-_tlb_data)/16
-  mtctr %r2
+/* TLB0 provies 2 entires, TLB1 provides 16 entries.
+ * Each with a max. size of 256MB (16*256MB=4GB)
+ */
+
+_tlb_data_early:
+/* early boot TLB configuration.
+ * access to RAM, ROM and CCSR w/ TLB1
+ * clear TLB0.
+ *
+ * Map the ROM first as this is where we execute from.
+ */
+.long MAS0_TLB1|MAS0_ENT(0)
+.long MAS1_V|MAS1_TSIZE(0x6) /* 4 MB */
+.long MAS2_EPN(0xffc00000)|MAS2_ROM
+.long MAS3_RPN(0xffc00000)|MAS3_ROM
+
+.long MAS0_TLB1|MAS0_ENT(1)
+.long MAS1_V|MAS1_TSIZE(0x6) /* 4 MB */
+.long MAS2_EPN(0xff800000)|MAS2_ROM
+.long MAS3_RPN(0xff800000)|MAS3_ROM
+
+/* RAM */
+.long MAS0_TLB1|MAS0_ENT(2)
+.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0)|MAS2_RAM
+.long MAS3_RPN(0)|MAS3_RAM
+
+/* CCSR before relocation */
+.long MAS0_TLB1|MAS0_ENT(3)
+.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
+.long MAS2_EPN(0xff700000)|MAS2_DEVICE
+.long MAS3_RPN(0xff700000)|MAS3_DEVICE
+
+/* CCSR after relocation */
+.long MAS0_TLB1|MAS0_ENT(4)
+.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
+.long MAS2_EPN(0xe1000000)|MAS2_DEVICE
+.long MAS3_RPN(0xe1000000)|MAS3_DEVICE
+
+/* Disable TLB0 */
+
+.long MAS0_TLB0|MAS0_ENT(0)
+.long 0, 0, 0
+
+.long MAS0_TLB0|MAS0_ENT(1)
+.long 0, 0, 0
+
+_tlb_data_early_end:
+
+.section .text.early
+
+/* At this point can access only .text.early
+ */
+_early_setup_tlb:
+  load_const %r3, _tlb_data_early
+
+  li %r4, (_tlb_data_early_end-_tlb_data_early)/16
+  mtctr %r4 /* assume non-zero */
 
 tlb_loop:
+  bl tlb_update
+  /* assume r3 and ctr unchanged */
+  addi %r3, %r3, 16
 
-  lwz %r0, 0(%r1)
+  bdnz+ tlb_loop
+  /* can now access ROM, RAM, and CCSR */
+
+  /* update CCSRBAR with the sequence specified in mpc8540 ref. manual 4.3.1.1.1 */
+  load_const %r3, 0xff700000 /* present location of CCSRBAR */
+  load_const %r4, 0xe1000000>>12 /* the new location */
+  load_const %r5, tlb_loop   /* an arbitrary non-CCSR address */
+
+  lwz %r0, 0(%r3)
+  isync
+  stw %r4, 0(%r3)
+  lwz %r0, 0(%r5)
+  isync
+  lwz %r0, 0(%r4)
+  isync
+  
+  b _start /* prepare eabi C environment then jump to Init() */
+
+
+.global tlb_update
+.type tlb_update, @function
+tlb_update:
+  lis %r0, 0
+
+  lwz %r0, 0(%r3)
   mtspr SPR_MAS0, %r0
-  lwz %r0, 4(%r1)
+  lwz %r0, 4(%r3)
   mtspr SPR_MAS1, %r0
-  lwz %r0, 8(%r1)
+  lwz %r0, 8(%r3)
   mtspr SPR_MAS2, %r0
-  lwz %r0, 12(%r1)
+  lwz %r0, 12(%r3)
   mtspr SPR_MAS3, %r0
 
   sync
@@ -141,15 +121,25 @@ tlb_loop:
   sync
   isync
 
-  addi %r1,%r1,16
-  bdnz tlb_loop
+  blr
+.size tlb_update, .-tlb_update
 
-  b _start
+/* The reset vector is the last instruction in the ROM,
+ * so jump back immediately
+ */
+.section .text.init
 
+.global _vec_reset
+_vec_reset:
+  b _early_setup_tlb
+
+.section .text
+
+/* cleanup registers and exit bootloader */
 .global load_os
+.type load_os, @function
 load_os:
-  load_const %r0, 0x10000
-  mtlr %r0
+  mtlr %r3 /* OS entry point address */
   li %r0, 0
   li %r1, 0
   li %r2, 0
@@ -183,11 +173,4 @@ load_os:
   li %r30, 0
   li %r31, 0
   blr
-
-/* The reset vector is the last instruction in the ROM,
- * so jump back immediately
- */
-.section .text.init
-.global _vec_reset
-_vec_reset:
-  b _setup_tlb
+.size load_os, .-load_os
