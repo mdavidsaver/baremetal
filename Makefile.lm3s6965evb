@@ -1,3 +1,5 @@
+PREFIX=arm-none-eabi-
+
 include ../Makefile.config
 
 MCPU=cortex-m3
@@ -7,14 +9,13 @@ LDADD=libos.a
 
 OBJS = init-m.o arm-id.o common.o printk.o systick-m.o irq-m.o mpu.o
 
-TARGETS = minimal-kern.bin timer-kern.bin mmu-kern.bin cxx-kern.bin
+TARGETS = minimal-kern.bin
 all: $(TARGETS)
 
 minimal-kern.elf: cortexm.ld example-minimal.o libos.a
-timer-kern.elf: cortexm.ld example-timer-irq.o libos.a
-mmu-kern.elf: cortexm.ld example-mmu.o libos.a
-cxx-kern.elf: cortexm.ld example-cxx.o example-cxx2.o libos.a
 
 $(TARGETS): common.ld
 
 include ../Makefile.common
+
+vpath % ../arm ../arm/arm7m ../arm/example

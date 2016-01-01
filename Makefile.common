@@ -1,19 +1,12 @@
 libos.a: $(OBJS)
 
-boot-flash-%.o: %-kern.bin ../boot-flash.S
-	$(GCC) -c ../boot-flash.S -o $@ $(CFLAGS) -DRAM_SIZE=64 -DBOARD_VEXPRESSA9 -DBIN_FILE="\"$<\""
-
-
 clean:
 	rm -f *.o *.elf *.map *.bin *.img *.a
 
-bsp.h:
-	echo "#include "\""${BSP}.h"\" > $@
-
-%.o: %.c bsp.h
+%.o: %.c
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
-%.o: %.cpp Makefile
+%.o: %.cpp
 	$(GXX) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
@@ -40,5 +33,3 @@ bsp.h:
 .SUFFIXES:
 
 -include $(wildcard *.d)
-
-vpath % . ..
