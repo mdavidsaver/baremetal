@@ -7,7 +7,13 @@ from .elf import loadobj
 
 _log = logging.getLogger(__name__)
 
-_proc = namedtuple('Proc', ['name','files','salign','ealign'])
+#_proc = namedtuple('Proc', ['name','files','size','align'])
+class _proc(object):
+    _keys = ['name','files','size','align']
+    name = files = size = align = None
+    def __init__(self, *args, **kws):
+        for K,V in zip(self._keys,args)+kws.items():
+            setattr(self, K, V)
 
 def lg(v):
     return math.ceil(math.log(v,2))
@@ -46,19 +52,36 @@ class LinkScript(object):
                     elif S.name.startswith('.data'):
                         data += S.vsize
 
-        _log.debug('process "%s" data=%d bss=%d', name, data, bss)
+        _log.info('process "%s" data=%d bss=%d', name, data, bss)
 
         total = max(32, data+bss)
         cand = round2(total)
         assert cand>=total
-        _log.debug('align to %d', cand)
 
-        self.procs[name] = _proc(name, files, cand, cand)
+        self.procs[name] = _proc(name, files, total, 0)
+
+    def addextra(self, files):
+        names = dict([('.bss.proc.%s'%P.name,P) for P in self.procs.values()]+
+                     [('.data.proc.%s'%P.name,P) for name in self.procs.values()])
+        for F in files:
+            for elf in loadobj([F]):
+                for S in elf.sections:
+                    if S.name in names:
+                        _log.info('process "%s" extra %d', S.name, S.vsize)
+                        names[S.name].size += S.vsize
+
+    def finalize(self):
+        for P in self.procs.values():
+            P.align = round2(P.size)
+        _log.info('process "%s" size %d align to %d', P.name, P.size, P.align)
 
     def save(self, fname):
+        self.finalize()
         out = StringIO()
         # write prelude for code sections
         out.write("""
+
+INCLUDE "target.ld"
 
 SECTIONS
 {
@@ -66,15 +89,19 @@ SECTIONS
 
     .text :
     {
+      __rom_start = .;
       *(.text.start) /* ensure that entry point appears first */
       . = ALIGN(64);
-      __rom_start = .;
       *(.text .text.*)
     } >ROM =0 /* =0 zeros unused */
 
     .rodata :
     {
       *(.rodata .rodata.*)
+      . = ALIGN(4);
+      PROVIDE_HIDDEN(__sos_procs_start = .);
+      *(.sos.proc)
+      PROVIDE_HIDDEN(__sos_procs_end = .);
     } >ROM =0
 
     /* begin c++ stuff */
@@ -127,17 +154,19 @@ SECTIONS
         # proc specific RAM areas
 
         for P in self.procs.values():
-            KW = {'name':P.name,'align':P.salign}
+            KW = {'name':P.name,'align':P.align}
             out.write("""
     .data.%(name)s :
     {
       . = ALIGN(%(align)d);
+      __%(name)s_memory_start = .;
       __%(name)s_data_start = .;
       __%(name)s_data_load = LOADADDR(.data);
 """%KW)
             for PF in P.files:
                 out.write("      %s(.data .data.* .gnu.linkonce.d.*)\n"%PF)
             out.write("""
+      *(.data.proc.%(name)s)
       __%(name)s_data_end = .;
     } >RAM AT>ROM
 
@@ -149,8 +178,10 @@ SECTIONS
                 out.write("      %s(COMMON)\n"%PF)
                 out.write("      %s(.bss .bss.* .gnu.linkonce.b.*)\n"%PF)
             out.write("""
+      *(.bss.proc.%(name)s)\n
       . = ALIGN(%(align)d);
       __%(name)s_bss_end = .;
+      __%(name)s_memory_end = .;
     } >RAM AT>ROM
 """%KW)
 

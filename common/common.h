@@ -48,11 +48,13 @@ int _elem_in(void* base, void* elem, unsigned S, unsigned count)
 void halt(void);
 
 /* from common.c */
+#ifndef __linux__
 void memcpy(void *dst, const void *src, size_t count);
 void memmove(void *dst, const void *src, size_t count);
 void memset(void *dst, uint8_t val, size_t count);
-unsigned log2(uint32_t v);
-unsigned log2_ceil(uint32_t v);
+#endif
+unsigned log2_floor(uint32_t v) __attribute__((pure));
+unsigned log2_ceil(uint32_t v) __attribute__((pure));
 
 /* from atag.c */
 int processATAG(uint32_t*);
@@ -64,17 +66,12 @@ extern const char *cmd_line;
 void page_alloc_setup(void);
 
 /* from printk.c */
-void puthex(uint32_t v);
-void putdec(int v);
-void putudec(unsigned v);
-void putchar(char c);
-void puts(const char *str);
-void vprintk(unsigned i, const char *fmt, va_list args) __attribute__((format(printf,2,0)));
-void printk(unsigned i, const char *fmt, ...) __attribute__((format(printf,2,3)));
+int vprintk(const char *fmt, va_list args) __attribute__((format(printf,1,0)));
+int printk(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 /* from irq.c */
 
-typedef void(*isrfunc)(unsigned);
+typedef void(*isrfunc)(void);
 
 void irq_setup(void);
 void irq_show(void);
@@ -84,61 +81,16 @@ int isr_disable(unsigned vect);
 int isr_active(void);
 
 unsigned irq_mask(void);
-void irq_unmask(unsigned m);
+void irq_restore(unsigned m);
 
 /* from page-alloc.c */
+void *early_alloc(size_t size, unsigned flags);
+void early_free(char *ptr, size_t asize);
 void* page_alloc(void);
 void page_free(void* addr);
 
-/* byte order swap */
-
-static inline __attribute__((always_inline,unused))
-uint32_t swap32(uint32_t v)
-{
-    __asm__ ( "rev %1, %1" : "+r" (v) : : );
-    return v;
-}
-
-static inline __attribute__((always_inline,unused))
-uint16_t swap16(uint16_t v)
-{
-    __asm__ ( "rev16 %1, %1" : "+r" (v) : : );
-    return v;
-}
-
-/* MMIO access */
-
-static inline __attribute__((always_inline,unused))
-void out32(volatile void *addr, uint32_t val)
-{
-    *(volatile uint32_t*)addr = val;
-}
-static inline __attribute__((always_inline,unused))
-void out16(volatile void *addr, uint16_t val)
-{
-    *(volatile uint16_t*)addr = val;
-}
-static inline __attribute__((always_inline,unused))
-void out8(volatile void *addr, uint8_t val)
-{
-    *(volatile uint8_t*)addr = val;
-}
-
-static inline __attribute__((always_inline,unused))
-uint32_t in32(volatile void *addr)
-{
-    return *(volatile uint32_t*)addr;
-}
-static inline __attribute__((always_inline,unused))
-uint32_t in16(volatile void *addr)
-{
-    return *(volatile uint16_t*)addr;
-}
-static inline __attribute__((always_inline,unused))
-uint32_t in8(volatile void *addr)
-{
-    return *(volatile uint8_t*)addr;
-}
+#define swap16 __builtin_bswap16
+#define swap32 __builtin_bswap32
 
 #define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
 void _assert_fail(const char *cond,

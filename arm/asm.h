@@ -1,13 +1,28 @@
 #ifndef ASM_H
 #define ASM_H
 
-#ifdef __asm__
+#ifdef __ASSEMBLER__
 
-#define FUNC(label) .type label, function; label:
+.macro funct n
+.type \n STT_FUNC
+.thumb_func
+\n:
+.endm
 
-#define OBJ(label) .type label, object; label:
+.macro endfunct n
+.size \n, .-\n
+.endm
 
-#define END(label) .size label, .-label
+.macro object n
+.type \n STT_OBJECT
+\n:
+.endm
+
+.macro endobject n
+.size \n, .-\n
+.endm
+
+#define END(LBL) .size LBL, .-LBL
 
 #define GLOBAL(label) .global label
 #define WEAK(label) .weak label

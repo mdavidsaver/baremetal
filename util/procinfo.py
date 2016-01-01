@@ -4,14 +4,18 @@ from cStringIO import StringIO
 class ProcInfo(object):
     def __init__(self):
         self.out = StringIO()
-        self.out.write("#include <process.h>\n\n")
+        self.out.write("#include <process.h>\n#include <stddef.h>\n")
 
     def addproc(self, PC):
         out = self.out
+
         out.write("""
 
-extern char stack_%(name)s_bottom,
-            stack_%(name)s_top,
+static
+thread proc_%(name)s_threads[];
+
+extern char __%(name)s_memory_start,
+            __%(name)s_memory_end,
             __%(name)s_data_start,
             __%(name)s_data_end,
             __%(name)s_data_load,
@@ -24,12 +28,13 @@ extern char stack_%(name)s_bottom,
             __%(name)s_fini_array_start,
             __%(name)s_fini_array_end;
 
+static
 const process_config proc_%(name)s_info = {
-    .stack_bottom = &stack_%(name)s_bottom,
-    .stack_top = &stack_%(name)s_top;
+    .memory_start = &__%(name)s_memory_start,
+    .memory_end = &__%(name)s_memory_end,
     .data_start = &__%(name)s_data_start,
     .data_end = &__%(name)s_data_end,
-    .data_load = &__%(name)s_data_load;
+    .data_load = &__%(name)s_data_load,
     .bss_start = &__%(name)s_bss_start,
     .bss_end = &__%(name)s_bss_end,
     .preinit_array_start = &__%(name)s_preinit_array_start,
@@ -38,11 +43,59 @@ const process_config proc_%(name)s_info = {
     .init_array_end = &__%(name)s_init_array_end,
     .fini_array_start = &__%(name)s_fini_array_start,
     .fini_array_end = &__%(name)s_fini_array_end,
-    .super = !!%(super)s,
+    .threads = proc_%(name)s_threads,
+    .super = !!%(sup)s,
     .name = "%(name)s"
 };
 
-"""%{'name':PC.name, 'super':PC.sup})
+process proc_%(name)s = {
+    .info = &proc_%(name)s_info,
+};
+
+const process *proc_%(name)s_p
+__attribute__((section(".sos.proc")))
+ = &proc_%(name)s;
+
+"""%PC)
+
+        for T in PC['threads']:
+
+            out.write("""
+extern int %(entry)s(const char *);
+
+static
+char thread_%(name)s_stack[%(stack_size)d]
+  __attribute__((section(".bss.proc.%(proc)s"),aligned(4)));
+
+static
+const thread_config thread_%(name)s_conf = {
+    .prio = %(prio)d,
+    .entry = &%(entry)s,
+    .stack = thread_%(name)s_stack,
+    .stack_size = sizeof(thread_%(name)s_stack),
+    .autostart = !!%(autostart)d,
+    .name = "%(name)s"
+};
+"""%T)
+
+        out.write("""
+static
+thread proc_%(name)s_threads[] = {
+"""%PC)
+
+        for T in PC['threads']:
+
+            out.write("""
+    {
+        .info = &thread_%(name)s_conf,
+        .proc = &proc_%(proc)s,
+    },
+"""%T)
+
+        out.write("""
+    {.info=NULL}
+};
+""")
 
     def save(self, fname):
         from .common import writeout

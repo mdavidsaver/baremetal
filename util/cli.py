@@ -7,7 +7,8 @@ def linkscript(A):
     from .armlink import LinkScript
     L = LinkScript()
     for P in A.config.procs:
-        L.addproc(P.name, P.files)
+        L.addproc(P['name'], P['files'])
+    L.addextra(A.extra)
     L.save(A.outfile)
 
 def proc_conf(A):
@@ -22,7 +23,8 @@ def objdep(A):
     out = StringIO()
     out.write(A.targetname+":")
     for P in A.config.procs:
-        [out.write(' "%s"'%F) for F in P.files]
+        [out.write(' %s'%F) for F in P['files']]
+    out.write("\n")
 
     from .common import writeout
     writeout(A.outfile, out)
@@ -42,6 +44,8 @@ def getargs():
     SP = P.add_subparsers(help='Sub-commands')
 
     X = SP.add_parser('linkscript')
+    X.add_argument('-E','--extra', metavar='FILE', help='extra elf file to search for proc sections',
+                   action='append', default=[])
     X.add_argument('outfile',help='Write linker script to this file')
     X.set_defaults(func=linkscript)
 

@@ -8,6 +8,8 @@ char __ram_start;
 /* first byte in RAM after code and static data */
 char __after_all_load;
 
+char *start_of_heap = &__after_all_load;
+
 typedef struct page_info {
     struct page_info *next, *prev;
     unsigned int allocd:1;
@@ -19,9 +21,34 @@ char *page_start;
 
 page_info *first_free;
 
+void *early_alloc(size_t size, unsigned align)
+{
+    char *ret;
+    if(!start_of_heap)
+        return NULL; /* page_alloc_setup() already called */
+    align--;
+    ret = start_of_heap;
+    if(align&(size_t)ret) {
+        ret = (char*)(1 + (align|(size_t)ret));
+    }
+    start_of_heap = ret+size;
+    memset(ret, 0, size);
+    return ret;
+}
+
+void early_free(char *ptr, size_t asize)
+{
+    if(ptr+asize==start_of_heap) {
+        /* really free if no other allocates made, less alignment */
+        start_of_heap = ptr;
+    } else {
+        /* lost */
+    }
+}
+
 void page_alloc_setup(void)
 {
-    char *startaddr = _PAGE_UP(&__after_all_load),
+    char *startaddr = _PAGE_UP(start_of_heap),
          *endaddr = _PAGE_UP((&__ram_start)+RamSize);
     size_t info_per_page = PAGE_SIZE/sizeof(page_info),
            dynsize = endaddr-startaddr,
@@ -29,6 +56,8 @@ void page_alloc_setup(void)
            ninfos = 0,
            pages_for_info = 0,
            i;
+
+    start_of_heap = NULL; /* disable early_alloc */
 
     {
         while(ninfos<npages) {
@@ -39,14 +68,14 @@ void page_alloc_setup(void)
     }
 
 #ifdef PAGE_DEBUG
-    printk(0, "startaddr %p\n", startaddr);
-    printk(0, "endaddr %p\n", endaddr);
-    printk(0, "dynsize %u\n", (unsigned)dynsize);
-    printk(0, "info_per_page %u\n", (unsigned)info_per_page);
-    printk(0, "npages %u\n", (unsigned)npages);
-    printk(0, "ninfos %u\n", (unsigned)ninfos);
-    printk(0, "pages_for_info %u\n", (unsigned)pages_for_info);
-    printk(0, "sizeof(page_info) 0x%x\n", (unsigned)sizeof(page_info));
+    printk("startaddr %p\n", startaddr);
+    printk("endaddr %p\n", endaddr);
+    printk("dynsize %u\n", (unsigned)dynsize);
+    printk("info_per_page %u\n", (unsigned)info_per_page);
+    printk("npages %u\n", (unsigned)npages);
+    printk("ninfos %u\n", (unsigned)ninfos);
+    printk("pages_for_info %u\n", (unsigned)pages_for_info);
+    printk("sizeof(page_info) 0x%x\n", (unsigned)sizeof(page_info));
 #endif
 
     assert(npages>0);
@@ -60,9 +89,9 @@ void page_alloc_setup(void)
     page_start = startaddr;
 
 #ifdef PAGE_DEBUG
-    printk(0, "page_info_base %p\n", page_info_base);
-    printk(0, "page_info_count %u\n", (unsigned)page_info_count);
-    printk(0, "page_start %p\n", page_start);
+    printk("page_info_base %p\n", page_info_base);
+    printk("page_info_count %u\n", (unsigned)page_info_count);
+    printk("page_start %p\n", page_start);
 #endif
 
     page_info_base[0].prev = NULL;
@@ -97,11 +126,11 @@ void* page_alloc(void)
         pages_free--;
     }
 
-    irq_unmask(mask);
+    irq_restore(mask);
 
     if(!info) {
 #ifdef PAGE_DEBUG
-        printk(0, "page_alloc() -> NULL\n");
+        printk("page_alloc() -> NULL\n");
 #endif
         return NULL;
     }
@@ -115,7 +144,7 @@ void* page_alloc(void)
         page = page_start + idx*PAGE_SIZE;
         memset(page, 0, PAGE_SIZE);
 #ifdef PAGE_DEBUG
-        printk(0, "page_alloc() -> %p (%u %p)\n", page, (unsigned)idx, info);
+        printk("page_alloc() -> %p (%u %p)\n", page, (unsigned)idx, info);
 #endif
         return page;
     }
@@ -129,7 +158,7 @@ void page_free(void* addr)
 
     if(!addr) {
 #ifdef PAGE_DEBUG
-        printk(0, "page_free(NULL)\n");
+        printk("page_free(NULL)\n");
 #endif
         return;
     }
@@ -141,12 +170,12 @@ void page_free(void* addr)
     info = &page_info_base[idx];
 
 #ifdef PAGE_DEBUG
-        printk(0, "page_free(%p)  (%u %p)\n", addr, (unsigned)idx, info);
+        printk("page_free(%p)  (%u %p)\n", addr, (unsigned)idx, info);
 #endif
 
     mask = irq_mask();
     if(!info->allocd) {
-        printk(0, "Already free'd %p\n", addr);
+        printk("Already free'd %p\n", addr);
         halt();
     }
     assert(info->allocd);
@@ -159,11 +188,11 @@ void page_free(void* addr)
     if(info->next)
         info->next->prev = info;
 
-    irq_unmask(mask);
+    irq_restore(mask);
 
     return;
 badaddr:
-    printk(0, "Can't free non-heap %p.  leaking\n", addr);
+    printk("Can't free non-heap %p.  leaking\n", addr);
 }
 
 size_t page_free_count(void)
@@ -172,6 +201,6 @@ size_t page_free_count(void)
     unsigned mask;
     mask = irq_mask();
     ret = pages_free;
-    irq_unmask(mask);
+    irq_restore(mask);
     return ret;
 }

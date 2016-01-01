@@ -13,12 +13,15 @@ class Config(object):
             ast = parseAST(F.read())
         self._kv = {}
         self._procs = OrderedDict()
+        self._threads = set()
 
         for ent in ast:
             if ent.name=='bsp' and ent.value is None:
                 self._setbsp(ent.children)
             elif ent.name=='process':
                 self._addproc(ent.value, ent.children)
+            elif ent.name=='thread':
+                self._addthr(ent.value, ent.children)
             else:
                 _log.warning("Unknown section: %s", ast)
 
@@ -31,24 +34,45 @@ class Config(object):
             else:
                 self._kv[ent.name] = ent.value
 
-    class Proc(object):
-        sup = 0
-        files = None
-
     def _addproc(self, name, ast):
-        P = self.Proc()
-        P.name = name
+        if name in self._procs:
+            raise RuntimeError("Duplicate process name '%s'"%name)
+        P = {'name':name, 'id':len(self._procs),
+             'sup':0,
+             'threads':[],
+        }
         for ent in ast:
             if ent.name=='objects':
-                P.files = list(ent.value)
+                P['files'] = list(ent.value)
             elif ent.name=='supervisor':
-                P.sup = int(ent.value)
+                P['sup'] = int(ent.value)
+            elif ent.name in []:
+                P[ent.name] = ent.value
             else:
                 _log.warning("Unknown process key: '%s'", ent)
 
-        if P.files is None:
+        if P.get('files') is None:
             raise RuntimeError("process '%s' has not objects"%name)
         self._procs[name] = P
+
+    def _addthr(self, name, ast):
+        if name in self._threads:
+            raise RuntimeError("Duplicate thread name '%s'"%name)
+        T = {'name':name, 'prio':0, 'autostart':0,
+             'stack_size':1024,
+        }
+        for ent in ast:
+            if ent.name in ['proc', 'entry', 'autostart']:
+                T[ent.name] = ent.value
+
+        if T.get('entry') is None:
+            raise RuntimeError("thread '%s' has not entry point (main function)"%name)
+        try:
+            P = self._procs[T['proc']]
+        except KeyError:
+            raise RuntimeError("thread '%s' has not process"%name)
+        else:
+            P['threads'].append(T)
 
     @property
     def procs(self):

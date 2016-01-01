@@ -17,15 +17,15 @@ clean:
 	$(AR) rcsD $@.tmp $(filter %.o,$^)
 	mv $@.tmp $@
 
-%.elf: crt0.o
-	$(GXX) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter-out crt0.o,$(filter %.o,$^)) $(filter %.a,$^) -lgcc $(LDADD) $(*_LDADD)
+%.elf: crt0.o %.ld %.conf.o $(SYSTEM)
+	$(GXX) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter-out crt0.o,$(filter %.o,$^)) $(filter %.a,$^) -lgcc $(LDADD) $(*_LDADD)
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
 
 %.img: %.bin
 	rm -f $@
-	dd if=/dev/zero of=$@ bs=1M count=64 conv=sparse
+	dd if=/dev/zero of=$@ bs=$(IMG_BS) count=$(IMG_COUNT) conv=sparse
 	dd if=$< of=$@ bs=1M conv=notrunc,sparse
 
 .PRECIOUS: %.bin %.img
@@ -33,3 +33,5 @@ clean:
 .SUFFIXES:
 
 -include $(wildcard *.d)
+
+vpath % $(SRCDIRS:%=../%)

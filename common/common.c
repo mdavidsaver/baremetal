@@ -51,7 +51,7 @@ void memset(void *dst, uint8_t val, size_t count)
  *  log2(32) -> 6
  *  log2(33) -> 6
  */
-unsigned log2(uint32_t v)
+unsigned log2_floor(uint32_t v)
 {
     unsigned r=0;
     while(v) {
@@ -82,7 +82,7 @@ void _assert_fail(const char *cond,
                   const char *file,
                   unsigned int line)
 {
-    printk(0, "%s:%u assertion fails: %s\n",
+    printk("%s:%u assertion fails: %s\n",
            file, line, cond);
     halt();
 }

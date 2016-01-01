@@ -1,6 +1,7 @@
-TARGETS=lm3s6965evb
+TARGETS=lm3s6965evb host
 
 all: $(TARGETS:%=all-%)
+dep: $(TARGETS:%=dep-%)
 clean:
 	rm -rf $(TARGETS:%=build-%)
 
@@ -9,12 +10,14 @@ help:
 	@echo " make all|clean|help"
 	@echo " make *-TARGET"
 
-.PHONY: all clean help
+.PHONY: all dep clean help
 
 define withtarg =
-%-$(1):
+%-$(1): build-$(1)/Makefile
+	$(MAKE) -C build-$(1) $$*
+build-$(1)/Makefile:
 	[ -d build-$(1) ] || install -d build-$(1)
-	$(MAKE) -f ../Makefile.$(1) -C build-$(1) all TOP=.. BSP=$(1)
+	printf "BSP=$(1)\nTOP=..\ninclude ../Makefile.$(1)\n" > $$@
 .PHONY: %-$(1)
 endef
 

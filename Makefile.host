@@ -1,0 +1,25 @@
+
+
+GCC=gcc
+GXX=g++
+
+SRCDIRS=test common
+
+CFLAGS=-MMD -g -Wall -Werror
+
+CFLAGS+=$(SRCDIRS:%=-I../%)
+LDFLAGS+=$(SRCDIRS:%=-L../%)
+
+all: test-uart
+dep:
+.PHONY: all dep
+
+test-uart: test-uart.o term_print.o
+	echo "X $<"
+	$(GXX) -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o, $^)
+
+%.o: %.c
+	$(GCC) -o $@ -c $< $(CFLAGS)
+
+-include $(wildcard *.d)
+vpath % . $(SRCDIRS:%=../%)
