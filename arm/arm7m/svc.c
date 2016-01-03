@@ -4,6 +4,9 @@
 #include "uart.h"
 #include "systick.h"
 
+extern process *__sos_procs_start,
+               *__sos_procs_end;
+
 static inline __attribute__((always_inline))
 uint32_t user_in32(void *addr)
 {
@@ -25,9 +28,47 @@ typedef int (*svc_fn)(uint32_t *frame);
 static
 int svc_halt(uint32_t *frame)
 {
-    //TODO abort() process only
-    halt();
-    return -1; // never reached
+    unsigned alive = 0;
+    thread *T = thread_scheduler[0], *N;
+    process *P = T->proc;
+    assert(T->active && P->running);
+
+    thread_suspend(T);
+    T->active = 0;
+
+    for(N=P->info->threads; N->info; N++) {
+        alive |= N->active;
+    }
+
+    if(alive) {
+        // there is at least one more thread active in this process
+        // nothing more to do
+        return 0;
+    } else if(P->initialized) {
+        // this was the last thread in the process, it now becomes the cleaner
+        process_cleanup(T);
+        thread_resume(T);
+        // the cleaner will clear 'initialized' then halt again
+        return 0;
+    } else {
+        // the cleaner completed
+        P->running = 0;
+    }
+
+    // any processes still running?
+    {
+        alive = 0;
+        process **S = &__sos_procs_start,
+                **E = &__sos_procs_end;
+        for(;S<E; S++) {
+            P = *S;
+            alive |= P->running;
+        }
+    }
+
+    if(!alive)
+        halt();
+    return 0;
 }
 
 static

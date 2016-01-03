@@ -1,6 +1,13 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
+#ifndef __KERNEL__
+# define __KERNEL__ 1
+# ifdef __USER__
+#  error When including both kernel.h and user.h, kernel.h must appear first
+# endif
+#endif
+
 #include "common.h"
 
 

@@ -1,6 +1,10 @@
 #ifndef USER_H
 #define USER_H
 
+#ifndef __USER__
+#define __USER__ 1
+#endif
+
 #include "common.h"
 
 #define SYSCALL(N, NAME, ...) \

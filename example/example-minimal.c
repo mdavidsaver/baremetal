@@ -50,5 +50,4 @@ void Init(void)
     }
 
     printk("Done\n");
-    halt();
 }

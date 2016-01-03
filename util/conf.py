@@ -25,6 +25,8 @@ class Config(object):
             else:
                 _log.warning("Unknown section: %s", ast)
 
+        self.validate()
+
     def _setbsp(self, ast):
         for ent in ast:
             if ent.children is not None:
@@ -39,18 +41,22 @@ class Config(object):
             raise RuntimeError("Duplicate process name '%s'"%name)
         P = {'name':name, 'id':len(self._procs),
              'sup':0,
-             'threads':[],
+             'threads':OrderedDict(),
+             'autostart':0,
+             'main':None,
         }
         for ent in ast:
             if ent.name=='objects':
                 P['files'] = list(ent.value)
             elif ent.name=='supervisor':
                 P['sup'] = int(ent.value)
-            elif ent.name in []:
+            elif ent.name in ['autostart','main']:
                 P[ent.name] = ent.value
             else:
                 _log.warning("Unknown process key: '%s'", ent)
 
+        if P.get('main') is None:
+            raise RuntimeError("process '%' has no main thread"%name)
         if P.get('files') is None:
             raise RuntimeError("process '%s' has not objects"%name)
         self._procs[name] = P
@@ -58,11 +64,11 @@ class Config(object):
     def _addthr(self, name, ast):
         if name in self._threads:
             raise RuntimeError("Duplicate thread name '%s'"%name)
-        T = {'name':name, 'prio':0, 'autostart':0,
-             'stack_size':1024,
+        T = {'name':name, 'prio':0,
+             'stack_size':1024, 'proc_main':0,
         }
         for ent in ast:
-            if ent.name in ['proc', 'entry', 'autostart']:
+            if ent.name in ['proc', 'entry']:
                 T[ent.name] = ent.value
 
         if T.get('entry') is None:
@@ -72,7 +78,21 @@ class Config(object):
         except KeyError:
             raise RuntimeError("thread '%s' has not process"%name)
         else:
-            P['threads'].append(T)
+            P['threads'][name] = T
+            self._threads.add(name)
+
+    def validate(self):
+        AS = 0
+        for P in self._procs.values():
+            try:
+                MT = P['threads'][P['main']]
+                AS += P['autostart']
+                MT['proc_main'] = 1
+            except KeyError:
+                raise RuntimeError("process '%s' entry point '%s' thread must be in this process"%(P['name'], MT['main']))
+
+        if not AS:
+            raise RuntimeError("No processes marked for autostart, not much would happen")
 
     @property
     def procs(self):

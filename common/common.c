@@ -5,9 +5,7 @@
  */
 
 #include "kernel.h"
-#define __KERNEL__
 #include "user.h"
-#undef __KERNEL__
 #include "bsp.h"
 
 #ifdef DEF_RAM_SIZE

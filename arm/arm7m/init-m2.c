@@ -6,6 +6,7 @@
 #include "process.h"
 
 void prepare_processes(void);
+void start_threading(void);
 
 void bsp_setup_early(void) __attribute__((weak));
 void uart_setup(void) __attribute((weak));
@@ -60,7 +61,8 @@ void setup_c(void)
     bsp_setup();
     __asm__ volatile ("dsb\n" "cpsie if" :::"memory");
 
-    prepare_processes(); // never returns
+    prepare_processes();
+    start_threading(); // never returns
 }
 
 unsigned irq_mask(void)

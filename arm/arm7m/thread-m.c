@@ -54,6 +54,32 @@ uint32_t thread_do_switch(uint32_t *frame)
     return ret;
 }
 
+int process_start(process *P)
+{
+    thread *T;
+    if(P->running)
+        return -1;
+    for(T=P->info->threads; T->info; T++)
+    {
+        if(!T->info->proc_main)
+            continue;
+        thread_start(T);
+        P->running = 1;
+        return 0;
+    }
+    return -2; // no entry point thread, this should be trapped at config time
+}
+
+int thread_start(thread *T)
+{
+    if(T->active)
+        return -1;
+    T->active = 1;
+    T->holdcount = 1;
+    thread_resume(T);
+    return 0;
+}
+
 void
 thread_resume(thread *T)
 {

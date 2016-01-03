@@ -44,7 +44,8 @@ const process_config proc_%(name)s_info = {
     .fini_array_start = &__%(name)s_fini_array_start,
     .fini_array_end = &__%(name)s_fini_array_end,
     .threads = proc_%(name)s_threads,
-    .super = !!%(sup)s,
+    .super = !!%(sup)d,
+    .autostart = !!%(autostart)d,
     .name = "%(name)s"
 };
 
@@ -58,7 +59,8 @@ __attribute__((section(".sos.proc")))
 
 """%PC)
 
-        for T in PC['threads']:
+        for T in PC['threads'].values():
+            print('XXXXX',T)
 
             out.write("""
 extern int %(entry)s(const char *);
@@ -73,7 +75,7 @@ const thread_config thread_%(name)s_conf = {
     .entry = &%(entry)s,
     .stack = thread_%(name)s_stack,
     .stack_size = sizeof(thread_%(name)s_stack),
-    .autostart = !!%(autostart)d,
+    .proc_main = !!%(proc_main)d,
     .name = "%(name)s"
 };
 """%T)
@@ -83,7 +85,7 @@ static
 thread proc_%(name)s_threads[] = {
 """%PC)
 
-        for T in PC['threads']:
+        for T in PC['threads'].values():
 
             out.write("""
     {

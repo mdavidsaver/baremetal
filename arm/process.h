@@ -17,7 +17,8 @@
 #define FRAME_PC 6
 #define FRAME_PSR 7
 /* additional registers we stack when we decide to context switch.
- * These are written to the stack *without* updating SP
+ * These are written to the stack *without* updating SP.
+ * These should not be used to inspect the current thread.
  */
 #define FRAME_R4 -8
 #define FRAME_R5 -7
@@ -50,12 +51,14 @@ struct process_config {
     char *fini_array_start, *fini_array_end;
     thread *threads;
     unsigned int super:1;
+    unsigned int autostart:1;
     const char *name;
 };
 
 struct process {
     const process_config * const info;
-    unsigned int initialized;
+    unsigned int initialized:1;
+    unsigned int running:1;
 
 #ifdef ARM7M
     uint32_t mpu_settings[2*MPU_USER_REGIONS];
@@ -67,7 +70,7 @@ struct thread_config {
     int (*entry)(const char*);
     void *stack;
     uint32_t stack_size;
-    unsigned int autostart:1;
+    unsigned proc_main:1;
     const char *name;
 };
 
@@ -89,6 +92,11 @@ struct thread {
 extern thread *thread_scheduler[2]; /* {current, next} */
 
 #define thread_scheduler ((thread* volatile*)thread_scheduler)
+
+int process_start(process*);
+void process_cleanup(thread *T);
+
+int thread_start(thread*);
 
 void thread_resume(thread*);
 void thread_suspend(thread*);

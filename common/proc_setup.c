@@ -1,6 +1,7 @@
 
 #include "kernel.h"
 #include "process.h"
+#include "user.h"
 
 extern process *__sos_procs_start,
                *__sos_procs_end;
@@ -52,6 +53,44 @@ thread thread_main = {
 };
 
 static
+void _thread_return(void)
+{
+    sys_halt();
+}
+
+static
+void _proc_cleaner(thread *T, const char *cmd)
+{
+    // TODO: run dtors here
+    T->proc->initialized = 0;
+    sys_halt();
+}
+
+void process_cleanup(thread *T)
+{
+    assert(!T->active);;
+#if defined(ARM7M)
+
+    uint32_t *frame;
+    T->frame = T->info->stack_size+(char*)T->info->stack;
+    T->frame -= 4*7;
+
+    frame = (uint32_t*)T->frame;
+    frame[FRAME_R0] = (uint32_t)T;
+    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return;
+    /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
+    frame[FRAME_PC] = ~1&(uint32_t)&_proc_cleaner;
+    frame[FRAME_PSR]= (1<<24); // always thumb state
+
+    __asm__ volatile ("msr PSP, %0" :: "r"(frame):);
+#else
+#error Not implemented
+#endif
+    T->holdcount = 1;
+    T->active = 1;
+}
+
+static
 void _proc_init(thread *T)
 {
     process *proc = T->proc;
@@ -76,8 +115,7 @@ void _thread_start(thread *T, const char *cmd)
     _proc_init(T);
     ret = (T->info->entry)(cmd);
     (void)ret; // todo
-    T->active = 0;
-    asm("dsb\n" "svc 1"); // yield w/ !active destroy thread
+    sys_halt();
 }
 
 static void thread_prepare(thread *T)
@@ -89,7 +127,7 @@ static void thread_prepare(thread *T)
 
     frame = (uint32_t*)T->frame;
     frame[FRAME_R0] = (uint32_t)T;
-    frame[FRAME_LR] = (uint32_t)&halt;
+    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return; // TODO: really clear IM bit for LR????
     /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
     frame[FRAME_PC] = ~1&(uint32_t)&_thread_start;
     frame[FRAME_PSR]= (1<<24); // always thumb state
@@ -163,15 +201,21 @@ void prepare_processes(void)
                 T->frame = T->info->stack;
 
                 thread_prepare(T);
-
-                if(T->info->autostart) {
-                    printk("  Autostart\n");
-                    T->active = 1;
-                    T->holdcount = 1;
-                    thread_resume(T);
-                }
             }
         }
+    }
+}
+
+void start_threading(void)
+{
+    process **S = &__sos_procs_start,
+            **E = &__sos_procs_end;
+
+    for(;S<E; S++) {
+        process *P = *S;
+        if(!P->info->autostart)
+            return;
+        process_start(P);
     }
 
     // main thread yields
