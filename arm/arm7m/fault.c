@@ -1,5 +1,5 @@
 
-#include "common.h"
+#include "kernel.h"
 #include "cpu.h"
 
 void hardfault_handler(void) {

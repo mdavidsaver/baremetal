@@ -1,6 +1,5 @@
 
-#include "common.h"
-
+#include "kernel.h"
 
 /* some variables to see if we're loading up the data and bss sections correctly */
 volatile uint32_t ioportbase;

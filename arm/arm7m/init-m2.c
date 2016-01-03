@@ -1,6 +1,6 @@
 
 #include "arm7m.h"
-#include "common.h"
+#include "kernel.h"
 #include "uart.h"
 #include "process.h"
 
@@ -167,7 +167,6 @@ void mpu_region(unsigned n, uint32_t base, uint32_t size, uint32_t attrs)
 
 extern char __rom_start, __rom_end;
 extern char __ram_start;
-uint32_t RamSize;
 
 static void mpu_setup(void)
 {

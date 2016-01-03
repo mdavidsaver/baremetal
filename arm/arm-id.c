@@ -1,6 +1,6 @@
 
 #include "cpu.h"
-#include "common.h"
+#include "kernel.h"
 
 void show_arm_id(void)
 {

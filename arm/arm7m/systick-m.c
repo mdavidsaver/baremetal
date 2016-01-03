@@ -2,7 +2,7 @@
  */
 
 #include "bsp.h"
-#include "common.h"
+#include "kernel.h"
 #include "systick.h"
 
 //#define SYSTICK_DEBUG

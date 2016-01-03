@@ -15,6 +15,11 @@ extern "C" {
 #define ARM_MODE_SYS 31
 #define ARM_MODE_MASK 0x1f
 
+/* from atag.c */
+int processATAG(uint32_t*);
+extern uint32_t board_id;
+extern const char *cmd_line;
+
 #ifdef __cplusplus
 }
 #endif

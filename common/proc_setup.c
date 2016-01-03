@@ -1,5 +1,5 @@
 
-#include "common.h"
+#include "kernel.h"
 #include "process.h"
 
 extern process *__sos_procs_start,

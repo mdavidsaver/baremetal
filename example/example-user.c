@@ -17,6 +17,7 @@ void show_arm_id(void);
 void Init(void)
 {
     printf("hello world!\n");
+    //show_arm_id();
 
     /* check that .bss and .data are setup correctly */
     printf("ioportbase %x expect zero\n", (unsigned)ioportbase);

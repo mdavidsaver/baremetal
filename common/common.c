@@ -4,7 +4,7 @@
  * Michael Davidsaver <mdavidsaver@gmail.com>
  */
 
-#include "common.h"
+#include "kernel.h"
 #include "bsp.h"
 
 #ifdef DEF_RAM_SIZE

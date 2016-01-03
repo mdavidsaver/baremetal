@@ -44,8 +44,13 @@ int _elem_in(void* base, void* elem, unsigned S, unsigned count)
 
 #define EXTRACT(V, S, E) (((V)>>(S))&BMASK((E)-(S)+1))
 
-/* Shutdown the system from init.S */
-void halt(void);
+#define swap16 __builtin_bswap16
+#define swap32 __builtin_bswap32
+
+#define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
+void _assert_fail(const char *cond,
+                  const char *file,
+                  unsigned int line);
 
 /* from common.c */
 #ifndef __linux__
@@ -56,46 +61,8 @@ void memset(void *dst, uint8_t val, size_t count);
 unsigned log2_floor(uint32_t v) __attribute__((pure));
 unsigned log2_ceil(uint32_t v) __attribute__((pure));
 
-/* from atag.c */
-int processATAG(uint32_t*);
-extern uint32_t board_id;
 extern uint32_t RamSize;
-extern const char *cmd_line;
 
-/* from page-alloc.c */
-void page_alloc_setup(void);
-
-/* from printk.c */
-int vprintk(const char *fmt, va_list args) __attribute__((format(printf,1,0)));
-int printk(const char *fmt, ...) __attribute__((format(printf,1,2)));
-
-/* from irq.c */
-
-typedef void(*isrfunc)(void);
-
-void irq_setup(void);
-void irq_show(void);
-int isr_install(unsigned vect, isrfunc fn);
-int isr_enable(unsigned vect);
-int isr_disable(unsigned vect);
-int isr_active(void);
-
-unsigned irq_mask(void);
-void irq_restore(unsigned m);
-
-/* from page-alloc.c */
-void *early_alloc(size_t size, unsigned flags);
-void early_free(char *ptr, size_t asize);
-void* page_alloc(void);
-void page_free(void* addr);
-
-#define swap16 __builtin_bswap16
-#define swap32 __builtin_bswap32
-
-#define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
-void _assert_fail(const char *cond,
-                  const char *file,
-                  unsigned int line);
 
 #ifdef __cplusplus
 }
