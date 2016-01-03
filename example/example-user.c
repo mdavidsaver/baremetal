@@ -25,6 +25,7 @@ void Init(void)
     printf("ioportbase2 0xdeadbeef %x\n", (unsigned)ioportbase2);
     printf("foobar2 0x1badface %x\n", (unsigned)foobar2);
     printf("roval 0x12345678 %x\n", (unsigned)roval);
+    flush();
 
     {
         static int I[] = {0, 1, -1, 10, -10, 11, -11, 503, -203};
@@ -36,6 +37,7 @@ void Init(void)
             printf("%d\n", I[i]);
         }
     }
+    flush();
 
     printf("Unsigned %u\n", (unsigned)-1);
 

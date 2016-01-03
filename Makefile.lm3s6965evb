@@ -4,7 +4,7 @@ SRCDIRS=arm arm/arm7m arm/$(BSP) common example
 SYSTEM=init-m.o init-m2.o board_setup.o
 SYSTEM+=page-alloc.o ell.o
 SYSTEM+=common.o term_print.o printk.o
-SYSTEM+=fault.o exception.o svc.o systick-m.o
+SYSTEM+=fault.o exception.o svc.o user.o systick-m.o
 SYSTEM+=thread-m.o proc_setup.o
 
 IMG_BS=1M

@@ -5,6 +5,9 @@
  */
 
 #include "kernel.h"
+#define __KERNEL__
+#include "user.h"
+#undef __KERNEL__
 #include "bsp.h"
 
 #ifdef DEF_RAM_SIZE
@@ -82,7 +85,14 @@ void _assert_fail(const char *cond,
                   const char *file,
                   unsigned int line)
 {
-    printk("%s:%u assertion fails: %s\n",
-           file, line, cond);
+    uint32_t control = 0;
+    __asm__ ("mrs %0, CONTROL" : "=r"(control)::);
+    if(control==3) { /* thread mode and unpriv */
+        printf("%s:%u assertion fails: %s\n",
+               file, line, cond);
+    } else { /* handler or priv */
+        printk("%s:%u assertion fails: %s\n",
+               file, line, cond);
+    }
     halt();
 }

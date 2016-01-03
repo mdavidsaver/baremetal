@@ -63,13 +63,15 @@ funct _setup
 funct halt
   cpsid if /* ignored if unpriv */
 
-  mrs r0, PRIMASK  /* unprivlaged always reads as zero */
-  cmp r0, #0
+  mrs r0, CONTROL
+  cmp r0, #3  /* thread mode and unprivlaged */
   itt eq
   svceq #0  /* SVC thread exit */
   beq _stuck /* should never be reached */
 
-  /* priv continues */
+  /* priv or handler continues */
+  ldr r0, =halt_msg
+  blx uart_puts
 
   /* request shutdown */
 
@@ -126,6 +128,11 @@ _data_loop:
 
   bx lr
 endfunct _move_data
+
+.section .rodata
+object halt_msg
+.string "halt\n"
+endobject halt_msg
 
 .section .bss
 .align 2

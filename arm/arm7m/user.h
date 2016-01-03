@@ -11,6 +11,7 @@
 #ifndef __KERNEL__
 #define halt sys_halt
 #define yield sys_yield
+#define printk() cant_user_printk_in_user()
 #endif
 
 int vprintf(const char *fmt, va_list args) __attribute__((format(printf,1,0)));

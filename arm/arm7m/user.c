@@ -3,8 +3,12 @@
 #include "termout.h"
 #include "user.h"
 
+/* would be nice to inline this, but not sure how to do this and ensure
+ * that arguments aren't optimized out.
+ * Note: 'naked' implies 'noinline', but it is given again for clarity
+ */
 #define SYSCALL(N, NAME, ...) \
-    int __attribute__((naked)) sys_##NAME (__VA_ARGS__) { asm("swi " #N); }
+    int __attribute__((naked,noinline)) sys_##NAME (__VA_ARGS__) { asm("swi " #N "\nbx lr"); }
 #include "syscalls.h"
 
 typedef struct {
@@ -34,7 +38,7 @@ int term_svc_out(termdef *d, unsigned flags)
 static
 int term_svc_flush(termdef *d)
 {
-    term_svc_out(d, 1);
+    return term_svc_out(d, 1);
 }
 
 static
@@ -49,7 +53,7 @@ term_svc_t term_svc = {
 
 int vprintf(const char *fmt, va_list args)
 {
-    return term_vprintf(&term_svc, fmt, args);
+    return term_vprintf(&term_svc.term, fmt, args);
 }
 
 int printf(const char *fmt, ...)
@@ -58,12 +62,12 @@ int printf(const char *fmt, ...)
     va_list args; /* I don't have to figure out varargs, gcc to the rescue :) */
 
     va_start(args, fmt);
-    ret = term_vprintf(&term_svc, fmt, args);
+    ret = term_vprintf(&term_svc.term, fmt, args);
     va_end(args);
     return ret;
 }
 
 int flush(void)
 {
-    return term_flush(&term_svc, 1);
+    return term_flush(&term_svc.term, 1);
 }
