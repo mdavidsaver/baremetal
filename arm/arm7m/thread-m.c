@@ -31,12 +31,12 @@ uint32_t thread_do_switch(uint32_t *frame)
 
         uint32_t mpurbar = M_SYS_BASE + 0xd9c; // MPU_RBAR0
         // load 8 32-bit words and write them to the 4 MPU region alias registers
-        __asm__ ("ldmia %[thread], {r0-r7}\n"
-                 "stmia %[mpu], {r0-r7}"
+        __asm__ ("ldmia %[thread], {r0-r6,r8}\n"
+                 "stmia %[mpu], {r0-r6,r8}"
             :: [thread]"r"(pnext->mpu_settings),
                [mpu]"r"(mpurbar)
             : "r0",  "r1",  "r2",  "r3",
-              "r4",  "r5",  "r6",  "r7"
+              "r4",  "r5",  "r6",  "r8"
         );
 
         process_current = pnext;
