@@ -255,7 +255,7 @@ readfmt:
         if(!done)
             goto readfmt;
     }
-    return term_flush(t, 0);
+    return 0;
 }
 
 int term_printf(termdef *t, const char *fmt, ...)

@@ -62,3 +62,8 @@ int printf(const char *fmt, ...)
     va_end(args);
     return ret;
 }
+
+int flush(void)
+{
+    return term_flush(&term_svc, 1);
+}

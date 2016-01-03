@@ -13,5 +13,6 @@
 
 int vprintf(const char *fmt, va_list args) __attribute__((format(printf,2,0)));
 int printf(const char *fmt, ...) __attribute__((format(printf,2,3)));
+int flush(void);
 
 #endif // USER_H

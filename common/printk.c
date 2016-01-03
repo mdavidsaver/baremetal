@@ -41,7 +41,10 @@ termdef *term_k = &term_uart0.T;
 
 int vprintk(const char *fmt, va_list args)
 {
-    return term_vprintf(term_k, fmt, args);
+    int ret = term_vprintf(term_k, fmt, args);
+    if(!ret)
+        ret = term_flush(term_k, 0);
+    return ret;
 }
 
 int printk(const char *fmt, ...)
@@ -50,7 +53,7 @@ int printk(const char *fmt, ...)
     va_list args; /* I don't have to figure out varargs, gcc to the rescue :) */
 
     va_start(args, fmt);
-    ret = term_vprintf(term_k, fmt, args);
+    ret = vprintk(fmt, args);
     va_end(args);
     return ret;
 }

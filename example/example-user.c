@@ -51,5 +51,6 @@ void Init(void)
     }
 
     printf("Done\n");
+    flush();
     halt();
 }
