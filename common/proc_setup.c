@@ -122,7 +122,6 @@ void prepare_processes(void)
         if(!P->info->super) {
             uint32_t base, size, lsize, attr;
             // Prepare MPU configuration
-            memset(P->mpu_settings, 0, sizeof(P->mpu_settings));
 
             base = (uint32_t)P->info->memory_start;
             printk(" MPU Base: 0x%08x\n", (unsigned)base);
@@ -141,9 +140,16 @@ void prepare_processes(void)
             /* RW, XN, sharable, cacheable, Normal */
             attr |= (1<<28)|(3<<24)|(0<<19)|(1<<18)|(1<<17)|(0<<0);
 
+            printk("MPU%u BASE=%08x SIZE=%08x ATTRS=%08x\n", MPU_USER_OFFSET, (unsigned)base, 1<<lsize, (unsigned)attr);
             P->mpu_settings[0] = base;
             P->mpu_settings[1] = attr;
             /* remaining regions disabled */
+            P->mpu_settings[2] = 0x10 | (MPU_USER_OFFSET+1);
+            P->mpu_settings[3] = 0;
+            P->mpu_settings[4] = 0x10 | (MPU_USER_OFFSET+2);
+            P->mpu_settings[5] = 0;
+            P->mpu_settings[6] = 0x10 | (MPU_USER_OFFSET+3);
+            P->mpu_settings[7] = 0;
         }
 
         {

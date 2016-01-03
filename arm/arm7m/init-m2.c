@@ -15,6 +15,7 @@ void uart_setup(void) {}
 void bsp_setup(void) {}
 
 static void nvic_setup(void);
+static void mpu_setup(void);
 
 /* multiplier for exception priorities */
 uint8_t prio_mult;
@@ -51,6 +52,7 @@ void setup_c(void)
         }
     }
 
+    mpu_setup();
     nvic_setup();
 
     bsp_setup();
@@ -146,4 +148,54 @@ static void nvic_setup(void)
 
     /* Enable Bus, Mem, and Usage faults */
     scs_out32(0xd24, (1<<18)|(1<<17)|(1<<16));
+}
+
+static
+void mpu_region(unsigned n, uint32_t base, uint32_t size, uint32_t attrs)
+{
+    unsigned lsize = log2_ceil(size)-2; // allow the background regions to be longer than necessary
+    unsigned asize = 1<<(lsize+1);
+    uint32_t bar = base | 0x10 | n,
+             att = attrs | (lsize<<1) | 1;
+    assert((base&0x1f)==0);
+    assert((base&(asize-1))==0);
+
+    printk("MPU%u BASE=%08x SIZE=%08x ATTRS=%08x\n", n, (unsigned)base, asize, (unsigned)att);
+    scs_out32(0xd9c, bar);
+    scs_out32(0xda0, att);
+}
+
+extern char __rom_start, __rom_end;
+extern char __ram_start;
+uint32_t RamSize;
+
+static void mpu_setup(void)
+{
+    uint32_t mputype = scs_in32(0xd90),
+             nregions= (mputype>>8)&0xff,
+             ramsize = RamSize;
+
+    if(nregions==0) {
+        printk("MPU not available\n");
+        return;
+    } else if(nregions<8) {
+        printk("MPU insufficent regions %u\n", (unsigned)nregions);
+        return;
+    }
+    printk("MPU supported\n");
+
+    if(ramsize==0)
+        ramsize = 0x10000000; // default to max. possible size
+
+    /* setup background regions */
+    mpu_region(0, (uint32_t)&__rom_start, &__rom_end-&__rom_start, MPU_AP_RORO|MPU_ROM);
+    mpu_region(1, (uint32_t)&__ram_start, ramsize, MPU_XN|MPU_AP_RWRO|MPU_RAM);
+    /* processes set regions 2-5 */
+    /* region 6 is reserved */
+
+    /* catch de-ref. NULL.  covers the initial vector table (moved to ram by this point) */
+    mpu_region(7, 0, 64, MPU_XN|MPU_AP_NONO|MPU_ROM);
+
+    scs_out32(0xd94, 5); /* MPU_CTRL = ENABLE | PRIVDEFENA */
+
 }

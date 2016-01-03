@@ -40,7 +40,7 @@ clean:
 %.conf.c: %.conf
 	PYTHONPATH=$(TOP) python -m util.cli -C $< proc-conf $@
 
-.PRECIOUS: %.elf %.bin %.img %.ld %.conf.c
+.PRECIOUS: %.o %.a %.elf %.bin %.img %.ld.d %.ld %.conf.c
 
 .SUFFIXES:
 

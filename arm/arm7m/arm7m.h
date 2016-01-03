@@ -13,6 +13,29 @@
  */
 #define MPU_USER_REGIONS 4
 
+#define MPU_XN (1<<28)
+#define MPU_AP(N) ((N)<<24)
+#define MPU_TEX(N) ((N)<<19)
+#define MPU_S (1<<18)
+#define MPU_C (1<<17)
+#define MPU_B (1<<16)
+
+/* definitions of TEX, S, C, and B
+ * based on defaults for TI TM4C1294
+ */
+#define MPU_STRONG 0
+#define MPU_DEVICE (MPU_S|MPU_B)
+#define MPU_RAM (MPU_S|MPU_C)
+#define MPU_ROM (MPU_C)
+
+#define MPU_AP_NONO MPU_AP(0)
+#define MPU_AP_RWNO MPU_AP(1)
+#define MPU_AP_RWRO MPU_AP(2)
+#define MPU_AP_RWRW MPU_AP(3)
+#define MPU_AP_RONO MPU_AP(5)
+#define MPU_AP_RORO MPU_AP(6)
+
+
 #ifndef __ASSEMBLER__
 
 #include "io.h"
