@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #include "ell.h"
+#include "systick.h"
 
 typedef struct process process;
 typedef struct process_config process_config;
@@ -80,6 +81,9 @@ struct thread {
     unsigned active:1;
 
     char *frame;
+
+    systick_cb waiter;
+    uint32_t timeout_ticks;
 };
 
 extern thread *thread_scheduler[2]; /* {current, next} */

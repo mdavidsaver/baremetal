@@ -2,6 +2,7 @@
 #include "common.h"
 #include "termout.h"
 #include "user.h"
+#include "systick.h"
 
 /* would be nice to inline this, but not sure how to do this and ensure
  * that arguments aren't optimized out.
@@ -70,4 +71,11 @@ int printf(const char *fmt, ...)
 int flush(void)
 {
     return term_flush(&term_svc.term, 1);
+}
+
+int msleep(unsigned val)
+{
+    // val in milliseconds
+    uint32_t ticks = (val*SYSTICK_RATE)/1000;
+    return sys_sleep(ticks, 0);
 }

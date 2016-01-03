@@ -2,6 +2,7 @@
 #include "kernel.h"
 #include "process.h"
 #include "uart.h"
+#include "systick.h"
 
 static inline __attribute__((always_inline))
 uint32_t user_in32(void *addr)
@@ -56,10 +57,39 @@ int svc_uart(uint32_t *frame)
 }
 
 static
+void _svc_sleep_tick(systick_cb *cb)
+{
+    thread *T = container(cb, thread, waiter);
+    if(--T->timeout_ticks)
+        return;
+    systick_del(&T->waiter);
+    thread_resume(T);
+}
+
+static
+int svc_sleep(uint32_t *frame)
+{
+    uint32_t val = frame[FRAME_R0],
+             flags= frame[FRAME_R1];
+    (void)flags;
+    thread *T = thread_scheduler[0];
+
+    if(val==0)
+        return 0;
+
+    T->timeout_ticks = val;
+    T->waiter.cb = &_svc_sleep_tick;
+    systick_add(&T->waiter);
+    thread_suspend(T);
+    return 0;
+}
+
+static
 svc_fn svc_calls[] = {
     &svc_halt,
     &svc_yield,
     &svc_uart,
+    &svc_sleep,
 };
 
 void svc_handler_c(uint32_t *frame)

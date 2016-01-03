@@ -41,6 +41,9 @@ ELLNODE *ellPopFront(ELLLIST *L)
         L->head.next = ret->next;
         if(ret->next) {
             ret->next->prev = NULL;
+        } else {
+            assert(L->head.prev==ret);
+            L->head.prev = NULL;
         }
         ret->next = ret->prev = NULL;
 #ifndef NDEBUG
@@ -58,6 +61,9 @@ ELLNODE *ellPopBack(ELLLIST *L)
         L->head.prev = ret->prev;
         if(ret->prev) {
             ret->prev->next = NULL;
+        } else {
+            assert(L->head.next==ret);
+            L->head.next = NULL;
         }
         ret->next = ret->prev = NULL;
 #ifndef NDEBUG
@@ -70,10 +76,18 @@ ELLNODE *ellPopBack(ELLLIST *L)
 void ellRemove(ELLLIST *L, ELLNODE *N)
 {
     assert(N->list==L);
-    if(N->next)
+    if(N->next) {
         N->next->prev = N->prev;
-    if(N->prev)
+    } else {
+        assert(L->head.prev==N);
+        L->head.prev = NULL;
+    }
+    if(N->prev) {
         N->prev->next = N->next;
+    } else {
+        assert(L->head.next==N);
+        L->head.next = NULL;
+    }
     N->prev = N->next = NULL;
 #ifndef NDEBUG
     N->list = NULL;

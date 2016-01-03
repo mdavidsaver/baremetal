@@ -16,21 +16,21 @@
 
 volatile uint32_t systick;
 
-static systick_cb *systick_head, *systick_tail;
+static
+ELLLIST systick_actions;
 
 void systick_handler_c(void)
 {
-    systick_cb *cur = systick_head, *next;
+    ELLNODE *cur, *next;
 
 #ifdef SYSTICK_DEBUG
     printk("systick_handler() %u\n", (unsigned)systick);
 #endif
     __sync_fetch_and_add(&systick, 1);
-    for(next=cur?cur->next:NULL;
-        cur;
-        cur=next, next=next?next->next:NULL)
+    foreach_ell_safe(cur, next, &systick_actions)
     {
-        (*cur->cb)(cur);
+        systick_cb *cb = container(cur, systick_cb, node);
+        (*cb->cb)(cb);
     }
 }
 
@@ -55,6 +55,7 @@ void systick_setup(void)
         cal = 100000; /* 10Hz for QEMU */
     }
 
+    printk("systick CAL = %08x\n", (unsigned)cal);
     scs_out32(RVR, cal);
 
     scs_out32(CSR, 0x3); /* enable timer and IRQ */
@@ -69,16 +70,7 @@ int systick_add(struct systick_cb* T)
 {
     unsigned mask = irq_mask();
 
-    /* append to list */
-    T->next = NULL;
-    T->prev = systick_tail;
-    if(T->prev)
-        T->prev->next = T;
-    systick_tail = T;
-
-    if(!systick_head) {
-        systick_head = T;
-    }
+    ellPushBack(&systick_actions, &T->node);
 
     irq_restore(mask);
     return 0;
@@ -88,24 +80,8 @@ int systick_del(struct systick_cb* T)
 {
     unsigned mask = irq_mask();
 
-    if(T->prev)
-        T->prev->next = T->next;
-    else
-        systick_head = T->next;
-
-    if(T->next)
-        T->next->prev = T->prev;
-    else
-        systick_tail = T->prev;
+    ellRemove(&systick_actions, &T->node);
 
     irq_restore(mask);
     return 0;
-}
-
-void systick_spin(uint32_t wait)
-{
-    uint32_t start = systick_get(), cur;
-    do {
-        cur = systick_get();
-    } while((cur-start)<wait);
 }

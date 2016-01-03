@@ -2,6 +2,7 @@
 #include "arm7m.h"
 #include "kernel.h"
 #include "uart.h"
+#include "systick.h"
 #include "process.h"
 
 void prepare_processes(void);
@@ -54,6 +55,7 @@ void setup_c(void)
 
     mpu_setup();
     nvic_setup();
+    systick_setup();
 
     bsp_setup();
     __asm__ volatile ("dsb\n" "cpsie if" :::"memory");

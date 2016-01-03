@@ -18,4 +18,6 @@ int vprintf(const char *fmt, va_list args) __attribute__((format(printf,1,0)));
 int printf(const char *fmt, ...) __attribute__((format(printf,1,2)));
 int flush(void);
 
+int msleep(unsigned val);
+
 #endif // USER_H

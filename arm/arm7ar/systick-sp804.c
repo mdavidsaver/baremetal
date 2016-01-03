@@ -91,11 +91,3 @@ int systick_del(struct systick_cb* T)
     irq_unmask(mask);
     return 0;
 }
-
-void systick_spin(uint32_t wait)
-{
-    uint32_t start = systick_get(), cur;
-    do {
-        cur = systick_get();
-    } while((cur-start)<wait);
-}

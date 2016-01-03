@@ -19,6 +19,7 @@ CFLAGS+=-mthumb
 
 TARGETS += example-minimal
 TARGETS += example-user
+TARGETS += example-timer-irq
 
 include ../Makefile.common
 
