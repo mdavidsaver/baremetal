@@ -1,4 +1,7 @@
-libos.a: $(OBJS)
+all: $(TARGETS:%=%.bin)
+dep: $(TARGETS:%=%.ld.d)
+
+#libos.a: $(OBJS)
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img *.a
@@ -28,7 +31,16 @@ clean:
 	dd if=/dev/zero of=$@ bs=$(IMG_BS) count=$(IMG_COUNT) conv=sparse
 	dd if=$< of=$@ bs=1M conv=notrunc,sparse
 
-.PRECIOUS: %.bin %.img
+%.ld.d: %.conf
+	PYTHONPATH=$(TOP) python -m util.cli -C $< obj-dep $@ "$*.elf $*.ld"
+
+%.ld: %.conf %.conf.o
+	PYTHONPATH=$(TOP) python -m util.cli -C $< linkscript -E $*.conf.o $@
+
+%.conf.c: %.conf
+	PYTHONPATH=$(TOP) python -m util.cli -C $< proc-conf $@
+
+.PRECIOUS: %.elf %.bin %.img %.ld %.conf.c
 
 .SUFFIXES:
 

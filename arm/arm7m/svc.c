@@ -3,10 +3,6 @@
 #include "process.h"
 #include "uart.h"
 
-#define SYSCALL(N, NAME, ...) \
-    int __attribute__((naked)) sys_##NAME (__VA_ARGS__) { asm("swi " #N); }
-#include "syscalls.h"
-
 static inline __attribute__((always_inline))
 uint32_t user_in32(void *addr)
 {

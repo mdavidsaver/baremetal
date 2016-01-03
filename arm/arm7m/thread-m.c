@@ -6,7 +6,7 @@
 static
 ELLLIST thread_by_prio[4];
 static
-volatile process *process_current;
+volatile process *process_current; // the process w/ MPU config loaded
 
 /* slow path for context switch.
  * if we arrive here then we know there will be a context switch.
@@ -16,17 +16,18 @@ volatile process *process_current;
  */
 uint32_t thread_do_switch(uint32_t *frame)
 {
-    uint32_t ret = 0xfffffffd;
+    uint32_t ret = 0xfffffffd; // always return to thread mode
     thread *cur = thread_scheduler[0],
            *next= thread_scheduler[1];
     process *pnext= next->proc;
+    uint32_t control = !pnext->info->super;
 
     cur->frame = (char*)frame;
 
     //TODO: check cur->active and do something?
 
-    if(process_current!=pnext && !pnext->info->super) {
-        // switching to a new non-privlaged process
+    if(process_current!=pnext && control) {
+        // switching to a different non-privlaged process
 
         uint32_t mpurbar = M_SYS_BASE + 0xd9c; // MPU_RBAR0
         // load 8 32-bit words and write them to the 4 MPU region alias registers
@@ -45,6 +46,7 @@ uint32_t thread_do_switch(uint32_t *frame)
          */
     }
 
+    __asm__ volatile ("msr CONTROL, %0" :: "r"(control):); // update priv/unpriv
     __asm__ volatile ("msr PSP, %0" :: "r"(next->frame):);
 
     thread_scheduler[0] = next;

@@ -17,19 +17,8 @@ CFLAGS+=-mthumb
 # give libos.a twice so that -lgcc can find memcpy
 #LDADD+=libos.a
 
-TARGETS = example-minimal
-
-dep: $(TARGETS:%=%.ld.d)
-all: $(TARGETS:%=%.bin)
-
-%.ld.d: %.conf
-	PYTHONPATH=$(TOP) python -m util.cli -C $< obj-dep $@ "$*.elf $*.ld"
-
-%.ld: %.conf %.conf.o
-	PYTHONPATH=$(TOP) python -m util.cli -C $< linkscript -E $*.conf.o $@
-
-%.conf.c: %.conf
-	PYTHONPATH=$(TOP) python -m util.cli -C $< proc-conf $@
+TARGETS += example-minimal
+TARGETS += example-user
 
 include ../Makefile.common
 

@@ -52,6 +52,7 @@ funct _setup
 
   mov r0, #2 /* switch to process stack, retain privlages */
   msr control, r0
+  isb
 
   /* C part of initialization. this function should not return */
   blx setup_c
@@ -60,16 +61,15 @@ funct _setup
 
 .global halt
 funct halt
+  cpsid if /* ignored if unpriv */
 
-  /* if non-privlaged wishes to terminate, turn this into a syscall */
-  mrs r0, CONTROL
-  and r0, r0, #1
-  cmp r0, #1
+  mrs r0, PRIMASK  /* unprivlaged always reads as zero */
+  cmp r0, #0
   itt eq
-  svceq #0
-  beq _stuck
+  svceq #0  /* SVC thread exit */
+  beq _stuck /* should never be reached */
 
-  cpsid if
+  /* priv continues */
 
   /* request shutdown */
 
