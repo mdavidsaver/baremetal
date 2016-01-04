@@ -58,7 +58,7 @@ void systick_setup(void)
     printk("systick CAL = %08x\n", (unsigned)cal);
     scs_out32(RVR, cal);
 
-    scs_out32(CSR, 0x3); /* enable timer and IRQ */
+    scs_out32(CSR, 0x1); /* enable timer and disable IRQ */
 }
 
 uint32_t systick_get(void)
@@ -72,6 +72,7 @@ int systick_add(struct systick_cb* T)
 
     ellPushBack(&systick_actions, &T->node);
 
+    scs_out32(CSR, 0x3); /* enable timer and IRQ */
     irq_restore(mask);
     return 0;
 }
@@ -82,6 +83,8 @@ int systick_del(struct systick_cb* T)
 
     ellRemove(&systick_actions, &T->node);
 
+    if(!ellFirst(&systick_actions))
+        scs_out32(CSR, 0x1); /* enable timer and disable IRQ */
     irq_restore(mask);
     return 0;
 }
