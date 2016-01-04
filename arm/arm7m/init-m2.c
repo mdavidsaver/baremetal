@@ -74,8 +74,9 @@ unsigned irq_mask(void)
 
 void irq_restore(unsigned m)
 {
+    __asm__("dsb" ::: "memory");
     if(m)
-        __asm__("dsb\ncpsie i" ::: "memory");
+        __asm__("cpsie i" ::: "memory");
 }
 
 static
