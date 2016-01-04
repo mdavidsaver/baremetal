@@ -16,6 +16,7 @@
 #define halt sys_halt
 #define yield sys_yield
 #define printk() cant_user_printk_in_user()
+#define thread_start user_thread_start
 #endif
 
 int vprintf(const char *fmt, va_list args) __attribute__((format(printf,1,0)));
@@ -23,5 +24,7 @@ int printf(const char *fmt, ...) __attribute__((format(printf,1,2)));
 int flush(void);
 
 int msleep(unsigned val);
+
+int user_thread_start(const char *name, unsigned flags);
 
 #endif // USER_H

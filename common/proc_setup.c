@@ -52,92 +52,6 @@ thread thread_main = {
     .active = 0,
 };
 
-static
-void _thread_return(void)
-{
-    sys_halt();
-}
-
-static
-void _proc_cleaner(thread *T, const char *cmd)
-{
-    // TODO: run dtors here
-    T->proc->initialized = 0;
-    sys_halt();
-}
-
-void process_cleanup(thread *T)
-{
-    assert(!T->active);;
-#if defined(ARM7M)
-
-    uint32_t *frame;
-    T->frame = T->info->stack_size+(char*)T->info->stack;
-    T->frame -= 4*7;
-
-    frame = (uint32_t*)T->frame;
-    frame[FRAME_R0] = (uint32_t)T;
-    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return;
-    /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
-    frame[FRAME_PC] = ~1&(uint32_t)&_proc_cleaner;
-    frame[FRAME_PSR]= (1<<24); // always thumb state
-
-    __asm__ volatile ("msr PSP, %0" :: "r"(frame):);
-#else
-#error Not implemented
-#endif
-    T->holdcount = 1;
-    T->active = 1;
-}
-
-static
-void _proc_init(thread *T)
-{
-    process *proc = T->proc;
-    const process_config *info = proc->info;
-
-    /* TODO: race? */
-    if(proc->initialized)
-        return;
-    proc->initialized = 1;
-
-    memset(info->bss_start, 0, info->bss_end-info->bss_start);
-    if(info->data_load!=info->data_start) {
-        memcpy(info->data_start, info->data_load, info->data_end-info->data_start);
-    }
-    //TODO: global ctors
-}
-
-static
-void _thread_start(thread *T, const char *cmd)
-{
-    int ret;
-    _proc_init(T);
-    ret = (T->info->entry)(cmd);
-    (void)ret; // todo
-    sys_halt();
-}
-
-static void thread_prepare(thread *T)
-{
-#if defined(ARM7M)
-    uint32_t *frame;
-    T->frame = T->info->stack_size+(char*)T->info->stack;
-    T->frame -= 4*7;
-
-    frame = (uint32_t*)T->frame;
-    frame[FRAME_R0] = (uint32_t)T;
-    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return; // TODO: really clear IM bit for LR????
-    /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
-    frame[FRAME_PC] = ~1&(uint32_t)&_thread_start;
-    frame[FRAME_PSR]= (1<<24); // always thumb state
-#else
-#error Not implemented
-#endif
-    T->holdcount = 1;
-    T->active = 0;
-}
-
 void prepare_processes(void)
 {
     process **S = &__sos_procs_start,
@@ -147,9 +61,7 @@ void prepare_processes(void)
      * process threads w/ autostart=1
      */
     thread_scheduler[0] = &thread_main;
-    thread_prepare(&thread_idle);
-    thread_idle.active = 1;
-    thread_resume(&thread_idle);
+    thread_start(&thread_idle);
     assert(thread_scheduler[1] == &thread_idle);
 
     for(;S<E; S++) {
@@ -176,6 +88,7 @@ void prepare_processes(void)
             attr = 1 | ((lsize-1)<<1);
 
             /* RW, XN, sharable, cacheable, Normal */
+            attr |= MPU_XN|MPU_AP_RWRW|MPU_RAM;
             attr |= (1<<28)|(3<<24)|(0<<19)|(1<<18)|(1<<17)|(0<<0);
 
             printk("MPU%u BASE=%08x SIZE=%08x ATTRS=%08x\n", MPU_USER_OFFSET, (unsigned)base, 1<<lsize, (unsigned)attr);
@@ -188,20 +101,6 @@ void prepare_processes(void)
             P->mpu_settings[5] = 0;
             P->mpu_settings[6] = 0x10 | (MPU_USER_OFFSET+3);
             P->mpu_settings[7] = 0;
-        }
-
-        {
-            thread *T = P->info->threads;
-            for(;T->info; T++) {
-                printk(" Thread: '%s'\n", T->info->name);
-
-                memset(&T->schednode, 0, sizeof(T->schednode));
-                T->holdcount = 0;
-                T->active = 0;
-                T->frame = T->info->stack;
-
-                thread_prepare(T);
-            }
         }
     }
 }

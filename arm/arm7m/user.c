@@ -79,3 +79,8 @@ int msleep(unsigned val)
     uint32_t ticks = (val*SYSTICK_RATE)/1000;
     return sys_sleep(ticks, 0);
 }
+
+int user_thread_start(const char *name, unsigned flags)
+{
+    return sys_spawn(name, 1|flags);
+}

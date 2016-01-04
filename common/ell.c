@@ -12,9 +12,10 @@ void ellPushFront(ELLLIST *L, ELLNODE *N)
     L->head.next = N;
     if(N->next) {
         N->next->prev = N;
-    }
-    if(!L->head.prev)
+    } else {
+        assert(!L->head.prev);
         L->head.prev = N;
+    }
 }
 
 void ellPushBack(ELLLIST *L, ELLNODE *N)
@@ -28,9 +29,10 @@ void ellPushBack(ELLLIST *L, ELLNODE *N)
     L->head.prev = N;
     if(N->prev) {
         N->prev->next = N;
-    }
-    if(!L->head.next)
+    } else {
+        assert(!L->head.next);
         L->head.next = N;
+    }
 }
 
 ELLNODE *ellPopFront(ELLLIST *L)
@@ -38,6 +40,7 @@ ELLNODE *ellPopFront(ELLLIST *L)
     ELLNODE *ret = L->head.next;
     if(ret) {
         assert(ret->list==L);
+        assert(ret->prev==NULL);
         L->head.next = ret->next;
         if(ret->next) {
             ret->next->prev = NULL;
@@ -58,6 +61,7 @@ ELLNODE *ellPopBack(ELLLIST *L)
     ELLNODE *ret = L->head.prev;
     if(ret) {
         assert(ret->list==L);
+        assert(ret->prev==NULL);
         L->head.prev = ret->prev;
         if(ret->prev) {
             ret->prev->next = NULL;

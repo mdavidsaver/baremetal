@@ -47,6 +47,21 @@ void memset(void *dst, uint8_t val, size_t count)
         *cdst++ = val;
 }
 
+int strcmp(const char *A, const char *B)
+{
+    int ret;
+    char a, b;
+    do {
+        int lt, eq;
+        a = *A++;
+        b = *B++;
+        lt = a < b;
+        eq = a==b;
+        ret = lt ? -1 : (eq ? 0 : 1);
+    } while(a && b);
+    return ret;
+}
+
 /* floor(log(v, 2))
  *  log2(31) -> 5
  *  log2(32) -> 6

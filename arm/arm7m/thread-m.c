@@ -1,6 +1,7 @@
 
 #include "process.h"
-#include "common.h"
+#include "kernel.h"
+#include "user.h"
 #include "io.h"
 
 static
@@ -70,10 +71,93 @@ int process_start(process *P)
     return -2; // no entry point thread, this should be trapped at config time
 }
 
+static
+void _thread_return(void)
+{
+    sys_halt();
+}
+
+static
+void _proc_cleaner(thread *T, const char *cmd)
+{
+    // TODO: run dtors here
+    T->proc->initialized = 0;
+    sys_halt();
+}
+
+void process_cleanup(thread *T)
+{
+    assert(!T->active);;
+#if defined(ARM7M)
+
+    uint32_t *frame;
+    T->frame = T->info->stack_size+(char*)T->info->stack;
+    T->frame -= 4*7;
+
+    frame = (uint32_t*)T->frame;
+    frame[FRAME_R0] = (uint32_t)T;
+    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return;
+    /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
+    frame[FRAME_PC] = ~1&(uint32_t)&_proc_cleaner;
+    frame[FRAME_PSR]= (1<<24); // always thumb state
+
+    /* we are re-setting the stack w/o changing the current thread
+     * so thread_switch() will be a no-op.
+     * So update PSP directly
+     */
+    __asm__ volatile ("msr PSP, %0" :: "r"(frame):);
+#else
+#error Not implemented
+#endif
+    T->holdcount = 1;
+    T->active = 1;
+}
+
+static
+void _proc_init(thread *T)
+{
+    process *proc = T->proc;
+    const process_config *info = proc->info;
+
+    /* TODO: race? */
+    if(proc->initialized)
+        return;
+    proc->initialized = 1;
+
+    memset(info->bss_start, 0, info->bss_end-info->bss_start);
+    if(info->data_load!=info->data_start) {
+        memcpy(info->data_start, info->data_load, info->data_end-info->data_start);
+    }
+    //TODO: global ctors
+}
+
+static
+void _thread_start(thread *T, const char *cmd)
+{
+    int ret;
+    _proc_init(T);
+    ret = (T->info->entry)(cmd);
+    (void)ret; // todo
+    sys_halt();
+}
+
 int thread_start(thread *T)
 {
+    uint32_t *frame;
+
     if(T->active)
         return -1;
+
+    T->frame = T->info->stack_size+(char*)T->info->stack;
+    T->frame -= 4*7;
+
+    frame = (uint32_t*)T->frame;
+    frame[FRAME_R0] = (uint32_t)T;
+    frame[FRAME_LR] = ~1&(uint32_t)&_thread_return; // TODO: really clear IM bit for LR????
+    /* the unstacked PC shouldn't have the LSB set, thumb state is carried in the PSR */
+    frame[FRAME_PC] = ~1&(uint32_t)&_thread_start;
+    frame[FRAME_PSR]= (1<<24); // always thumb state
+
     T->active = 1;
     T->holdcount = 1;
     thread_resume(T);

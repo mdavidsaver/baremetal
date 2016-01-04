@@ -57,6 +57,7 @@ void _assert_fail(const char *cond,
 void memcpy(void *dst, const void *src, size_t count);
 void memmove(void *dst, const void *src, size_t count);
 void memset(void *dst, uint8_t val, size_t count);
+int strcmp(const char *A, const char *V);
 #endif
 unsigned log2_floor(uint32_t v) __attribute__((pure));
 unsigned log2_ceil(uint32_t v) __attribute__((pure));

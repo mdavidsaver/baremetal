@@ -8,7 +8,7 @@ extern process *__sos_procs_start,
                *__sos_procs_end;
 
 static inline __attribute__((always_inline))
-uint32_t user_in32(void *addr)
+uint32_t user_in32(const void *addr)
 {
     uint32_t ret;
     __asm__("ldrt %0, [%1]" : "=r"(ret) : "r"(addr));
@@ -16,15 +16,30 @@ uint32_t user_in32(void *addr)
 }
 
 static inline __attribute__((always_inline))
-uint8_t user_in8(void *addr)
+uint8_t user_in8(const void *addr)
 {
     uint8_t ret;
     __asm__("ldrbt %0, [%1]" : "=r"(ret) : "r"(addr));
     return ret;
 }
 
+static inline
+int strncpy_fromuser(char *kbuf, const char *ubuf, unsigned kbuflen)
+{
+    char c;
+    char *kbufE = kbuf+kbuflen;
+    while((c=user_in8(ubuf++))!='\0' && kbuf<kbufE) {
+        *kbuf++ = c;
+    }
+    if(kbuf==kbufE)
+        return -1;
+    *kbuf='\0';
+    return 0;
+}
+
 typedef int (*svc_fn)(uint32_t *frame);
 
+/* really thread exit */
 static
 int svc_halt(uint32_t *frame)
 {
@@ -71,6 +86,7 @@ int svc_halt(uint32_t *frame)
     return 0;
 }
 
+/* force re-scheduling, allow another equal or higher priority thread to run */
 static
 int svc_yield(uint32_t *frame)
 {
@@ -78,6 +94,7 @@ int svc_yield(uint32_t *frame)
     return 0;
 }
 
+/* interact with the debug terminal */
 static
 int svc_uart(uint32_t *frame)
 {
@@ -107,6 +124,7 @@ void _svc_sleep_tick(systick_cb *cb)
     thread_resume(T);
 }
 
+/* suspend a thread for a fixed (minimum) time */
 static
 int svc_sleep(uint32_t *frame)
 {
@@ -125,12 +143,43 @@ int svc_sleep(uint32_t *frame)
     return 0;
 }
 
+/* spawn a new thread or process */
+static
+int svc_spawn(uint32_t *frame)
+{
+    int ret;
+    char nbuf[16];
+    char *name = (char*)frame[FRAME_R0];
+    uint32_t flags = frame[FRAME_R1];
+    thread *T = thread_scheduler[0];
+
+    if((ret=strncpy_fromuser(nbuf, name, sizeof(nbuf)))!=0)
+        return ret;
+
+    if(flags&1) { // new thread in current process
+        process *P = T->proc;
+        thread *N;
+
+        for(N=P->info->threads; N->info; N++) {
+            if(strcmp(nbuf, N->info->name)!=0)
+                continue;
+            if(N->active)
+                return -1;
+            return thread_start(N);
+        }
+
+    }
+
+    return -1;
+}
+
 static
 svc_fn svc_calls[] = {
-    &svc_halt,
+    &svc_halt, // 0
     &svc_yield,
     &svc_uart,
     &svc_sleep,
+    &svc_spawn, // 4
 };
 
 void svc_handler_c(uint32_t *frame)
