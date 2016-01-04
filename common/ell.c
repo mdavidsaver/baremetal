@@ -1,3 +1,4 @@
+
 #include "common.h"
 #include "ell.h"
 
@@ -61,7 +62,7 @@ ELLNODE *ellPopBack(ELLLIST *L)
     ELLNODE *ret = L->head.prev;
     if(ret) {
         assert(ret->list==L);
-        assert(ret->prev==NULL);
+        assert(ret->next==NULL);
         L->head.prev = ret->prev;
         if(ret->prev) {
             ret->prev->next = NULL;
@@ -84,13 +85,13 @@ void ellRemove(ELLLIST *L, ELLNODE *N)
         N->next->prev = N->prev;
     } else {
         assert(L->head.prev==N);
-        L->head.prev = NULL;
+        L->head.prev = N->prev;
     }
     if(N->prev) {
         N->prev->next = N->next;
     } else {
         assert(L->head.next==N);
-        L->head.next = NULL;
+        L->head.next = N->next;
     }
     N->prev = N->next = NULL;
 #ifndef NDEBUG

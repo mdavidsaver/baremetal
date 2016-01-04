@@ -14,6 +14,14 @@ struct ELLLIST {
     ELLNODE head;
 };
 
+#ifdef NDEBUG
+#define ELLNODE_INIT {0,0}
+#else
+#define ELLNODE_INIT {0,0,0}
+#endif
+
+#define ELLLIST_INIT {ELLNODE_INIT}
+
 #define ellFirst(plist) ((plist)->head.next)
 #define ellLast(plist) ((plist)->head.prev)
 

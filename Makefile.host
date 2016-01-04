@@ -11,10 +11,15 @@ CFLAGS+=$(SRCDIRS:%=-I../%)
 LDFLAGS+=$(SRCDIRS:%=-L../%)
 
 all: test-uart
+all: test-ell
 dep:
 .PHONY: all dep
 
 test-uart: test-uart.o term_print.o
+	echo "X $<"
+	$(GXX) -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o, $^)
+
+test-ell: test-ell.o ell.o
 	echo "X $<"
 	$(GXX) -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o, $^)
 

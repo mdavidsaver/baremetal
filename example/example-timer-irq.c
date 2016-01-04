@@ -13,7 +13,7 @@ void Init(void)
     while(done--) {
         flush();
         msleep(1000);
-        printf("Init %d\n", done);
+        printf("Init  %d\n", done);
     }
     printf("Init Finished\n");
     flush();
@@ -21,7 +21,7 @@ void Init(void)
 
 void Tick2(void)
 {
-    int done = 5;
+    int done = 6;
     printf("Tick2 Starting\n");
     flush();
 

@@ -6,6 +6,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#ifdef __linux__
+#include <assert.h>
+#endif
+
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -47,7 +51,9 @@ int _elem_in(void* base, void* elem, unsigned S, unsigned count)
 #define swap16 __builtin_bswap16
 #define swap32 __builtin_bswap32
 
+#ifndef __linux__
 #define assert(COND) do{if(COND) {} else {_assert_fail(#COND, __FILE__, __LINE__);}}while(0)
+#endif
 void _assert_fail(const char *cond,
                   const char *file,
                   unsigned int line);
