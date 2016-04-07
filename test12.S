@@ -140,11 +140,11 @@ _vec_SVC:
   bx lr
 
 in_main:
-.string "In Main\n"
+.string "In Main, except UsageFault\n"
 bad_HF:
 .string "Unexpected HF\n"
 in_UF:
-.string "In UsageFault\n"
+.string "In UsageFault (as expected)\n"
 in_SVC:
 .string "In SVC, shouldn't be"
 

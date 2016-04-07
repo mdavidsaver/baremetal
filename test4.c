@@ -106,6 +106,7 @@ void main(void)
     run_table.irq[1] = irq1;
 
     out32(SCB(0xd0c), 0x05fa0000 | (PRIGROUP<<8));
+    test_equal("PRIGROUP", PRIGROUP, (in32(SCB(0xd0c))>>8)&0xff);
 
     CPSID(i);
 

@@ -5,7 +5,7 @@
 static
 void hard(void)
 {
-	puts("In HardFault\n");
+    puts("In HardFault (as expected)\n");
 	abort();
 }
 
@@ -20,7 +20,7 @@ void func(void)
 void main(void)
 {
 	run_table.hard = &hard;
-	puts("Starting\n");
+    puts("Starting (expect HardFault)\n");
 	func();
 	puts("oops, I shouldn't be here\n");
 }
