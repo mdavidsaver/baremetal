@@ -79,6 +79,21 @@ void putval(uint32_t v)
     }
 }
 
+static uint32_t testcnt = 1;
+
+static __attribute__((unused))
+void testeq32(uint32_t expect, uint32_t actual)
+{
+  if(expect!=actual)  puts("not ");
+  puts("ok ");
+  putval(testcnt++);
+  puts(" - ");
+  putval(expect);
+  puts(" == ");
+  putval(actual);
+  puts("\r\n");
+}
+
 /* some variables to see if the data and bss sections are correctly initialized */
 int foobar;
 uint32_t foobar2 = 0xbad1face;
@@ -86,40 +101,40 @@ uint32_t foobar2 = 0xbad1face;
 void Init(uint32_t mb_magic, const void* pmb)
 {
   /* assume UART was left configured by the bootloader */
+  puts("1..3\r\n");
+  testeq32(mb_magic, 0x2badb002);
   if(mb_magic==0x2badb002) {
-    puts("Found multiboot\r\n");
+    puts("# Found multiboot\r\n");
     memcpy(&mb_info, pmb, sizeof(mb_info));
     if(mb_info.flags&0x1)
-      puts(" Has mem\r\n");
+      puts("# Has mem\r\n");
     if(mb_info.flags&0x2)
-      puts(" Has boot dev\r\n");
+      puts("# Has boot dev\r\n");
     if(mb_info.flags&0x4) {
-      puts(" Has cmdline: '");
+      puts("# Has cmdline: '");
       puts(mb_info.cmdline);
       puts("'\r\n");
     }
     if(mb_info.flags&0x8)
-      puts(" Has a.out syms (not supported?!?)\r\n");
+      puts("# Has a.out syms (not supported?!?)\r\n");
     if(mb_info.flags&0x10)
-      puts(" Has ELF syms\r\n");
+      puts("# Has ELF syms\r\n");
     if(mb_info.flags&0x20)
-      puts(" Has MMAP\r\n");
+      puts("# Has MMAP\r\n");
     if(mb_info.flags&0x40)
-      puts(" Has drive table\r\n");
+      puts("# Has drive table\r\n");
     if(mb_info.flags&0x80)
-      puts(" Has config table\r\n");
+      puts("# Has config table\r\n");
     if(mb_info.flags&0x10)
-      puts(" Has loader name\r\n");
+      puts("# Has loader name\r\n");
     if(mb_info.flags&0x20)
-      puts(" Has APM table\r\n");
+      puts("# Has APM table\r\n");
     if(mb_info.flags&0x40)
-      puts(" Has VBE info\r\n");
+      puts("# Has VBE info\r\n");
   }
-  puts("hello world\r\nfoobar=");
-  putval(foobar);
-  puts("\r\nfoobar2=");
-  putval(foobar2);
-  puts("\r\nGoodbye\r\n");
+  testeq32(foobar, 0);
+  testeq32(foobar2, 0xbad1face);
+  puts("# Goodbye\r\n");
   outb(0x64, 0xfe); /* ask the KBC to reset us */
   while(1) {}
 }
