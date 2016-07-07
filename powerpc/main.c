@@ -39,8 +39,8 @@ void outb(uint16_t port, uint8_t val)
 {
     /* I/O ports are memory mapped on PPC.  For PREP they begin at 0x80000000 */
     volatile uint8_t* addr = port+(uint8_t*)0x80000000;
-    *addr = val;
     asm volatile ("eieio" ::: "memory");
+    *addr = val;
 }
 
 static inline
@@ -133,5 +133,6 @@ void Init(void)
         puts("'\r\n");
     }
 
+    outb(0x64, 0xfe); /* ask the KBC to reset us */
     while(1) {}
 }

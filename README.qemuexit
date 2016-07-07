@@ -7,7 +7,7 @@ qemu_system_reset_request()
   omap1.c -> register write
   omap2.c -> register write
   pc.c -> register write (port 92)
-  pckbd.c -> register write (two different registers)
+  pckbd.c -> register write (two different registers in i8042-cmd)
   lpc_ich9.c -> register write
   arm_sysctl.c -> register write (vexpress only or board_ids 0x100, 0x178, 0x182 only, )
   cuda.c -> register write
