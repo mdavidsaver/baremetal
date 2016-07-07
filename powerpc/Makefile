@@ -1,15 +1,12 @@
-
-PREFIX=powerpc-rtems4.9-
-AS=$(PREFIX)as
-GCC=$(PREFIX)gcc
-OBJCOPY=$(PREFIX)objcopy
+PREFIX=/usr/bin
+GCC=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-gcc))
+OBJCOPY=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-objcopy))
 
 # use dwarf-2 as gdb 4.8 doesn't understand dwarf 4.
 # Replace w/ '-g'
 DEBUG=-gdwarf-2
 #DEBUG=-g -O2
 
-ASFLAGS=$(DEBUG)
 # PREP is -mcpu=602
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
@@ -28,7 +25,7 @@ clean:
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(AS) $< -o $@ $(ASFLAGS)
+	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.elf:
 	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
