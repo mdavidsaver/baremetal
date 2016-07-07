@@ -1,4 +1,4 @@
-PREFIX=/usr/bin
+PREFIX?=/usr/bin
 GCC=$(firstword $(wildcard $(PREFIX)/*86*-*-gcc))
 
 CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror

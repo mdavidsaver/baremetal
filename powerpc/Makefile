@@ -1,6 +1,10 @@
-PREFIX=/usr/bin
+PREFIX?=/usr/bin
 GCC=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-gcc))
 OBJCOPY=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-objcopy))
+
+ifeq ($(GCC),)
+$(error Failed to find gcc)
+endif
 
 # use dwarf-2 as gdb 4.8 doesn't understand dwarf 4.
 # Replace w/ '-g'
