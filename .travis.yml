@@ -5,6 +5,13 @@ addons:
     packages:
       gcc-multilib
       qemu
+      gperf
+      libtool
+      texinfo
+      help2man
 language: c
-install: make -C i386
-script:  perl tapit.pl "timeout 10 qemu-system-i386 -no-reboot -kernel i386/os.elf -m 128 -display none -serial stdio"
+env:
+ - ARCH=powerpc
+install: ./build.sh
+script:
+ - perl tapit.pl "timeout 10 qemu-system-i386 -no-reboot -kernel i386/os.elf -m 128 -display none -serial stdio"
