@@ -1,3 +1,8 @@
+.macro load_const rD, expr
+  lis \rD, \expr@h
+  ori \rD, \rD, \expr@l
+.endm
+
 .section .text
 .global _start
 _start:
@@ -6,22 +11,23 @@ _start:
    */
 
   /* r1 stack pointer */
-  lis %r1,stack_top@h
-  ori %r1,%r1,stack_top@l
+  load_const %r1, stack_top
 
   li %r3,0x2000 /* set power managment bit, clear all others */
   mtmsr %r3
 
-  /* r2 read-only small data area pointer */
-  lis %r2,_SDA2_BASE_@h
-  ori %r2,%r2,_SDA2_BASE_@l
+  bl __eabi
 
-  /* r13 read/write small data area pointer */
-  lis %r2,_SDA_BASE_@h
-  ori %r2,%r2,_SDA_BASE_@l
   bl Init
 _stuck:
   b _stuck
+
+.global __eabi
+__eabi:
+  /* load small data area pointers */
+  load_const %r13, _SDA_BASE_
+  load_const %r2 , _SDA2_BASE_
+  blr
 
 .section .bss
 stack_bottom:

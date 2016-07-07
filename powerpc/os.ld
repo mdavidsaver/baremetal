@@ -95,8 +95,11 @@ SECTIONS
     __bss_start = .;
     *(COMMON)
     *(.bss .bss.* .gnu.linkonce.b.*)
-    *(.stack)
     __bss_end = .;
+    /* .bss is zeroed from C code, when the stack is already in use.
+     * so don't include .stack in the part being zeroed
+     */
+    *(.stack)
   }
 
   .note.gnu.build-id (NOLOAD) : {
