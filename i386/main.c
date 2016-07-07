@@ -34,13 +34,13 @@ struct mb_info_t {
 uint8_t inb(uint16_t port)
 {
     uint8_t ret;
-    asm volatile ("inb %1, %0" : "=r"(ret) : "Nd"(port));
+    asm volatile ("inb %1, %0" : "=r"(ret) : "Nd"(port) : "memory");
     return ret;
 }
 
 void outb(uint16_t port, uint8_t b)
 {
-  asm volatile ("outb %0, %1" :: "a"(b), "Nd"(port));
+  asm volatile ("outb %0, %1" :: "a"(b), "Nd"(port) : "memory");
 }
 
 static __attribute__((unused))
