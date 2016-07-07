@@ -18,8 +18,12 @@ if [ "$ARCH" != "i386"  ];then
     install -d "$XDIR"
     cd "$XDIR"
 
-    curl http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.22.0.tar.xz | tar -xJ
-    cd crosstool-ng*
+    #curl http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.22.0.tar.xz | tar -xJ
+
+    git clone https://github.com/crosstool-ng/crosstool-ng.git
+    cd crosstool-ng
+    git reset --hard 6e7c61650a39a67ee02ed58c11d64c94c436bb33
+    ./bootstrap
     ./configure --prefix "$XDIR/usr"
     make -j2
     make install
