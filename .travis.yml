@@ -7,4 +7,4 @@ addons:
       qemu
 language: c
 install: make -C i386
-script:  timeout 60 qemu-system-i386 -no-reboot -kernel i386/os.elf -m 128 -display none -serial stdio
+script:  timeout 60 qemu-system-i386 -no-reboot -kernel i386/os.elf -m 128 -display none -serial stdio </dev/null
