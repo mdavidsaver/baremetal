@@ -1,5 +1,5 @@
 
-PREFIX=powerpc-linux-gnu-
+PREFIX=powerpc-rtems4.9-
 AS=$(PREFIX)as
 GCC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
