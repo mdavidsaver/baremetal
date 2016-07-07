@@ -1,10 +1,7 @@
+PREFIX=/usr/bin
+GCC=$(firstword $(wildcard $(PREFIX)/*86*-linux-gnu-gcc))
 
-PREFIX=i586-linux-gnu-
-AS=$(PREFIX)as
-GCC=$(PREFIX)gcc
-
-ASFLAGS=-g
-CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra
+CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror
 
 all: os.elf
 
@@ -18,7 +15,7 @@ clean:
 	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.o: %.S
-	$(AS) $< -o $@ $(ASFLAGS)
+	$(GCC) -c $< -o $@ $(CFLAGS)
 
 %.elf:
-	$(GCC) -T $*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T $*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(filter %.o,$^)
