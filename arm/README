@@ -1,11 +1,6 @@
-qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -pflash os-flash.img
+qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -display none -net none -kernel os-a.bin
 
-or
-
-qemu-system-arm -no-reboot -M vexpress-a9 -m 128 -serial stdio -kernel os-kern.bin
-
-Can run -kernel either os-flash.elf, os-kern.elf, or os-kern.bin.
-Can run -pflash with os-flash.img
+qemu-system-arm -no-reboot -M lm3s6965evb -m 128 -serial stdio -display none -net none -kernel os-m.bin
 
 CPU: cortex-a9
 Flash size: 64 MB (-pflash file must be exactly this size)

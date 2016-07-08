@@ -25,21 +25,11 @@ _setup:
   moveq r5, r2
   movne r5, #0
 
-  /* show some life */
-  ldr r0, =_early_string1
-  bl xputs
-
-  /* prepare C environment */
-  bl _zero_bss
-  bl _move_data
   bl _setup_stacks
 
   /* set exception vector base address (needed when loaded to ram) */
   ldr r0, =_vec_reset
   mcr p15, 0, r0, c12, c0, 0
-
-  ldr r0, =_early_string2
-  bl xputs
 
   mov r0, r4 /* board id */
   mov r1, r5 /* board info */
@@ -51,9 +41,6 @@ _setup:
 .align 4
 _halt:
   /* request shutdown */
-
-  ldr r0, =_late_string1
-  bl xputs
 
   /* load sysctrl register base */
   mov r0, #0
@@ -71,90 +58,14 @@ _stuck:
   b _stuck
 
 /* output a single char to UART 1 */
-.global xputchar
-.align 4
-xputchar:
-  mov r2, #0x9000
-  movt r2, #0x1000
+.global putchar
+putchar:
+  ldr r2, =0x10009000
 
   strb r0, [r2]
 
   bx lr
 
-/* output a nil terminated string to UART 1 */
-.global xputs
-.align 4
-xputs:
-  sub r0, #1 /* the pointer back by one to use pre-index load below */
-
-  mov r2, #0x9000
-  movt r2, #0x1000
-
-_puts_loop:
-  ldrb r1, [r0, #1]!
-  cmp r1, #0
-  strbne r1, [r2]
-  bne _puts_loop
-
-  bx lr
-
-.global xnputs
-.align 4
-xnputs:
-  /* r0 is char*, r1 is size */
-  sub r0, #1
-
-  mov r3, #0x9000
-  movt r3, #0x1000
-
-_xnputs_loop:
-  cmp r1, #0
-  ldrbne r2, [r0, #1]!
-  strbne r2, [r3]
-  subne r1, #1
-  bne _xnputs_loop
-
-  bx lr
-
-_zero_bss:
-  /* zero bss, aligned to 4 bytes */
-  mov r0, #0
-  ldr r1, =__bss_start
-  ldr r2, =__bss_end
-  sub r2, r2, r1
-
-  sub r1, #4          /* we will use pre-indexed store */
-
-_bss_loop:
-  cmp r2, #0
-  strne r0, [r1, #4]!
-  subne r2, #4
-  bne _bss_loop
-
-  bx lr
-
-_move_data:
-  /* move .data section to ram */
-  ldr r0, =__data_load
-  ldr r1, =__data_start
-
-  /* if load==start then no move is necessary */
-  cmp r0, r1
-  bxeq lr
-
-  ldr r2, =__data_end
-  sub r2, r2, r1
-
-  sub r0, #4
-  sub r1, #4
-
-_data_loop:
-  cmp r2, #0
-  ldrne r3, [r0, #4]!
-  strne r3, [r1, #4]!
-  subne r2, #4
-  bne _data_loop
-  bx lr
 
 _setup_stacks:
   mov r3, lr /* msr clobbers lr */
@@ -187,17 +98,7 @@ _setup_stacks:
 
   bx r3
 
-/* keep these strings in .text so they are available
- * before .data is moved
- */
-_early_string1:
-.string "booting...\r\n"
-_early_string2:
-.string "ready for C...\r\n"
-_late_string1:
-.string "halt\r\n"
-
-.section .bss
+.section .bss.stack
 .align 4
 
 .skip 0x400

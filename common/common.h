@@ -10,6 +10,7 @@ int strcmp(const char *A, const char *B);
 
 void putchar(char c);
 void puts(const char* msg);
+void nputs(const char* msg, size_t n);
 void putval(uint32_t v);
 
 unsigned testcnt;

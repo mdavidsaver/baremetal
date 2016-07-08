@@ -1,43 +1,45 @@
+vpath %.c . ../common
 
-PREFIX=arm-none-eabi-
-AS=$(PREFIX)as
-GCC=$(PREFIX)gcc
-OBJCOPY=$(PREFIX)objcopy
+PREFIX?=/usr/bin
+GCC=$(firstword $(wildcard $(PREFIX)/arm-*eabi-gcc))
+OBJCOPY=$(firstword $(wildcard $(PREFIX)/arm-*eabi-objcopy))
 
-DEBUG=-g
+ifeq ($(GCC),)
+$(error Failed to find gcc)
+endif
 
-ASFLAGS=-mcpu=cortex-m3 -W --fatal-warnings $(DEBUG)
-CFLAGS=-mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
+
+CFLAGS=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -Wall -Wextra -Werror -I. -I../common
+CFLAGS_A=-mcpu=cortex-a9
+CFLAGS_M=-mcpu=cortex-m3 -mthumb
+
 LDFLAGS=-static
 
-all: test1-kern.bin
-all: test2-kern.bin
-all: test3-kern.bin
-all: test4-kern.bin
-all: test5-kern.bin
+all: os-a.bin os-m.bin
 
-test1-kern.elf: cortexm.ld common.ld init-m.o test1.o
-test2-kern.elf: cortexm.ld common.ld init-m.o test2.o
-test3-kern.elf: cortexm.ld common.ld init-m.o test3.o
-test4-kern.elf: cortexm.ld common.ld init-m.o test4.o
-test5-kern.elf: cortexm.ld common.ld init-m.o test5.o
+os-a.elf: vexpress.ld main-a.o init-a.o common-a.o
+os-m.elf: cortexm.ld main-m.o init-m.o common-m.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
 
-%.o: %.c
-	$(GCC) -c $< -o $@ $(CFLAGS)
+%-m.o: %.c
+	$(GCC) -c $< -o $@ $(CFLAGS_M) $(CFLAGS)
 
-%.o: %.S
-	$(GCC) -c $< -o $@ $(CFLAGS)
+%-m.o: %-m.S
+	$(GCC) -c $< -o $@ $(CFLAGS_M) $(CFLAGS)
 
-%.elf:
-	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS) $($*_CFLAGS) $(LDFLAGS) $(*_LDFLAGS) $(filter %.o,$^) -lgcc
+%-a.o: %.c
+	$(GCC) -c $< -o $@ $(CFLAGS_A) $(CFLAGS)
+
+%-a.o: %-a.S
+	$(GCC) -c $< -o $@ $(CFLAGS_A) $(CFLAGS)
+
+%-m.elf:
+	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS_M) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+
+%-a.elf:
+	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS_A) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
-
-%.img: %.bin
-	rm -f $@
-	dd if=/dev/zero of=$@ bs=1M count=64 conv=sparse
-	dd if=$< of=$@ bs=1M conv=notrunc,sparse

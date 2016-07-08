@@ -3,10 +3,10 @@
  *
  * Michael Davidsaver <mdavidsaver@gmail.com>
  */
-typedef __UINT8_TYPE__ uint8_t;
-typedef __UINT16_TYPE__ uint16_t;
-typedef __UINT32_TYPE__ uint32_t;
-typedef __SIZE_TYPE__ size_t;
+#include <common.h>
+
+extern char __bss_start, __bss_end;
+extern char __data_start, __data_end, __data_load;
 
 /* some variables to see if we're loading up the data and bss sections correctly */
 volatile uint32_t ioportbase;
@@ -16,45 +16,34 @@ uint32_t foobar2 = 0x1badface;
 
 static const uint32_t roval = 0x12345678;
 
-void xputs(const char*);
-void xnputs(const char*, uint32_t);
-void xputchar(char);
-void halt(void);
-
-static __attribute__((unused))
-void putval(uint32_t v)
-{
-    static char hex[] = "0123456789ABCDEF";
-    uint8_t n = sizeof(v)*2;
-
-    while(n--) {
-        xputchar(hex[v>>28]);
-        v<<=4;
-    }
-}
 
 void Init(uint32_t id, uint32_t *info)
 {
-    putval(id);
-    xputs("  ");
-    putval((uint32_t)info);
-    xputs("\r\n");
+    memset(&__bss_start, 0, &__bss_end-&__bss_start);
+    memcpy(&__data_start, &__data_load, &__data_end-&__data_start);
 
-    /* check that .bss and .data are setup correctly */
-    putval(ioportbase); /* expect zero */
-    xputs("\r\n");
-    putval(foobar); /* expect zero */
-    xputs("\r\n");
-    putval(ioportbase2);
-    xputs("\r\n");
-    putval(foobar2);
-    xputs("\r\n");
-    putval(roval);
-    xputs("\r\n");
+    testInit(6);
+
+    testeq32(foobar, 0);
+    testeq32(foobar2, 0x1badface);
+    testeq32(ioportbase, 0);
+    testeq32(ioportbase2, 0xdeadbeef);
+    testeq32(roval, 0x12345678);
+
+    puts("# ID ");
+    putval(id);
+    puts("\r\n# PTR ");
+    putval((uint32_t)info);
+    puts("\r\n");
+
+    if((id==0x8e0) ^ (info!=0))
+        puts("not ");
 
     if(info && (info[1]&0x54400000)==0x54400000) {
         uint32_t alen, atag;
-        xputs("Have ATAG board info\r\n");
+        puts("ok ");
+        putval(++testcnt);
+        puts(" - Have ATAG board info\r\n");
 
         while(1) {
             uint32_t *data;
@@ -65,22 +54,22 @@ void Init(uint32_t id, uint32_t *info)
             data = &info[2];
             info += alen;
 
-            xputs("ATAG 0x");
+            puts("# ATAG 0x");
             putval(atag);
-            xputs(" length 0x");
+            puts(" length 0x");
             putval(alen);
-            xputs("\r\n");
+            puts("\r\n");
 
             switch(atag) {
             case 0x54410002: /* ATAG_MEM */
-                xputs(" Ram size 0x");
+                puts("# Ram size 0x");
                 putval(*data);
-                xputs(" MB\r\n");
+                puts(" MB\r\n");
                 break;
             case 0x54410009: /* ATAG_CMDLINE */
-                xputs(" Cmdline ");
-                xnputs((char*)data, 4*(alen-2));
-                xputs("\r\n");
+                puts("# Cmdline ");
+                nputs((char*)data, 4*(alen-2));
+                puts("\r\n");
                 break;
             case 0x54410001: /* ATAG_CORE */
             case 0x54420005: /* ATAG_INITRD2 */
@@ -92,10 +81,9 @@ void Init(uint32_t id, uint32_t *info)
 
 
     } else {
-        xputs("No ATAG board info\r\n");
+        puts("ok ");
+        putval(++testcnt);
+        puts(" - No ATAG board info\r\n");
     }
 
-    /* defaults for PL011 UART work for QEMU */
-
-    xputs("hello world!\r\n");
 }

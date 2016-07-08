@@ -55,6 +55,8 @@ SECTIONS
 
     .bss : ALIGN(4)
     {
+      /* place stack before __bss_start so that .bss can be zeroed after stack is in use */
+      *(.bss.stack)
       __bss_start = .;
       *(COMMON)
       *(.bss .bss.* .gnu.linkonce.b.*)

@@ -34,6 +34,11 @@ void puts(const char* msg)
     }
 }
 
+void nputs(const char* msg, size_t n)
+{
+    while(n--) putchar(*msg++);
+}
+
 void putval(uint32_t v)
 {
     static char hex[] = "0123456789ABCDEF";

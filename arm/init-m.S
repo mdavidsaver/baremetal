@@ -49,34 +49,7 @@ run_table:
 .global _start
 .thumb_func
 _start:
-  /* zero bss */
-  mov r0, #0
-  ldr r1, =__bss_start
-  ldr r2, =__bss_end
-
-_bss_loop:
-  cmp r1, r2
-  itt ne
-  strbne r0, [r1], 1
-  bne _bss_loop
-
-  /* copy data */
-  ldr r1, =__data_start
-  ldr r2, =__data_end
-  ldr r3, =__data_load
-
-_data_loop:
-  cmp r1, r2
-  ittt ne
-  ldrbne r0, [r3], 1
-  strbne r0, [r1], 1
-  bne _data_loop
-
-  ldr r0, =run_table
-  ldr r1, =0xe000ed08 /* VTOR */
-  str r0, [r1]
-  
-  blx main
+  blx Init
   
   /* fall through to abort() */
 
@@ -93,6 +66,15 @@ abort:
 _stuck:
   b _stuck
 
+/* output a single char to UART 1 */
+.global putchar
+.thumb_func
+putchar:
+  ldr r2, =0x4000c000
+
+  strb r0, [r2]
+
+  bx lr
 
 .thumb_func
 _vec_stuck:
@@ -101,12 +83,7 @@ _vec_stuck:
   str r0, [r1]
   bl abort
 
-.section .rodata
-.global hexchars
-hexchars:
-.string "0123456789abcdef"
-
-.section .bss
+.section .bss.stack
 .align 4
 
 .global _main_stack_bot
