@@ -1,12 +1,18 @@
+vpath %.c . ../common
+
 PREFIX?=/usr/bin
 GCC=$(firstword $(wildcard $(PREFIX)/*86*-*linux*-gcc))
 
-CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror
+ifeq ($(GCC),)
+$(error Failed to find gcc)
+endif
+
+CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror -I. -I../common
 
 all: os.elf
 
 
-os.elf: os.ld init.o main.o
+os.elf: os.ld init.o main.o common.o
 
 clean:
 	rm -f init.o main.o os.elf os.map

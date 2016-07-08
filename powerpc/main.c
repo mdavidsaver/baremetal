@@ -3,8 +3,8 @@
  *
  * Michael Davidsaver <mdavidsaver@gmail.com>
  */
-#include <stdint.h>
-#include <stddef.h>
+
+#include <common.h>
 
 extern char __bss_start, __bss_end;
 extern char __sbss_start, __sbss_end;
@@ -20,33 +20,6 @@ volatile uint32_t ioportbase2 = 0xdeadbeef;
 uint32_t foobar2 = 0xbad1face;
 
 static inline
-void memcpy(void *dst, const void *src, size_t count)
-{
-  char *cdst = dst;
-  const char *csrc = src;
-  while(count--) *cdst++=*csrc++;
-}
-
-static inline
-void memset(void *dst, int val, size_t count)
-{
-  char *cdst = dst;
-  while(count--) *cdst++=(char)val;
-}
-
-static inline
-int strcmp(const char *A, const char *B)
-{
-    while(1) {
-        char a=*A++, b=*B++;
-        if(a<b) return -1;
-        else if(a>b) return 1;
-        /* a==b */
-        else if(a=='\0') return 0;
-    }
-}
-
-static inline
 void outb(uint16_t port, uint8_t val)
 {
     /* I/O ports are memory mapped on PPC.  For PREP they begin at 0x80000000 */
@@ -55,32 +28,9 @@ void outb(uint16_t port, uint8_t val)
     *addr = val;
 }
 
-static inline
 void putchar(char c)
 {
     outb(0x3f8, c);
-}
-
-static
-void puts(const char* msg)
-{
-    char c;
-    while( (c=*msg++) )
-    {
-        putchar(c);
-    }
-}
-
-static __attribute__((unused))
-void putval(uint32_t v)
-{
-    static char hex[] = "0123456789ABCDEF";
-    uint8_t n = sizeof(v)*2;
-
-    while(n--) {
-        putchar(hex[v>>28]);
-        v<<=4;
-    }
 }
 
 uint8_t inb(uint16_t port)
@@ -111,21 +61,6 @@ void nvram_get_string(uint16_t addr, char *buf, size_t len)
     *buf = '\0';
 }
 
-static uint32_t testcnt = 1;
-
-static __attribute__((unused))
-void testeq32(uint32_t expect, uint32_t actual)
-{
-  if(expect!=actual)  puts("not ");
-  puts("ok ");
-  putval(testcnt++);
-  puts(" - ");
-  putval(expect);
-  puts(" == ");
-  putval(actual);
-  puts("\r\n");
-}
-
 void Init(void)
 {
     /* zero out BSS sections */
@@ -139,7 +74,7 @@ void Init(void)
     /* setup the 16550 UART */
     outb(0x3fb, 3); /* 8N1, no break, normal access 0b00000011 */
 
-    puts("1..5\r\n");
+    testInit(5);
 
     testeq32(foobar, 0);
     testeq32(foobar2, 0xbad1face);

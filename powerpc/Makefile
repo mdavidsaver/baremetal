@@ -1,3 +1,5 @@
+vpath %.c . ../common
+
 PREFIX?=/usr/bin
 GCC=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-gcc))
 OBJCOPY=$(firstword $(wildcard $(PREFIX)/*powerpc*-*-objcopy))
@@ -12,12 +14,12 @@ DEBUG=-gdwarf-2
 #DEBUG=-g -O2
 
 # PREP is -mcpu=602
-CFLAGS=-mcpu=602 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
+CFLAGS=-mcpu=602 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -I. -I../common
 LDFLAGS=-static
 
 all: os.bin bios.bin
 
-os.elf: os.ld init.o main.o
+os.elf: os.ld init.o main.o common.o
 bios.elf: bios.ld bios.o
 
 clean:

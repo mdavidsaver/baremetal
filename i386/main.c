@@ -2,8 +2,7 @@
  *
  * Michael Davidsaver <mdavidsaver@gmail.com>
  */
-#include <stdint.h>
-#include <stddef.h>
+#include <common.h>
 
 struct mb_info_t {
   uint32_t flags;
@@ -41,55 +40,9 @@ void outb(uint16_t port, uint8_t b)
   asm volatile ("outb %0, %1" :: "a"(b), "Nd"(port) : "memory");
 }
 
-static __attribute__((unused))
-void memcpy(void *dst, const void *src, size_t count)
-{
-  char *cdst = dst;
-  const char *csrc = src;
-  while(count--) *cdst++=*csrc++;
-}
-
-static inline
 void putchar(char c)
 {
     outb(0x3f8, c);
-}
-
-static
-void puts(const char* msg)
-{
-    char c;
-    while( (c=*msg++) )
-    {
-        putchar(c);
-    }
-}
-
-static __attribute__((unused))
-void putval(uint32_t v)
-{
-    static char hex[] = "0123456789ABCDEF";
-    uint8_t n = sizeof(v)*2;
-
-    while(n--) {
-        putchar(hex[v>>28]);
-        v<<=4;
-    }
-}
-
-static uint32_t testcnt = 1;
-
-static __attribute__((unused))
-void testeq32(uint32_t expect, uint32_t actual)
-{
-  if(expect!=actual)  puts("not ");
-  puts("ok ");
-  putval(testcnt++);
-  puts(" - ");
-  putval(expect);
-  puts(" == ");
-  putval(actual);
-  puts("\r\n");
 }
 
 /* some variables to see if the data and bss sections are correctly initialized */
@@ -99,7 +52,7 @@ uint32_t foobar2 = 0xbad1face;
 void Init(uint32_t mb_magic, const void* pmb)
 {
   /* assume UART was left configured by the bootloader */
-  puts("1..3\r\n");
+  testInit(3);
   testeq32(mb_magic, 0x2badb002);
   if(mb_magic==0x2badb002) {
     puts("# Found multiboot\r\n");
