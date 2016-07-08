@@ -17,5 +17,6 @@ cache:
 env:
  - ARCH=i386
  - ARCH=powerpc
+ - ARCH=arm
 install: ./build.sh
 script: ./test.sh

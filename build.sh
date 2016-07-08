@@ -30,14 +30,17 @@ if [ "$ARCH" != "i386"  ];then
     echo "CT_PREFIX_DIR=$XDIR/usr" >> .config
 
     ./ct-ng build CT_PREFIX="$XDIR/usr" || (tail -n100 build.log; exit 1)
+
+    rm -rf "$XDIR/crosstool-ng"
+
     touch "$XDIR/built"
   fi
-  rm -rf "$XDIR/crosstool-ng"
   PREFIX="$XDIR/usr/bin"
   find "$PREFIX" -name '*-gcc'
 fi
 
 cd "$ORIGDIR"
 echo "toolchain prefix $PREFIX"
+ls "$PREFIX"
 
 make -C "$ARCH" PREFIX=$PREFIX
