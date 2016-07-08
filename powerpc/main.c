@@ -35,6 +35,18 @@ void memset(void *dst, int val, size_t count)
 }
 
 static inline
+int strcmp(const char *A, const char *B)
+{
+    while(1) {
+        char a=*A++, b=*B++;
+        if(a<b) return -1;
+        else if(a>b) return 1;
+        /* a==b */
+        else if(a=='\0') return 0;
+    }
+}
+
+static inline
 void outb(uint16_t port, uint8_t val)
 {
     /* I/O ports are memory mapped on PPC.  For PREP they begin at 0x80000000 */
@@ -99,6 +111,21 @@ void nvram_get_string(uint16_t addr, char *buf, size_t len)
     *buf = '\0';
 }
 
+static uint32_t testcnt = 1;
+
+static __attribute__((unused))
+void testeq32(uint32_t expect, uint32_t actual)
+{
+  if(expect!=actual)  puts("not ");
+  puts("ok ");
+  putval(testcnt++);
+  puts(" - ");
+  putval(expect);
+  puts(" == ");
+  putval(actual);
+  puts("\r\n");
+}
+
 void Init(void)
 {
     /* zero out BSS sections */
@@ -112,15 +139,12 @@ void Init(void)
     /* setup the 16550 UART */
     outb(0x3fb, 3); /* 8N1, no break, normal access 0b00000011 */
 
-    puts("hello world\r\nfoobar=");
-    putval(foobar);
-    puts("\r\nfoobar2=");
-    putval(foobar2);
-    puts("\r\nioportbase=");
-    putval((uint32_t)ioportbase);
-    puts("\r\nioportbase2=");
-    putval((uint32_t)ioportbase2);
-    puts("\r\n");
+    puts("1..5\r\n");
+
+    testeq32(foobar, 0);
+    testeq32(foobar2, 0xbad1face);
+    testeq32(ioportbase, 0);
+    testeq32(ioportbase2, 0xdeadbeef);
 
     {
         /* QEMU communicates with us via an M48T59 NVRAM device.
@@ -128,9 +152,13 @@ void Init(void)
          */
         char buf[32];
         nvram_get_string(0x00, buf, sizeof(buf));
-        puts("BIOS = '");
+        puts("# BIOS id string\r\n");
+        if(strcmp(buf, "QEMU_BIOS")!=0) puts("not ");
+        puts("ok ");
+        putval(testcnt++);
+        puts(" - '");
         puts(buf);
-        puts("'\r\n");
+        puts("' == 'QEMU_BIOS'\r\n");
     }
 
     outb(0x64, 0xfe); /* ask the KBC to reset us */
