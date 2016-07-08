@@ -18,26 +18,22 @@ if [ "$ARCH" != "i386"  ];then
     install -d "$XDIR"
     cd "$XDIR"
 
-    #curl http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.22.0.tar.xz | tar -xJ
-
     git clone https://github.com/crosstool-ng/crosstool-ng.git
     cd crosstool-ng
     git reset --hard 6e7c61650a39a67ee02ed58c11d64c94c436bb33
     ./bootstrap
-    ./configure --prefix "$XDIR/usr"
+    ./configure --enable-local
     make -j2
-    make install
-
-    CTDIR="$PWD"
-
-    mkdir ../ct
-    cd ../ct
 
     cp "$ORIGDIR/$ARCH.config" .config
-    PATH=$CTDIR:$PATH ct-ng build CT_PREFIX="$XDIR/usr" || (tail -n100 build.log; exit 1)
-    PREFIX="$XDIR/usr"
+    sed -i -e '/^CT_PREFIX_DIR=/d' .config
+    echo "CT_PREFIX_DIR=$XDIR/usr" >> .config
+
+    ./ct-ng build CT_PREFIX="$XDIR/usr" || (tail -n100 build.log; exit 1)
     touch "$XDIR/built"
   fi
+  PREFIX="$XDIR/usr/bin"
+  find "$PREFIX" -name '*-gcc'
 fi
 
 cd "$ORIGDIR"
