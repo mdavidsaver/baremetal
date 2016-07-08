@@ -21,6 +21,9 @@ SECTIONS
   {
       . = 0x100; /* skip to the reset ISR vector */
       *(.text.start) /* ensure that _jump_start() appears first */
+
+      . += 0xfffffffc - ABSOLUTE(.);
+      *(.text.reset) /* some targets reset from here */
   } >rom
 
   .text.os (NOLOAD) :

@@ -41,6 +41,11 @@ make_vector _vec_res2
 make_vector _vec_sc
 make_vector _vec_trace
 
+.section .text.reset
+.global _jump_start2
+_jump_start2:
+  b _jump_start
+
 .section .text.os
 .global _start
 _start:
