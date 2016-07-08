@@ -12,7 +12,7 @@ DEBUG=-gdwarf-2
 #DEBUG=-g -O2
 
 # PREP is -mcpu=602
-CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
+CFLAGS=-mcpu=602 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
 all: os.bin bios.bin

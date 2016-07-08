@@ -18,6 +18,8 @@ case "$ARCH" in
      echo "oops"
      tail -n100 test.log
      exit 1
+   else
+     tail test.log
    fi
    ;;
  *) die "Unknown arch $ARCH";;
