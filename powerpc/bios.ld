@@ -11,8 +11,9 @@ ENTRY(_jump_start)
  * The -kernel image will be loaded to 0x1000000.  So we just jump there
  */
 MEMORY {
-  ram (rwx) : ORIGIN = 0x1000000, LENGTH = 1M
-  rom (rx) : ORIGIN = 0xfff00000, LENGTH = 16M
+  ram (rwx) : ORIGIN = 0x1000000, LENGTH = 16M
+  rom (rx) : ORIGIN = 0xfff00000, LENGTH = 1M
+  rst (rx) : ORIGIN = 0xfffffffc, LENGTH = 4
 }
 
 SECTIONS
@@ -21,10 +22,12 @@ SECTIONS
   {
       . = 0x100; /* skip to the reset ISR vector */
       *(.text.start) /* ensure that _jump_start() appears first */
-
-      . += 0xfffffffc - ABSOLUTE(.);
-      *(.text.reset) /* some targets reset from here */
   } >rom
+
+  .text.reset :
+  {
+      *(.text.reset) /* some targets reset from here */
+  } >rst
 
   .text.os (NOLOAD) :
   {
