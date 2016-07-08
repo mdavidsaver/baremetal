@@ -15,7 +15,8 @@ case "$ARCH" in
    qemu-system-ppc --version
    if ! perl tapit.pl "timeout 30 qemu-system-ppc -no-reboot -m 128 -M prep -cpu 602 -serial stdio -display none -bios powerpc/bios.bin -kernel powerpc/os.bin -d guest_errors,unimp,exec" </dev/null > test.log 2>&1
    then
-     echo "oops"
+     head -n100 test.log
+     echo "==============="
      tail -n100 test.log
      exit 1
    else
