@@ -32,6 +32,7 @@ if [ "$ARCH" != "i386"  ];then
     ./ct-ng build CT_PREFIX="$XDIR/usr" || (tail -n100 build.log; exit 1)
     touch "$XDIR/built"
   fi
+  rm -rf "$XDIR/crosstool-ng"
   PREFIX="$XDIR/usr/bin"
   find "$PREFIX" -name '*-gcc'
 fi

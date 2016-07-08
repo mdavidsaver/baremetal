@@ -9,6 +9,7 @@ addons:
       libtool
       texinfo
       help2man
+      strace
 language: c
 cache:
   directories:
