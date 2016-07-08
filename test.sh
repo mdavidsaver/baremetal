@@ -6,22 +6,30 @@ die() {
   exit 1
 }
 
+qarch="$ARCH"
+args=""
 case "$ARCH" in
  i386)
-   qemu-system-i386 --version
-   perl tapit.pl "timeout 10 qemu-system-i386 -no-reboot -m 128 -kernel i386/os.elf -display none -serial stdio -d guest_errors,unimp"
+   args="-m 128 -kernel i386/os.elf"
    ;;
  powerpc)
-   qemu-system-ppc --version
-   if ! perl tapit.pl "timeout 30 qemu-system-ppc -no-reboot -m 128 -M prep -cpu 602 -serial stdio -display none -bios powerpc/bios.bin -kernel powerpc/os.bin -d guest_errors,unimp,exec" </dev/null > test.log 2>&1
-   then
-     head -n100 test.log
-     echo "==============="
-     tail -n100 test.log
-     exit 1
-   else
-     tail test.log
-   fi
+   qarch="ppc"
+   args="-m 128 -M prep -cpu 602 -bios powerpc/bios.bin -kernel powerpc/os.bin"
    ;;
  *) die "Unknown arch $ARCH";;
 esac
+
+qemu-system-${qarch} --version
+
+if perl tapit.pl "timeout 30 qemu-system-$qarch -no-reboot -m 128 $args -serial stdio -display none -net none -d guest_errors,unimp" </dev/null > test.log 2>&1
+then
+  cat test.log
+else
+  cat test.log
+  echo "Test error, re-run with -d exec"
+  timeout 30 qemu-system-$qarch -no-reboot -m 128 $args -serial stdio -display none -net none -d guest_errors,unimp,exec </dev/null > test.log 2>&1 || true
+  head -n100 test.log
+  echo "==============="
+  tail -n100 test.log
+  exit 1
+fi
