@@ -1,24 +1,23 @@
 /* Test Mode/Stack changes
  */
 #include "armv7m.h"
+#include "testme.h"
+
+static
+unsigned testseq;
+
+#define SEQ() __atomic_add_fetch(&testseq, 1, __ATOMIC_RELAXED)
+
+#define CHECK_SEQ(N) testEqI(N, SEQ(), "SEQ " #N)
+
+static inline
+void test_equal(const char *m, uint32_t expect, uint32_t actual)
+{
+    testEqI(expect, actual, m);
+}
 
 extern char _main_stack_top, _proc_stack_top;
 extern char _main_stack_bot, _proc_stack_bot;
-
-static
-volatile unsigned test;
-
-static
-void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
-{
-    puts(lhs==rhs ? "ok - " : "fail - ");
-    puthex(lhs);
-    puts(" == ");
-    puthex(rhs);
-    puts(" # ");
-    puts(msg);
-    putc('\n');
-}
 
 static
 void show_control(unsigned ectrl, unsigned evect)
@@ -29,9 +28,7 @@ void show_control(unsigned ectrl, unsigned evect)
     __asm__ ("mov %0,sp" : "=r"(sp) ::);
     __asm__ ("mrs %0,IPSR" : "=r"(avect) ::);
     __asm__ ("mrs %0,CONTROL" : "=r"(actrl) ::);
-    puts(" SP ");
-    puthex((uint32_t)sp);
-    putc('\n');
+    testDiag("SP %p", sp);
 
     test_equal("CONTROL", ectrl, actrl);
     test_equal("IPSR", evect, avect);
@@ -41,17 +38,12 @@ void show_control(unsigned ectrl, unsigned evect)
     else if(sp>&_proc_stack_bot && sp<=&_proc_stack_top)
         instack = 2;
     else {
-        puts("fail - Corrupt SP ");
-        puthex((uint32_t)sp);
-        putc('\n');
+        testFail("fail - Corrupt SP %p", sp);
         return;
     }
-    if((avect>0 && instack==0) || (avect==0 && (actrl&2)==instack))
-        puts("ok - stack ");
-    else
-        puts("fail - stack ");
-    putc(instack?'2':'0');
-    putc('\n');
+    testOk((avect>0 && instack==0) || (avect==0 && (actrl&2)==instack),
+           "stack%c, avect=%x instack=%x actrl=%x", instack?'2':'0',
+           (unsigned)avect, (unsigned)instack, (unsigned)actrl);
 }
 
 static
@@ -70,27 +62,25 @@ void show_masks(unsigned expect)
 static
 void svc(void)
 {
+    unsigned test = SEQ();
+    printk("# in SVC SEQ %u\n", test);
     switch(test) {
     case 1:
-        puts("2. SVC\n");
-        show_control(0, 11);
-        break;
-    case 2:
-        puts("6. SVC\n");
         show_control(0, 11);
         break;
     case 3:
-        puts("10. SVC\n");
+        show_control(0, 11);
+        break;
+    case 5:
         show_control(1, 11);
         break;
-    case 4:
-        puts("15. SVC\n");
+    case 7:
         show_masks(0);
         __asm__ volatile ("cpsid i" :::);
         show_masks(1);
         break;
     default:
-        puts("Fail SVC\n");
+        testFail("Fail SVC\n");
         abort();
     }
 }
@@ -98,15 +88,16 @@ void svc(void)
 static
 void hard(void)
 {
-    if(test==5) {
+    unsigned test = SEQ();
+    testDiag("HARDFAULT %u", test);
+    if(test==9) {
+        testDiag("Set CONTROL=0");
         uint32_t val = 0;
-        puts("18. HardFault\n");
         __asm__ volatile ("msr CONTROL, %0" :: "r"(val):);
-        test = 6;
-        return;
+    } else {
+        testFail("Unexpected HardFault SEQ %u", test);
+        abort();
     }
-    puts("Unexpected HardFault\n");
-    abort();
 }
 
 void main(void)
@@ -114,84 +105,82 @@ void main(void)
     run_table.svc = svc;
     run_table.hard = hard;
 
+    testInit(45);
+    
     {
         uint32_t temp = (uint32_t)&_proc_stack_top;
         __asm__ volatile ("msr PSP,%0" :: "r"(temp) :);
     }
 
-    puts(" MSP ");
-    puthex((uint32_t)&_main_stack_top);
-    puts("\n PSP ");
-    puthex((uint32_t)&_proc_stack_top);
-    putc('\n');
+    testDiag("MSP=%p PSP=%p", &_main_stack_top, &_proc_stack_top);
 
     show_control(0, 0);
 
-    test = 1;
-    puts("1. Start, trigger SVC\n");
+    testDiag("Start, trigger SVC");
     CPSIE(if);
     SVC(42);
 
-    puts("3. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(2);
     show_control(0, 0);
 
-    puts("4. Priv w/ proc stack\n");
+    testDiag("Priv w/ proc stack");
     {
         uint32_t val = 2;
         __asm__ volatile ("msr CONTROL,%0" :: "r"(val):);
     }
     show_control(2, 0);
 
-    test = 2;
-    puts("5. trigger SVC\n");
+    testDiag("trigger SVC");
     SVC(42);
 
-    puts("7. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(4);
     show_control(2, 0);
 
-    test = 3;
-    puts("8. Drop privlage\n");
+    testDiag("Drop privlage");
     {
         uint32_t val = 3;
         __asm__ volatile ("msr CONTROL,%0" :: "r"(val):);
     }
     show_control(3, 0);
 
-    puts("9. trigger SVC\n");
+    testDiag("trigger SVC");
     SVC(42);
 
-    puts("11. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(6);
     show_control(3, 0);
 
-    puts("12. Try to restore privlage and switch stack (should be noop)\n");
+    testDiag("Try to restore privlage and switch stack (should be noop)");
     {
         uint32_t val = 0;
         __asm__ volatile ("msr CONTROL,%0" :: "r"(val):);
     }
     show_control(3, 0);
 
-    test = 4;
-    puts("13. Try to set masks\n");
+    testDiag("Try to set masks");
     CPSID(if);
     show_masks(0); /* doesn't work */
 
-    puts("14. trigger SVC\n");
+    testDiag("trigger SVC");
     SVC(42);
 
-    puts("16. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(8);
     show_masks(0); /* unprivlaged doesn't see mask */
 
-    test = 5;
-    puts("17. trigger HardFault (restores priv)\n");
+    testDiag("trigger HardFault (restores priv)");
     SVC(42);
-    puts("19. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(10);
     show_control(2, 0);
-    puts("restore MSP\n");
+    testDiag("restore MSP");
     {
         uint32_t val = 0;
         __asm__ volatile ("msr CONTROL,%0" :: "r"(val):);
     }
     show_control(0, 0);
 
-    puts("Done.\n");
+    testDiag("Done.");
 }

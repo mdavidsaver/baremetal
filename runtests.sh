@@ -37,4 +37,5 @@ dotest test1-kern.bin
 dotest test9-kern.bin
 dotest test10-kern.bin
 dotest test4-kern.bin
+dotest test5-kern.bin
 exit $RET
