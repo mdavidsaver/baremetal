@@ -17,6 +17,7 @@ _vec_fiq  : b _vec_fiq
 .section .text
 .global _setup
 _setup:
+  cpsid if
   /* look for bootloader info (-kernel mode only) */
   cmp r1, #0x8e0 /* boardid for vexpress-a9 */
   /* cmpne r1, #other */
@@ -38,9 +39,9 @@ _setup:
   /* fall through to halt */
 
 .global _halt
-.align 4
 _halt:
   /* request shutdown */
+  cpsid if
 
   /* load sysctrl register base */
   mov r0, #0
@@ -70,21 +71,13 @@ putchar:
 _setup_stacks:
   mov r3, lr /* msr clobbers lr */
 
-  /* setup CPSR */
-  mrs r0, cpsr
-  bic r0, r0, #0x1f /* clear mode bits */
-  orr r0, r0, #0xc0 /* set to disable IRQ and FIQ */
+  cps #18 /* IRQ Mode */
+  ldr r0, =_irq_stack_top
 
-  orr r1, r0, #18 /* IRQ Mode */
-  msr cpsr, r1
-  ldr sp, =_irq_stack_top
-
-  orr r1, r0, #17 /* IRQ Mode */
-  msr cpsr, r1
+  cps #17 /* FIQ Mode */
   ldr sp, =_fiq_stack_top
 
-  orr r1, r0, #0x1f /* System Mode */
-  msr cpsr, r1
+  cps #31 /* System Mode */
   ldr sp, =_sys_stack_top
 
   /* do a little test that we can write to the stack.

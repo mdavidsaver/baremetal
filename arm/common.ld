@@ -73,12 +73,3 @@ ASSERT(ADDR(.text)+SIZEOF(.text)<=ADDR(.rodata), "overlap between .text and .rod
 ASSERT(ADDR(.rodata)+SIZEOF(.rodata)<=ADDR(.preinit_array), "overlap between .rodata and .preinit_array")
 ASSERT(ADDR(.data)+SIZEOF(.data)<=ADDR(.bss), "overlap between .data and .bss")
 ASSERT(ADDR(.bss)+SIZEOF(.bss)<=__after_all_load, "overlap between .bss and __after_all_load")
-
-/* _bss_zero() and _move_data() assume word alignment */
-
-ASSERT(__data_start%4==0, "__data_start alignment")
-ASSERT(__data_load%4==0, "__data_load alignment")
-ASSERT(__data_end%4==0, "__data_end alignment")
-
-ASSERT(__bss_start%4==0, "__bss_start alignment")
-ASSERT(__bss_end%4==0, "__bss_end alignment")

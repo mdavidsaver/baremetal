@@ -17,8 +17,8 @@ LDFLAGS=-static
 
 all: os-a.bin os-m.bin
 
-os-a.elf: vexpress.ld main-a.o init-a.o common-a.o
-os-m.elf: cortexm.ld main-m.o init-m.o common-m.o
+os-a.elf: vexpress.ld common.ld main-a.o init-a.o common-a.o
+os-m.elf: cortexm.ld common.ld main-m.o init-m.o common-m.o
 
 clean:
 	rm -f *.o *.elf *.map *.bin *.img
@@ -36,10 +36,10 @@ clean:
 	$(GCC) -c $< -o $@ $(CFLAGS_A) $(CFLAGS)
 
 %-m.elf:
-	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS_M) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$@.map -o $@ $(CFLAGS_M) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %-a.elf:
-	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$*.map -o $@ $(CFLAGS_A) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(firstword $(filter %.ld,$^)) -Wl,-Map=$@.map -o $@ $(CFLAGS_A) $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -S -O binary $< $@
