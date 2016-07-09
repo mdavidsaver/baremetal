@@ -1,32 +1,23 @@
 /* Test exception handling registers
  */
 #include "armv7m.h"
+#include "testme.h"
 
 static
-void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
-{
-    puts(lhs==rhs ? "ok - " : "fail - ");
-    puthex(lhs);
-    puts(" == ");
-    puthex(rhs);
-    puts(" # ");
-    puts(msg);
-    putc('\n');
-}
+unsigned testseq;
 
-static
-volatile unsigned test;
+#define SEQ() __atomic_add_fetch(&testseq, 1, __ATOMIC_RELAXED)
 
 static
 void pendsv(void)
 {
+    unsigned test = SEQ();
     switch(test) {
     case 2:
-        puts("3. In PendSV\n");
+        testDiag("In PendSV");
         /* RETTOBASE not set */
-        test_equal("ICSR ", 0x0000000e, in32(SCB(0xd04)));
-        test_equal("SHCSR", 0x00000480, in32(SCB(0xd24)));
-        test = 3;
+        testEqI(0x0000000e, in32(SCB(0xd04)), "ICSR");
+        testEqI(0x00000480, in32(SCB(0xd24)), "SHCSR");
         break;
     default:
         puts("Unexpected PendSV\n");
@@ -37,20 +28,20 @@ void pendsv(void)
 static
 void svc(void)
 {
+    unsigned test = SEQ();
     switch(test) {
     case 1:
-        puts("2. In SVC\n");
-        test = 2;
+        testDiag("In SVC");
         /* RETTOBASE set */
-        test_equal("ICSR ", 0x0000080b, in32(SCB(0xd04)));
-        test_equal("SHCSR", 0x00000080, in32(SCB(0xd24)));
+        testEqI(0x0000080b, in32(SCB(0xd04)), "ICSR");
+        testEqI(0x00000080, in32(SCB(0xd24)), "SHCSR");
         rmw(32, SCB(0xd04), 1<<28, 1<<28); /* Pend PendSV */
-        puts("4. Back in SVC\n");
-        test_equal("test ", 3, test);
-        test = 4;
+        testDiag("Back in SVC");
+        test = SEQ();
+        testEqI(3, test, "Back in SVC");
         break;
     default:
-        puts("Unexpected SVC\n");
+        testFail("Unexpected SVC");
         abort();
     }
 }
@@ -59,6 +50,8 @@ void main(void)
 {
     run_table.svc = &svc;
     run_table.pendsv = &pendsv;
+    
+    testInit(10);
 
     {
         /* attempt to detect the number of usable
@@ -67,14 +60,14 @@ void main(void)
         uint32_t val = 0xff;
         __asm__ ("msr BASEPRI, %0" :: "r"(val) :);
         __asm__ ("mrs %0, BASEPRI" : "=r"(val) ::);
-        puts("BASEPRI mask ");
+        puts("# BASEPRI mask ");
         puthex(val);
         val = 0;
         __asm__ ("msr BASEPRI, %0" :: "r"(val) :);
         rmw(32, SCB(0xd20), 0xff, 0xff);
         val = in32(SCB(0xd20))&0xff;
         rmw(32, SCB(0xd20), 0xff, 0);
-        puts("\nDEBUG prio ");
+        puts("\n# DEBUG prio ");
         puthex(val);
         putc('\n');
     }
@@ -83,17 +76,15 @@ void main(void)
     out32(SCB(0xd1c), PRIO(2,0)<<24); /* SVC prio 2 */
     out32(SCB(0xd20), PRIO(1,0)<<16); /* PendSV prio 1 */
 
-    test = 1;
     /* RETTOBASE not set */
-    test_equal("ICSR ", 0x00000000, in32(SCB(0xd04)));
-    test_equal("SHCSR", 0x00000000, in32(SCB(0xd24)));
-    puts("1. Call SVC\n");
+    testEqI(0x00000000, in32(SCB(0xd04)), "ICSR");
+    testEqI(0x00000000, in32(SCB(0xd24)), "SHCSR");
+    testDiag("Call SVC");
     SVC(42);
-    puts("5. Back in main\n");
-    test_equal("test ", 4, test);
-    test = 5;
-    test_equal("ICSR ", 0x00000000, in32(SCB(0xd04)));
-    test_equal("SHCSR", 0x00000000, in32(SCB(0xd24)));
+    testDiag("Back in main");
+    testEqI(4, SEQ(), "Back in SVC");
+    testEqI(0x00000000, in32(SCB(0xd04)), "ICSR");
+    testEqI(0x00000000, in32(SCB(0xd24)), "SHCSR");
 
-    puts("Done\n");
+    testDiag("Done");
 }

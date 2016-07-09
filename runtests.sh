@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e -x
+set -e
 
 die() {
   echo "$1" >&2
@@ -16,17 +16,18 @@ RET=0
 dotest() {
   echo "=============== Testing $1 ==============="
   TEST="-kernel $1"
-  if perl tapit.pl "timeout 30 $QEMU $ARGS $TEST" </dev/null > test.log 2>&1
+  if perl tapit.pl "timeout 30 $QEMU $ARGS $TEST" </dev/null 2>&1
   then
-    cat test.log
+    true
   else
-    cat test.log
-    echo "Test error, re-run with -d exec"
-    timeout 30 $QEMU $ARGS $TEST </dev/null > test.log 2>&1 || true
-    head -n50 test.log
-    echo "==============="
-    tail -n50 test.log
     RET=1
+    if [ "$TRACEERR" ]; then
+      echo "Test error, re-run with -d exec"
+      timeout 30 $QEMU $ARGS $TEST </dev/null > test.log 2>&1 || true
+      head -n50 test.log
+      echo "==============="
+      tail -n50 test.log
+    fi
   fi
 }
 
@@ -34,4 +35,5 @@ make PREFIX="$XDIR/usr/bin"
 
 dotest test1-kern.bin
 dotest test9-kern.bin
+dotest test10-kern.bin
 exit $RET

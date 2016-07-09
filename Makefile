@@ -9,7 +9,6 @@ endif
 
 DEBUG=-g
 
-ASFLAGS=-mcpu=cortex-m3 -W --fatal-warnings $(DEBUG)
 CFLAGS=-mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra -Werror
 LDFLAGS=-static
 
@@ -35,7 +34,7 @@ test6-kern.elf: cortexm.ld common.ld setup.o init-m.o test6.o
 test7-kern.elf: cortexm.ld common.ld setup.o init-m.o test7.o
 test8-kern.elf: cortexm.ld common.ld setup.o init-m.o test8.o inst_skip.o
 test9-kern.elf: cortexm.ld common.ld setup.o init-m-test9.o testme.o test9.o
-test10-kern.elf:cortexm.ld common.ld setup.o init-m.o test10.o
+test10-kern.elf:cortexm.ld common.ld setup.o init-m.o testme.o test10.o
 test11-kern.elf:cortexm.ld common.ld setup.o init-m.o test11-buserr.o inst_skip.o
 test12-kern.elf:cortexm.ld common.ld setup.o test12.o
 
