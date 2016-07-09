@@ -19,36 +19,55 @@ void testInit(unsigned ntests)
     putc('\n');
 }
 
-void testOk(int c, const char *msg)
+void testOk(int c, const char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    testVOk(c, msg, args);
+    va_end(args);
+}
+
+void testVOk(int c, const char *msg, va_list args)
 {
     if(!c)
         puts("not ");
     puts("ok ");
     putdec(CNT());
     puts(" - ");
-    puts(msg);
+    vprintk(msg, args);
     putc('\n');
 }
 
-void testPass(const char *msg)
+void testPass(const char *msg, ...)
 {
-    testOk(1, msg);
+    va_list args;
+    va_start(args, msg);
+    testVOk(1, msg, args);
+    va_end(args);
 }
 
-void testFail(const char *msg)
+void testFail(const char *msg, ...)
 {
-    testOk(0, msg);
+    va_list args;
+    va_start(args, msg);
+    testVOk(0, msg, args);
+    va_end(args);
 }
 
-void testDiag(const char *msg)
+void testDiag(const char *msg, ...)
 {
+    va_list args;
+    va_start(args, msg);
     puts("# ");
-    puts(msg);
+    vprintk(msg, args);
     putc('\n');
+    va_end(args);
 }
 
-void testEqI(uint32_t expect, uint32_t actual, const char *msg)
+void testEqI(uint32_t expect, uint32_t actual, const char *msg, ...)
 {
+    va_list args;
+    va_start(args, msg);
     if(expect!=actual) puts("not ");
     puts("ok ");
     putdec(CNT());
@@ -57,6 +76,7 @@ void testEqI(uint32_t expect, uint32_t actual, const char *msg)
     puts(" == ");
     puthex(actual);
     putc(' ');
-    puts(msg);
+    vprintk(msg, args);
     putc('\n');
+    va_end(args);
 }

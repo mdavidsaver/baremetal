@@ -80,14 +80,27 @@ specmod:
                 putdec(v);
                 break;
             }
+            case 'c': {
+                char v = va_arg(args, int);
+                putc(v);
+                break;
+            }
             case 'x': {
                 unsigned v = va_arg(args, unsigned);
                 puthex(v);
                 break;
             }
+            case 'p': {
+                const void *v = va_arg(args, const void*);
+                puthex((uint32_t)v);
+                break;
+            }
             case 's': {
                 const char *v = va_arg(args, const char*);
-                puts(v);
+                if(v)
+                    puts(v);
+                else
+                    puts("<null>");
                 break;
             }
             default:
