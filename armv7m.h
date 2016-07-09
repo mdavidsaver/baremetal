@@ -112,7 +112,7 @@ void flush(void)
     loop_until(32, UART_FLAG, 0x80, ==, 0x80);
 }
 
-extern char hexchars[16];
+extern const char hexchars[16];
 
 static inline
 void puthex(uint32_t v)
@@ -121,6 +121,21 @@ void puthex(uint32_t v)
 	for(i=0; i<8; i++, v<<=4) {
 		putc(hexchars[v>>28]);
 	}
+}
+
+static inline
+void putdec(uint32_t v)
+{
+    unsigned out=0;
+    uint32_t base=1000000000;
+    for(;base; base/=10) {
+        uint32_t d=v/base;
+        if(!d && !out) continue;
+        putc('0'+d);
+        v%=base;
+        out=1;
+    }
+    if(!out) putc('0');
 }
 
 #define CPSIE(MASK) __asm__ volatile ("cpsie " #MASK ::: "memory")

@@ -122,11 +122,6 @@ _vec_stuck:
   str r0, [r1]
   bl abort
 
-.section .rodata
-.global hexchars
-hexchars:
-.string "0123456789abcdef"
-
 .section .bss
 .align 4
 

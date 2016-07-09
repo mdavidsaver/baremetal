@@ -87,6 +87,8 @@ _data_loop:
 .global abort
 .thumb_func
 abort:
+  cpsid if
+
   ldr sp, =_main_stack_top
 
   ldr r0, =0x05fa0004 /* reset request */
@@ -106,11 +108,6 @@ _vec_stuck:
   mrs r0, IPSR
   str r0, [r1]
   bl abort
-
-.section .rodata
-.global hexchars
-hexchars:
-.string "0123456789abcdef"
 
 .section .bss
 .align 4

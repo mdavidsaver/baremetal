@@ -1,6 +1,8 @@
 
 #include "armv7m.h"
 
+const char hexchars[] = "0123456789abcdef";
+
 void board_setup(void)
 {
     if((in32(SCB(0xd00))&0xff0ffff0)==0x410fc240) {

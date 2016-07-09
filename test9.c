@@ -1,21 +1,11 @@
 /* Capture initial register states
  */
 #include "armv7m.h"
+#include "testme.h"
 
 char _main_stack_top;
 
-static
-void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
-{
-    puts(lhs==rhs ? "ok - " : "fail - ");
-    puthex(lhs);
-    puts(" == ");
-    puthex(rhs);
-    puts(" # ");
-    puts(msg);
-    putc('\n');
-}
-
+/* defintion must match test-m-test9.S */
 struct early_state_t {
     uint32_t LR;
     uint32_t XPSR;
@@ -42,7 +32,8 @@ struct early_state_t {
 
 void main(void)
 {
-#define TEST(FLD, VAL) test_equal(#FLD, early_state.FLD, VAL)
+    testInit(20);
+#define TEST(FLD, VAL) testEqI(VAL, early_state.FLD, #FLD)
     TEST(marker, 0xdeadbeaf); /* check consistency w/ init-m-test9.S */
     TEST(LR, 0xffffffff);
     TEST(XPSR, 0);
@@ -72,5 +63,4 @@ void main(void)
     puthex(early_state.mpu_type);
     putc('\n');
     TEST(mpu_ctrl, 0);
-    puts("Done\n");
 }
