@@ -36,4 +36,5 @@ make PREFIX="$XDIR/usr/bin"
 dotest test1-kern.bin
 dotest test9-kern.bin
 dotest test10-kern.bin
+dotest test4-kern.bin
 exit $RET

@@ -5,59 +5,55 @@
 #define PRIGROUP 5
 
 #include "armv7m.h"
+#include "testme.h"
 
 static
-void test_equal(const char *msg, uint32_t lhs, uint32_t rhs)
-{
-    puts(lhs==rhs ? "ok - " : "fail - ");
-    puthex(lhs);
-    puts(" == ");
-    puthex(rhs);
-    puts(" # ");
-    puts(msg);
-    putc('\n');
-}
+unsigned testseq;
 
-static int test;
+#define SEQ() __atomic_add_fetch(&testseq, 1, __ATOMIC_RELAXED)
+
+#define CHECK_SEQ(N) testEqI(N, SEQ(), "SEQ " #N)
+
+static inline
+void test_equal(const char *m, uint32_t expect, uint32_t actual)
+{
+    testEqI(expect, actual, m);
+}
 
 static
 void irq0(void)
 {
+    unsigned test = SEQ();
+    printk("# in IRQ0 SEQ %u\n", test);
     switch(test) {
-    case 1:
-        puts("4. in IRQ0\n");
+    case 2:
         test_equal("ENA ", 3, in32(SCB(0x100)));
         test_equal("PEND", 0, in32(SCB(0x200)));
         test_equal("ACT ", 1, in32(SCB(0x300)));
         test_equal("ICSR", 0x00000810, in32(SCB(0xd04)));
         break;
-    case 3:
-        puts("8. in IRQ0\n");
+    case 5:
         test_equal("ENA ", 3, in32(SCB(0x100)));
         test_equal("PEND", 0, in32(SCB(0x200)));
         test_equal("ACT ", 1, in32(SCB(0x300)));
         test_equal("ICSR", 0x00000810, in32(SCB(0xd04)));
-        break;
-    case 4:
-        test = 5;
-        puts("11. in IRQ0, pend IRQ1\n");
-        __asm__ ("dsb" ::: "memory");
-        out32(SCB(0x200), 2);
-        puts("13. back in IRQ0\n");
         break;
     case 7:
-        puts("18. in IRQ0\n");
+        testDiag("pend IRQ1");
+        __asm__ ("dsb" ::: "memory");
+        out32(SCB(0x200), 2);
+        testDiag("back in IRQ0");
+        CHECK_SEQ(9);
         break;
-    case 9:
-        puts("22. in IRQ0\n");
+    case 13:
         break;
-    case 10:
-        puts("25. in IRQ0\n");
-        test = 11;
+    case 16:
+        break;
+    case 18:
         __asm__ ("dsb" ::: "memory");
         break;
     default:
-        puts("Fail IRQ0\n");
+        testFail("Fail IRQ0");
         abort();
     }
 }
@@ -65,37 +61,32 @@ void irq0(void)
 static
 void irq1(void)
 {
+    unsigned test = SEQ();
+    printk("# in IRQ1 SEQ %u\n", test);
     switch(test) {
-    case 2:
-        puts("7. in IRQ1\n");
-        test = 3;
+    case 4:
         test_equal("ENA ", 3, in32(SCB(0x100)));
         test_equal("PEND", 1, in32(SCB(0x200)));
         test_equal("ACT ", 2, in32(SCB(0x300)));
         /* ISRPENDING, VECTPENDING==16, RETTOBASE, and VECACTIVE=17 */
         test_equal("ICSR", 0x00410811, in32(SCB(0xd04)));
         break;
-    case 5:
-        puts("12. in IRQ1\n");
-        break;
-    case 6:
-        puts("16. in IRQ1, pend IRQ0\n");
-        out32(SCB(0x200), 1);
-        __asm__ ("dsb" ::: "memory");
-        puts("17. still in IRQ1\n");
-        test = 7;
-        __asm__ ("dsb" ::: "memory");
-        break;
     case 8:
-        puts("21. in IRQ1\n");
-        test = 9;
-        __asm__ ("dsb" ::: "memory");
         break;
     case 11:
-        puts("26. in IRQ1\n");
+        testDiag("pend IRQ0");
+        out32(SCB(0x200), 1);
+        __asm__ ("dsb" ::: "memory");
+        testDiag("still in IRQ1");
+        CHECK_SEQ(12);
+        __asm__ ("dsb" ::: "memory");
+        break;
+    case 15:
+        break;
+    case 19:
         break;
     default:
-        puts("Fail IRQ1\n");
+        testFail("Fail IRQ1");
         abort();
     }
 }
@@ -104,14 +95,15 @@ void main(void)
 {
     run_table.irq[0] = irq0;
     run_table.irq[1] = irq1;
+    
+    testInit(33);
 
     out32(SCB(0xd0c), 0x05fa0000 | (PRIGROUP<<8));
     test_equal("PRIGROUP", PRIGROUP, (in32(SCB(0xd0c))>>8)&0xff);
 
     CPSID(i);
 
-    test = 0;
-    puts("1. Enable IRQ0/1\n");
+    testDiag("Enable IRQ0/1");
     out32(SCB(0x100), 3);
 
     test_equal("ENA ", 3, in32(SCB(0x100)));
@@ -119,7 +111,7 @@ void main(void)
     test_equal("ACT ", 0, in32(SCB(0x300)));
     test_equal("ICSR", 0x00000000, in32(SCB(0xd04)));
 
-    puts("2. Pend IRQ0 (shouldn't run)\n");
+    testDiag("Pend IRQ0 (shouldn't run)");
     out32(SCB(0x200), 1);
     test_equal("ENA ", 3, in32(SCB(0x100)));
     test_equal("PEND", 1, in32(SCB(0x200)));
@@ -127,54 +119,57 @@ void main(void)
     /* ISRPENDING and VECTPENDING==16 */
     test_equal("ICSR", 0x00410000, in32(SCB(0xd04)));
 
-    test = 1;
-    puts("3. Unmask (should run now)\n");
+    CHECK_SEQ(1);
+    testDiag("Unmask (should run now)");
     CPSIE(i);
 
-    puts("5. Back in main\n");
+    testDiag("Back in main");
     test_equal("ENA ", 3, in32(SCB(0x100)));
     test_equal("PEND", 0, in32(SCB(0x200)));
     test_equal("ACT ", 0, in32(SCB(0x300)));
 
-    test = 2;
-    out32(SCB(0x400), (PRIO(1,0)<<8)|PRIO(2,0)); /* Give IRQ1 priority over IRQ0 */
+    CHECK_SEQ(3);
+    testDiag("Give IRQ1 priority over IRQ0");
+    out32(SCB(0x400), (PRIO(1,0)<<8)|PRIO(2,0));
 
-    puts("6. Pend IRQ0 and IRQ1 (should run now)\n");
+    testDiag("Pend IRQ0 and IRQ1 (should run now)");
     out32(SCB(0x200), 3);
 
-    puts("9. Back in main\n");
+    testDiag("Back in main");
 
     /* see that one handler can really pre-empt another */
-    test = 4;
-    puts("10. Pend IRQ0 (should run now)\n");
+    CHECK_SEQ(6);
+    testDiag("Pend IRQ0 (should run now)");
     out32(SCB(0x200), 1);
 
-    puts("14. Back in main\n");
+    testDiag("Back in main");
 
     /* see that one handler doesn't pre-empt another
      * when it has lower priority
      */
-    test = 6;
-    puts("15. Pend IRQ1 (should run now)\n");
+    CHECK_SEQ(10);
+    testDiag("Pend IRQ1 (should run now)");
     out32(SCB(0x200), 2);
 
-    puts("19. Back in main\n");
+    testDiag("Back in main");
 
     /* check sub-group ordering */
-    test = 8;
-    out32(SCB(0x400), (PRIO(0,0)<<8)|PRIO(0,0x3f)); /* equal prio, IRQ1 has lower sub-group */
-    puts("20. Pend IRQ0 and IRQ1 (should run now)\n");
+    CHECK_SEQ(14);
+    testDiag("equal prio, IRQ1 has lower sub-group");
+    out32(SCB(0x400), (PRIO(0,0)<<8)|PRIO(0,0x3f));
+    testDiag("Pend IRQ0 and IRQ1 (should run now)");
     out32(SCB(0x200), 3);
 
-    puts("23. Back in main\n");
+    testDiag("Back in main");
 
     /* check fallback it vector # */
-    test = 10;
+    CHECK_SEQ(17);
     out32(SCB(0x400), (PRIO(0,0)<<8)|PRIO(0,0)); /* equal prio, and sub-group, IRQ0 has lower vector */
-    puts("24. Pend IRQ0 and IRQ1 (should run now)\n");
+    testDiag("Pend IRQ0 (should run now) and IRQ1");
     out32(SCB(0x200), 3);
 
-    puts("27. Back in main\n");
+    testDiag("Back in main");
+    CHECK_SEQ(20);
 
-    puts("Done\n");
+    testDiag("Done");
 }
