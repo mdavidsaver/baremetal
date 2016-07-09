@@ -1,8 +1,11 @@
 
-PREFIX=arm-none-eabi-
-AS=$(PREFIX)as
-GCC=$(PREFIX)gcc
-OBJCOPY=$(PREFIX)objcopy
+PREFIX=/usr/bin
+GCC=$(firstword $(wildcard $(PREFIX)/arm*-eabi-gcc))
+OBJCOPY=$(firstword $(wildcard $(PREFIX)/arm*objcopy))
+
+ifeq ($(GCC),)
+$(error missing GCC)
+endif
 
 DEBUG=-g
 

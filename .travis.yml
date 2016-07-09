@@ -1,0 +1,21 @@
+sudo: required
+dist: trusty
+addons:
+  apt:
+    packages:
+      gperf
+      libtool
+      texinfo
+      help2man
+      strace
+      libaio-dev
+      libcap-dev
+      libcap-ng-dev
+language: c
+cache:
+  directories:
+   - $HOME/.cache
+env:
+ - QDIR="/home/travis/.cache/qemu" XDIR="/home/travis/.cache/x-tools"
+install: ./build-toolchain.sh
+script: ./runtests.sh </dev/null
