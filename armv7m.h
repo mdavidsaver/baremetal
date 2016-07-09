@@ -2,6 +2,7 @@
 #define ARMV7m_h
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #define UART(N) ((N)+(void*)0x4000c000)
 #define UART_DATA UART(0)
@@ -91,6 +92,9 @@ void abort(void) __attribute__((noreturn));
 void putc(char c);
 
 void puts(const char *s);
+
+void printk(const char *fmt, ...) __attribute__((format(__printf__,1,2)));
+void vprintk(const char *fmt, va_list) __attribute__((format(__printf__,1,0)));
 
 void flush(void);
 

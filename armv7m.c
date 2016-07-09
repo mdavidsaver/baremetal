@@ -46,6 +46,58 @@ void putdec(uint32_t v)
     if(!out) putc('0');
 }
 
+void printk(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vprintk(fmt, args);
+    va_end(args);
+}
+
+void vprintk(const char *fmt, va_list args)
+{
+    while(1) {
+        char c=*fmt++;
+        if(c=='\0') {
+            return;
+
+        } else if(c!='%') {
+            putc(c);
+
+        } else {
+specmod:
+            c = *fmt++;
+            
+            switch(c) {
+            case '\0': return;
+            case '%': putc(c); break;
+            case '0'...'9':
+            case ' ':
+                /* ignore modifiers */
+                goto specmod;
+            case 'u': {
+                unsigned v = va_arg(args, unsigned);
+                putdec(v);
+                break;
+            }
+            case 'x': {
+                unsigned v = va_arg(args, unsigned);
+                puthex(v);
+                break;
+            }
+            case 's': {
+                const char *v = va_arg(args, const char*);
+                puts(v);
+                break;
+            }
+            default:
+                putc('!');
+                break;
+            }
+        }
+    }
+}
+
 unsigned log2_ceil(uint32_t v)
 {
     unsigned r=0, c=0;
