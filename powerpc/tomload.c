@@ -71,6 +71,12 @@ void setup_tlb(void)
 	}
 }
 
+static
+void setup_i2c()
+{
+    out8x(CCSRBASE, 0x3008, 0x80);
+}
+
 /* for PCI address assignment */
 static
 uint32_t next_mmio = 0x80000000,
@@ -259,7 +265,7 @@ void Init(void)
 
 	setup_tlb(); /* PCI memory regions now accessible */
 
-	/* TODO: enable I2C bus */
+	setup_i2c();
 	setup_pci_host();
 	walk_bus(0);
 	prepare_tsi148();
