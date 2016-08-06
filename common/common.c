@@ -50,6 +50,56 @@ void putval(uint32_t v)
     }
 }
 
+void printk(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vprintk(fmt, args);
+    va_end(args);
+}
+
+void vprintk(const char *fmt, va_list args)
+{
+    char c;
+    while ( (c=*fmt++)!='\0' ) {
+        if(c!='%') {
+            putchar(c);
+        } else {
+            int done=0;
+            while(!done) {
+                c = *fmt++;
+
+                switch(c) {
+                case '%': putchar(c); done=1; break;
+                case 'x': {
+                    unsigned int V = va_arg(args, unsigned int);
+                    putval(V);
+                    done = 1;
+                    break;
+                }
+                case 'p': {
+                    const void *V = va_arg(args, void*);
+                    puts("0x");
+                    putval((unsigned)V);
+                    done = 1;
+                    break;
+                }
+                case 's': {
+                    const char *V = va_arg(args, void*);
+                    puts(V ? V : "(null)");
+                    done = 1;
+                    break;
+                }
+                default:
+                    putchar('?');
+                    done = 1;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 unsigned testcnt;
 
 void testInit(unsigned ntest)

@@ -1,17 +1,24 @@
 # Multi-boot file header
 # https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot_002dtime-configuration
 .set MAGIC, 0x1BADB002
-.set FLAGS, 3 # aligned and pass mem_* fields
+# image info, aligned, and pass mem_* fields
+.set FLAGS, 0x10003
 .set CHECKSUM, -(MAGIC+FLAGS)
 
 .section .multiboot
 .align 4
+__mboot_head:
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
+.long __mboot_head
+.long __text_start
+.long __data_end
+.long __bss_end
+.long _start
 
 # Stack grows down
-.section .bootstack
+.section .bss.stack
 stack_bottom:
 .skip 16384
 stack_top:
