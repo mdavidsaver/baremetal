@@ -77,6 +77,12 @@ void vprintk(const char *fmt, va_list args)
                     done = 1;
                     break;
                 }
+                case 'c': {
+                    char V = va_arg(args, unsigned int);
+                    putchar(V);
+                    done = 1;
+                    break;
+                }
                 case 'p': {
                     const void *V = va_arg(args, void*);
                     puts("0x");

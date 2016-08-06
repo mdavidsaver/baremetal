@@ -154,6 +154,111 @@ void show_state(void)
     testeq32(eflags&((1<<17)|(1<<9)), 0);
 }
 
+typedef struct __attribute__((packed)) {
+    uint16_t limit;
+    uint32_t base;
+} dt_t;
+
+#define EXTRACT32(VAL, START, COUNT) (((uint32_t)(VAL)>>(START))&((1u<<(COUNT))-1u))
+
+static
+void show_dt(const dt_t *desc)
+{
+    unsigned i=1;
+    const uint32_t *cur = (void*)desc->base+8,
+                   *end = (void*)(desc->base+desc->limit+1);
+
+    for(; cur<end; cur+=2, i++) {
+        uint32_t D0 = cur[0],
+                 D1 = cur[1];
+        uint32_t base =  EXTRACT32(D0,16,16)
+                      | (EXTRACT32(D1,0,8)<<16)
+                      | (EXTRACT32(D1,24,8)<<24);
+        uint32_t limit=  EXTRACT32(D0,0,16)
+                      | (EXTRACT32(D1,16,4)<<16);
+        uint16_t flags = (D1>>8)&0xf0ff;
+        if(D1&(1<<23)) { // granularity flag
+            // unit of limit are # of 4K pages
+            limit<<=12;
+            limit |= 0xfff;
+        }
+        if(EXTRACT32(D1, 11, 2)==2) { // DATA DESC
+            if(D1&(1<<10)) { // expand down
+                base = limit+1;
+                if(D1&(1<<22)) limit = 0xffffffff;
+                else           limit = 0x0000ffff;
+            }
+            
+        }
+                      
+        //printk("# [%x] %x %x\r\n", i, D0, D1);
+        if(D1&(1<<15)) {
+            printk("# [%x] %x -> %x flags=%x DPL=%x ",
+                   i, base, base+limit,
+                   (unsigned)flags,
+                   EXTRACT32(D1,13,2)
+                  );
+            if(D1&(1<<12)) {
+                if(D1&(1<<11)) { // CODE desc
+                    printk("%c CODE\r\n", (D1&(1<<9))?'R':'_');
+                } else { // DATA Desc
+                    if(D1&(1<<22)) puts("Big ");
+                    printk("%c DATA\r\n", (D1&(1<<9))?'W':'_');
+                }
+            } else { // SYS desc
+                puts("SYS \r\n");
+            }
+        } else {
+            printk("# [%x] Disabled\r\n", i);
+        }
+    }
+}
+
+static
+void show_gdt(void)
+{
+    dt_t desc;
+    desc.base = desc.limit = 0;
+    asm ("sgdt %0" : "=m"(desc) ::);
+    printk("# GDT %x %x\r\n", desc.base, desc.limit);
+    show_dt(&desc);
+}
+
+static
+void show_ldt(void)
+{
+    dt_t desc;
+    desc.base = desc.limit = 0;
+    asm ("sldt %0" : "=m"(desc) ::);
+    printk("# LDT %x %x\r\n", desc.base, desc.limit);
+    show_dt(&desc);
+}
+
+static
+void show_seg(const char *name, uint32_t seg)
+{
+    printk("# %s rpl=%x %cDT[%x]\r\n", name,
+           seg&3, (seg&4)?'L':'G', seg>>3);
+}
+
+static
+void show_segments(void)
+{
+    uint32_t seg;
+    asm ("mov %%cs, %0" : "=r"(seg) ::);
+    show_seg("CS", seg);
+    asm ("mov %%ds, %0" : "=r"(seg) ::);
+    show_seg("DS", seg);
+    asm ("mov %%es, %0" : "=r"(seg) ::);
+    show_seg("ES", seg);
+    asm ("mov %%fs, %0" : "=r"(seg) ::);
+    show_seg("FS", seg);
+    asm ("mov %%gs, %0" : "=r"(seg) ::);
+    show_seg("GS", seg);
+    asm ("mov %%ss, %0" : "=r"(seg) ::);
+    show_seg("SS", seg);
+}
+
 /* some variables to see if the data and bss sections are correctly initialized */
 int foobar;
 uint32_t foobar2 = 0xbad1face;
@@ -177,6 +282,9 @@ void Init(uint32_t mb_magic, const void* pmb)
   testeq32(foobar, 0);
   testeq32(foobar2, 0xbad1face);
   show_state();
+  show_gdt();
+  show_ldt();
+  show_segments();
   puts("# Goodbye\r\n");
   outb(0x64, 0xfe); /* ask the KBC to reset us */
   while(1) {}
