@@ -40,3 +40,10 @@ _start:
 hang:
   hlt
   jmp hang
+
+.global get_eflags
+get_eflags:
+  pushf
+  mov -4(%esi), %eax
+  popf
+  ret

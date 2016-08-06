@@ -9,6 +9,8 @@ extern char __text_start, __text_end,
             __data_start, __data_end,
             __bss_start, __bss_end;
 
+uint32_t get_eflags(void);
+
 typedef struct {
   uint32_t start, end;
   const char* name;
@@ -134,6 +136,24 @@ void mb_report(void)
         puts("# Has VBE info\r\n");
 }
 
+static
+void show_state(void)
+{
+    /* The multiboot spec requires that we be delivered
+     * into Protected Mode with paging and IRQs disabled.
+     * Let us check this.
+     */
+    uint32_t cr0, eflags;
+    asm ("mov %%cr0, %0" : "=r"(cr0) ::);
+    printk("# CR0    %x\r\n", cr0);
+    /* PG (31) must be clear, PE (0) is set */
+    testeq32(cr0&((1<<31)|(1<<0)), 1);
+    eflags = get_eflags();
+    printk("# EFLAGS %x\r\n", eflags);
+    /* VM (17) and IF (9) must be cleared */
+    testeq32(eflags&((1<<17)|(1<<9)), 0);
+}
+
 /* some variables to see if the data and bss sections are correctly initialized */
 int foobar;
 uint32_t foobar2 = 0xbad1face;
@@ -141,7 +161,7 @@ uint32_t foobar2 = 0xbad1face;
 void Init(uint32_t mb_magic, const void* pmb)
 {
   /* assume UART was left configured by the bootloader */
-  testInit(3);
+  testInit(5);
   printk("# TEXT %p -> %p\r\n", &__text_start, &__text_end);
   printk("# RO   %p -> %p\r\n", &__rodata_start, &__rodata_end);
   printk("# DATA %p -> %p\r\n", &__data_start, &__data_end);
@@ -156,6 +176,7 @@ void Init(uint32_t mb_magic, const void* pmb)
   }
   testeq32(foobar, 0);
   testeq32(foobar2, 0xbad1face);
+  show_state();
   puts("# Goodbye\r\n");
   outb(0x64, 0xfe); /* ask the KBC to reset us */
   while(1) {}

@@ -8,7 +8,7 @@ ifeq ($(GCC),)
 $(error Failed to find gcc)
 endif
 
-CFLAGS=-m32 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror -I. -I../common
+CFLAGS=-m32 -march=i486 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -g -O2 -Wall -Wextra -Werror -I. -I../common
 
 all: os.bin
 
