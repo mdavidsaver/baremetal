@@ -5,12 +5,7 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-/*
-typedef __UINT8_TYPE__ uint8_t;
-typedef __UINT16_TYPE__ uint16_t;
-typedef __UINT32_TYPE__ uint32_t;
-typedef __SIZE_TYPE__ size_t;
-*/
+
 extern char __bss_start, __bss_end;
 extern char __sbss_start, __sbss_end;
 extern char __sbss2_start, __sbss2_end;

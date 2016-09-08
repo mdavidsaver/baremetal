@@ -3,6 +3,7 @@
 *.bin
 *.img
 *.map
+*.gz
 *~
 
 *.config

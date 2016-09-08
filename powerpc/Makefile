@@ -13,13 +13,14 @@ DEBUG=-gdwarf-2
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
-#CFLAGS+=-Os
+CFLAGS+=-Os
 
-all: os.bin bios.bin tomload.bin
+all: os.bin bios.bin tomload.bin powerdna.img
 
 os.elf: init.S main.c
 bios.elf: bios.S
 tomload.elf: init.S tomload.c init-tom.S tlb.h mmio.h
+powerdna.elf: init.S powerdna.c
 
 clean:
 	rm -f *.o
@@ -30,3 +31,7 @@ clean:
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
+
+%.img: %.bin
+	gzip -9c $< > $*.gz
+	mkimage -A ppc -O rtems -T kernel -a 0x1000000 -e 0x1000000 -n RTEMS -d $*.gz $@

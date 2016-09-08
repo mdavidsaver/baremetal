@@ -84,6 +84,7 @@ SECTIONS
 
   .data :
   {
+    *(.data.early)
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d.*)
     __data_end = .;

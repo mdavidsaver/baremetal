@@ -6,6 +6,41 @@
 .section .text.start
 .global _start
 _start:
+  /* capture initial register values */
+  load_const %r2, ireg-4
+  stwu %r0, 4(%r2)
+  stwu %r1, 4(%r2)
+  stwu %r1, 4(%r2) /* store r1 again in place of r2 */
+  stwu %r3, 4(%r2)
+  stwu %r4, 4(%r2)
+  stwu %r5, 4(%r2)
+  stwu %r6, 4(%r2)
+  stwu %r7, 4(%r2)
+  stwu %r8, 4(%r2)
+  stwu %r9, 4(%r2)
+  stwu %r10, 4(%r2)
+  stwu %r11, 4(%r2)
+  stwu %r12, 4(%r2)
+  stwu %r13, 4(%r2)
+  stwu %r14, 4(%r2)
+  stwu %r15, 4(%r2)
+  stwu %r16, 4(%r2)
+  stwu %r17, 4(%r2)
+  stwu %r18, 4(%r2)
+  stwu %r19, 4(%r2)
+  stwu %r20, 4(%r2)
+  stwu %r21, 4(%r2)
+  stwu %r22, 4(%r2)
+  stwu %r23, 4(%r2)
+  stwu %r24, 4(%r2)
+  stwu %r25, 4(%r2)
+  stwu %r26, 4(%r2)
+  stwu %r27, 4(%r2)
+  stwu %r28, 4(%r2)
+  stwu %r29, 4(%r2)
+  stwu %r30, 4(%r2)
+  stwu %r31, 4(%r2)
+
   load_const %r1, __bss_start
   load_const %r2, __bss_end
   bl _mzero
