@@ -1,10 +1,14 @@
+
+.macro load_const rD, expr
+  lis \rD, \expr@h
+  ori \rD, \rD, \expr@l
+.endm
+
 .section .text.start
 .global _jump_start
 
 _jump_start:
-  b _start
-
-.section .text.os
-.global _start
-_start:
-  b _start /* place holder for real entry point at 0x1000000 */
+  load_const %r3, 0x1000000
+  mtlr %r3
+  li %r0, 0
+  blr

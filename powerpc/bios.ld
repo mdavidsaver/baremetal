@@ -23,11 +23,6 @@ SECTIONS
       *(.text.start) /* ensure that _jump_start() appears first */
   } >rom
 
-  .text.os (NOLOAD) :
-  {
-      *(.text.os)
-  } >ram
-
   .note.gnu.build-id (NOLOAD) : {
     *(.note.*)
   }

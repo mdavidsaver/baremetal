@@ -3,7 +3,7 @@
   ori \rD, \rD, \expr@l
 .endm
 
-.section .text
+.section .text.start
 .global _start
 _start:
   load_const %r1, __bss_start
