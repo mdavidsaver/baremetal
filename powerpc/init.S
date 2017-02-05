@@ -55,7 +55,7 @@ _stuck:
 _mzero:
   /* r1 start address, r2 end address */
   cmplw %r1, %r2
-  bge- _mzero_done
+  bgelr-
 
   sub %r4, %r2, %r1
   mtctr %r4
@@ -66,13 +66,12 @@ _mzero_loop:
   stbu %r4, 1(%r1)
   bdnz+ _mzero_loop
 
-_mzero_done:
   blr
 
 _mcopy:
   /* r1 dst start address, r2 dst end address, r3 src start address */
   cmplw %r1, %r2
-  bge- _mcopy_done
+  bgelr-
 
   sub %r4, %r2, %r1
   mtctr %r4
@@ -85,7 +84,6 @@ _mcopy_loop:
   stbu %r4, 1(%r1)
   bdnz+ _mcopy_loop
 
-_mcopy_done:
   blr
 
 .section .bss

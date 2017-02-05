@@ -23,7 +23,7 @@ SECTIONS
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     PROVIDE(__sdata_end = .);
   } >ram AT>rom
-  __sdata_load = LOADADDR(.sdata);
+  PROVIDE(__sdata_load = LOADADDR(.sdata));
 
   .sbss :
   {
@@ -67,7 +67,7 @@ SECTIONS
 
   .text :
   {
-	  __text_start = .;
+	  PROVIDE(__text_start = .);
       *(.text)
 
       /* as per the mpc8540 ref. manual, assume that after reset the TLB
