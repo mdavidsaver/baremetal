@@ -3,6 +3,9 @@
 
 #include "mmio.h"
 #include "tlb.h"
+#include "pci.h"
+#include "pci_def.h"
+#include "common.h"
 
 #define NELEMENTS(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
@@ -26,21 +29,21 @@ tlbentry initial_mappings[] = {
 	 .mas3 = MAS3_RPN(0xe2000000)|MAS3_DEVICE,
 	},
 
-	/* PCI IO ports */
+	/* PCI IO ports (cf. setup_pci_host()) */
 	{.mas0 = MAS0_TLB1,
 	 .mas1 = MAS1_V|MAS1_TSIZE(0x7), /* 16 MB */
 	 .mas2 = MAS2_EPN(0xe0000000)|MAS2_DEVICE,
 	 .mas3 = MAS3_RPN(0xe0000000)|MAS3_DEVICE,
 	},
 
-	/* PCI (cf. setup_host()) */
+	/* PCI (cf. setup_pci_host()) */
 	{.mas0 = MAS0_TLB1,
 	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
 	 .mas2 = MAS2_EPN(0x80000000)|MAS2_DEVICE,
 	 .mas3 = MAS3_RPN(0x80000000)|MAS3_DEVICE,
 	},
 
-	/* PCI (cf. setup_host()) */
+	/* PCI (cf. setup_pci_host()) */
 	{.mas0 = MAS0_TLB1,
 	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
 	 .mas2 = MAS2_EPN(0xc0000000)|MAS2_DEVICE,
@@ -74,6 +77,9 @@ void setup_tlb(void)
 static
 void setup_i2c()
 {
+    /* MOTLOAD leaves the controller enabled,
+     * and RTEMS blindly assumes this is the case
+     */
     out8x(CCSRBASE, 0x3008, 0x80);
 }
 
@@ -105,97 +111,35 @@ void setup_pci_host(void)
 }
 
 static
-uint8_t has_reg;
-
-static
-void config_bar(unsigned b, unsigned d, unsigned f, unsigned bar)
+void map_pci_interrupt(PCIDevice *dev)
 {
-	uint8_t btype;
-	uint16_t addr = 0x10+4*bar;
-	uint32_t val, mask, size, base;
-
-	val = pci_in32(b,d,f,addr);
-	btype = val&1;
-	if(btype) { /* IO space */
-		mask = ~3;
-		base = next_io;
-	} else { /* memory */
-		mask = ~0xf;
-		base = next_mmio;
-	}
-
-	pci_out32(b,d,f,addr,mask);
-	val = pci_in32(b,d,f,addr);
-
-	val&=mask;
-
-	size = val & ~(val-1); /* find LSB */
-	if(size==0)
-		return;
-
-	/* align base address to a mulitple of size */
-	if(base&(size-1)) {
-		base = (base|(size-1))+1;
-	}
-
-	pci_out32(b,d,f,addr,base);
-	if(btype) {
-		next_io = base + size;
-		has_reg |= 1;
-	} else {
-		next_mmio = base + size;
-		has_reg |= 2;
-	}
-}
-
-static
-void config_device(unsigned b, unsigned d, unsigned f)
-{
-	uint32_t ena;
-	unsigned bar;
-	has_reg = 0;
-	uint8_t irqpin;
-	for(bar=0; bar<6; bar++) {
-		config_bar(b,d,f,bar);
-	}
-	/* Set IRQ lines
-	 *  A mvme3100 has (at least) three PCI busses
-	 * Bus 0 (A) has only two devices w/ IRQ, and an arbitrary IRQ assignment
-	 * slot 17 (tsi148)
-	 *   IRQ0, IRQ1, IRQ2, IRQ3
-	 * slot 20 (sata0
-	 *   IRQ2
-	 * Bus 1 (B) and 2 (C) have the conventional rotatin assignments
-	 *  Bus 1
-	 *    slot 0 IRQ4, IRQ5, IRQ6, IRQ7
-	 *    slot 1 IRQ5, IRQ6, IRQ7, IRQ4
-	 *  Bus 2 slot 0
-	 *   IRQ4, IRQ5, IRQ6
-	 *   ...
-	 */
-	irqpin = pci_in8(b,d,f,0x3d);
-	if(b==0 && d==0x11 && f==0 && irqpin) {
-		pci_out8(b,d,f,0x3c, 0+irqpin-1);
-	} else if(b==0 && d==0x14 && f==0 && irqpin) {
-		pci_out8(b,d,f,0x3c, (2+irqpin-1)&3);
-	} else if(irqpin) {
-		pci_out8(b,d,f,0x3c, (4+d+irqpin-1)&3);
-	}
-	/* Enable */
-	ena = has_reg | 0x0140;
-	pci_out16(b,d,f, 4, ena);
-}
-
-static
-void walk_bus(unsigned b)
-{
-	unsigned d;
-	for(d=0; d<0x20; d++) {
-		uint16_t val = pci_in16(b,d,0, 0);
-		if(val==0xffff)
-			continue;
-		config_device(b,d,0);
-	}
+    /* Set IRQ lines
+     *  A mvme3100 has (at least) three PCI busses
+     * Bus 0 (A) has only two devices w/ IRQ, and an arbitrary IRQ assignment
+     * slot 17 (tsi148)
+     *   IRQ0, IRQ1, IRQ2, IRQ3
+     * slot 20 (sata0
+     *   IRQ2
+     * Bus 1 (B) and 2 (C) have the conventional rotatin assignments
+     *  Bus 1
+     *    slot 0 IRQ4, IRQ5, IRQ6, IRQ7
+     *    slot 1 IRQ5, IRQ6, IRQ7, IRQ4
+     *  Bus 2 slot 0
+     *   IRQ4, IRQ5, IRQ6
+     *   ...
+     */
+    uint8_t pin = pci_in8(dev->B, dev->D, dev->F, PCI_INTERRUPT_PIN),
+            line = 0;
+    if(dev->B==0) {
+        if(0) {}
+        else if(dev->D==0x11 && dev->F==0 && pin) line = 0;
+        else if(dev->D==0x12 && dev->F==0 && pin) line = 4;
+    } else if(pin && (dev->B==1 || dev->B==2)) {
+        line = (pin-1u+dev->D)&3u;
+        line += 4u;
+    }
+    
+    pci_out8(dev->B, dev->D, dev->F, PCI_INTERRUPT_LINE, line);
 }
 
 typedef struct {
@@ -264,10 +208,25 @@ void Init(void)
 		return; /* wrong host bridge, something is really wrong here */
 
 	setup_tlb(); /* PCI memory regions now accessible */
+    printk("TOMLOAD\n");
 
+    setup_pci_host();
+
+    {
+        PCIBus *host = pci_alloc_host_bus();
+        host->mmio_next = 0x80000000;
+        host->io_next   = 0xe0000000;
+        host->irqfn     = &map_pci_interrupt;
+        if(pci_scan_bus(host)) {
+            printk("PCI Scan error\n");
+        } else {
+            pci_show_bus(host);
+        }
+        pci_setup_bus(host);
+    }
+    
 	setup_i2c();
-	setup_pci_host();
-	walk_bus(0);
+	//walk_bus(0);
 	prepare_tsi148();
 	load_os(0x10000);
 }
