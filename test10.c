@@ -39,6 +39,9 @@ void svc(void)
         testDiag("Back in SVC");
         test = SEQ();
         testEqI(3, test, "Back in SVC");
+        /* RETTOBASE set */
+        testEqI(0x0000080b, in32(SCB(0xd04)), "ICSR");
+        testEqI(0x00000080, in32(SCB(0xd24)), "SHCSR");
         break;
     default:
         testFail("Unexpected SVC");
@@ -51,7 +54,7 @@ void main(void)
     run_table.svc = &svc;
     run_table.pendsv = &pendsv;
     
-    testInit(10);
+    testInit(12);
 
     {
         /* attempt to detect the number of usable
@@ -82,7 +85,7 @@ void main(void)
     testDiag("Call SVC");
     SVC(42);
     testDiag("Back in main");
-    testEqI(4, SEQ(), "Back in SVC");
+    testEqI(4, SEQ(), "Back in main");
     testEqI(0x00000000, in32(SCB(0xd04)), "ICSR");
     testEqI(0x00000000, in32(SCB(0xd24)), "SHCSR");
 
