@@ -21,6 +21,7 @@ PCIDevice *pci_alloc_device(void)
         PCIDevice *dev = &pci_device_pool[i];
         if(!dev->inuse) {
             memset(dev, 0, sizeof(*dev));
+            dev->bridge_io.isio = 1;
             dev->inuse = 1;
             return dev;
         }
