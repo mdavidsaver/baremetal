@@ -111,7 +111,7 @@ void setup_pci_host(void)
 }
 
 static
-void map_pci_interrupt(PCIDevice *dev)
+void map_pci_interrupt(unsigned b, unsigned d, unsigned f, struct pci_info *info)
 {
     /* Set IRQ lines
      *  A mvme3100 has (at least) three PCI busses
@@ -128,18 +128,19 @@ void map_pci_interrupt(PCIDevice *dev)
      *   IRQ4, IRQ5, IRQ6
      *   ...
      */
-    uint8_t pin = pci_in8(dev->B, dev->D, dev->F, PCI_INTERRUPT_PIN),
+    (void)info;
+    uint8_t pin = pci_in8(b,d,f, PCI_INTERRUPT_PIN),
             line = 0;
-    if(dev->B==0) {
+    if(b==0) {
         if(0) {}
-        else if(dev->D==0x11 && dev->F==0 && pin) line = 0;
-        else if(dev->D==0x12 && dev->F==0 && pin) line = 4;
-    } else if(pin && (dev->B==1 || dev->B==2)) {
-        line = (pin-1u+dev->D)&3u;
+        else if(d==0x11 && f==0 && pin) line = 0;
+        else if(d==0x12 && f==0 && pin) line = 4;
+    } else if(pin && (b==1 || b==2)) {
+        line = (pin-1u+d)&3u;
         line += 4u;
     }
     
-    pci_out8(dev->B, dev->D, dev->F, PCI_INTERRUPT_LINE, line);
+    pci_out8(b, d, f, PCI_INTERRUPT_LINE, line);
 }
 
 typedef struct {
@@ -213,16 +214,12 @@ void Init(void)
     setup_pci_host();
 
     {
-        PCIBus *host = pci_alloc_host_bus();
-        host->mmio_next = 0x80000000;
-        host->io_next   = 0xe0000000;
-        host->irqfn     = &map_pci_interrupt;
-        if(pci_scan_bus(host)) {
-            printk("PCI Scan error\n");
-        } else {
-            pci_show_bus(host);
-        }
-        pci_setup_bus(host);
+        pci_info info = {
+            .next_mmio = 0x80000000,
+            .next_io   = 0xe0000000,
+            .irqfn      = &map_pci_interrupt,
+        };
+        pci_setup(&info);
     }
     
 	setup_i2c();
