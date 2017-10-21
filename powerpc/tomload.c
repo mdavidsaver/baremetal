@@ -5,10 +5,12 @@
 #include "tlb.h"
 #include "pci.h"
 #include "pci_def.h"
+#include "fw_cfg.h"
 #include "common.h"
 
 #define NELEMENTS(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
+static uint32_t image_addr = 0x10000;
 void load_os(uint32_t); /* in init-tom.S */
 
 static const
@@ -49,6 +51,13 @@ tlbentry initial_mappings[] = {
 	 .mas2 = MAS2_EPN(0xc0000000)|MAS2_DEVICE,
 	 .mas3 = MAS3_RPN(0xc0000000)|MAS3_DEVICE,
 	},
+
+	/* ROM (and QEMU FW info) */
+	{.mas0 = MAS0_TLB1,
+	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
+	 .mas2 = MAS2_EPN(0xf0000000)|MAS2_DEVICE,
+	 .mas3 = MAS3_RPN(0xf0000000)|MAS3_DEVICE,
+	},
 };
 
 static
@@ -75,12 +84,86 @@ void setup_tlb(void)
 }
 
 static
-void setup_i2c()
+void setup_i2c(void)
 {
     /* MOTLOAD leaves the controller enabled,
      * and RTEMS blindly assumes this is the case
      */
     out8x(CCSRBASE, 0x3008, 0x80);
+}
+
+static
+void show_fw_cfg(void)
+{
+    uint32_t size;
+
+    if(fw_cfg_show()) {
+        printk("No FW Info found\n");
+        return;
+    }
+
+    {
+        uint64_t i64 = fw_cfg_read64(FW_CFG_RAM_SIZE);
+        printk("Ram size %x%x\n", (unsigned)(i64>>32), (unsigned)i64);
+    }
+
+    {
+        char cmdline[128];
+        fw_cfg_read(FW_CFG_CMDLINE_DATA, cmdline, sizeof(cmdline));
+        cmdline[sizeof(cmdline)-1] = '\0';
+        printk("Append: \"%s\"\n", cmdline);
+    }
+
+    {
+        uint32_t addr = fw_cfg_read32(FW_CFG_KERNEL_ADDR);
+        if(addr)
+            image_addr = addr;
+    }
+
+    fw_cfg_list_files();
+
+    if(!fw_cfg_open("tomload/vpd", &size)) {
+        char buf[9];
+        fw_cfg_readmore(buf, 8);
+        buf[8] = '\0';
+        size-=8;
+        if(strcmp(buf, "MOTOROLA")!=0) {
+            printk("Bad VPD\n");
+        } else {
+            uint32_t pos=0;
+            char prev='\0';
+            while(pos<size) {
+                uint8_t id = fw_cfg_readbyte(),
+                        len= fw_cfg_readbyte();
+                pos += 2;
+                if(id==0xff || id==0)
+                    break;
+                printk("VPD %x \"", (unsigned)id);
+                for(;len; len--) {
+                    putc_escape(fw_cfg_readbyte());
+                    pos++;
+                }
+                printk("\"\n");
+            }
+            while(pos<0x10f0) {
+                fw_cfg_readbyte();
+                pos++;
+            }
+            printk("GEV:\n ");
+            while(pos<size){
+                char c = fw_cfg_readbyte();
+                pos++;
+                if(c=='\0' && prev=='\0')
+                    break;
+                else if(c=='\0')
+                    printk("\n ");
+                else
+                    putc(c);
+                prev = c;
+            }
+            putc('\n');
+        }
+    }
 }
 
 /* for PCI address assignment */
@@ -210,6 +293,7 @@ void Init(void)
 
 	setup_tlb(); /* PCI memory regions now accessible */
     printk("TOMLOAD\n");
+    show_fw_cfg();
 
     setup_pci_host();
 
@@ -223,7 +307,8 @@ void Init(void)
     }
     
 	setup_i2c();
-	//walk_bus(0);
+
 	prepare_tsi148();
-	load_os(0x10000);
+    printk("Load from %x\n", (unsigned)image_addr);
+	load_os(image_addr);
 }

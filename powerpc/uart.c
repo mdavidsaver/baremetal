@@ -7,6 +7,9 @@ uint32_t ccsr_base = 0xe1000000;
 #define UART (ccsr_base+0x4500)
 
 static
+const char hexchars[] = "0123456789ABCDEF";
+
+static
 void uart_tx(char c)
 {
     //TODO: proper wait for TX not full
@@ -14,7 +17,32 @@ void uart_tx(char c)
     out8x(UART, 0x0, c);
 }
 
-static
+void putc_escape(char c)
+{
+    switch(c) {
+    case '\t':
+        uart_tx('\\');
+        uart_tx('t');
+        break;
+    case '\n':
+        uart_tx('\\');
+        uart_tx('n');
+        break;
+    case '\r':
+        uart_tx('\\');
+        uart_tx('r');
+        break;
+    case ' ' ... '~':
+        uart_tx(c);
+        break;
+    default:
+        uart_tx('\\');
+        uart_tx('x');
+        uart_tx(hexchars[c>>4]);
+        uart_tx(hexchars[c&0xf]);
+    }
+}
+
 void putc(char c)
 {
     if(c=='\n') uart_tx('\r');
@@ -28,9 +56,6 @@ void puts(const char *s)
     while((c=*s++)!='\0')
         putc(c);
 }
-
-static
-const char hexchars[] = "0123456789ABCDEF";
 
 static
 void puthex(uint32_t val)

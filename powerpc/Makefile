@@ -21,6 +21,7 @@ os.elf: init.S main.c
 bios.elf: bios.S
 tomload.elf: init.S tomload.c init-tom.S \
 	common.c uart.c pci.c pci.h pci_def.h \
+	fw_cfg.c fw_cfg.h \
 	ell.c ell.h \
 	common.h tlb.h mmio.h
 
