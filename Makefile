@@ -15,10 +15,8 @@ LDFLAGS=-static
 
 #CFLAGS+=-Os
 
-all: os.bin bios.bin tomload.bin test-ell
+all: tomload.bin test-ell
 
-os.elf: init.S main.c
-bios.elf: bios.S
 tomload.elf: init.S tomload.c init-tom.S \
 	common.c uart.c pci.c pci.h pci_def.h \
 	fw_cfg.c fw_cfg.h \
