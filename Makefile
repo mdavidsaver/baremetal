@@ -1,5 +1,5 @@
 
-PREFIX=powerpc-rtems4.10-
+PREFIX=/home/travis/.rtems/bin/powerpc-rtems4.10-
 GCC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
 

@@ -1,0 +1,3832 @@
+-----------------------------------------
+Welcome to rtems-4.10.2(PowerPC/Generic (no FPU)/mvme3100)
+BSP: mvme3100, CVS Release ($Name: rtems-4-10-2 $)
+CPU 0x8020 - rev 0x20
+Additionnal boot options are H
+Initial system stack at 1BFA08
+Software IRQ stack starts at 1BFB10 with size 16384
+Going to start PCI buses scanning and initialization
+Board Type: MVME3100-1152 (S/N E0120000)
+External (=PCI Bus) Clock Freq   :   66666666 Hz
+Core Complex Bus (CCB) Clock Freq:  333333330 Hz
+CPU Clock Freq:                     133333332 Hz
+Ethernet 0                  52:54:00:12:34:56
+Ethernet 1                  00:00:00:00:00:00
+Ethernet 2                  00:00:00:00:00:00
+Number of PCI buses found is : 1
+BUS:SLOT:FUN  VENDOR-DEV_ID: COMMAND STATUS BASE_ADDR0 BASE_ADDR1 IRQ_PIN -> IRQ_LINE
+  0:0x00:0    0x1957-0x0030:  0x0102 0x0000 0x80000000 0x00000000       0 ->   0 (=0x00)
+  0:0x11:0    0x10E3-0x0148:  0x0102 0x0000 0x80100000 0x00000000       1 ->   0 (=0x00)
+Memory:                             268435456 bytes
+OpenPIC Version 1.2 (1 CPUs and 80 IRQ sources) at 0xE1040000
+OpenPIC Vendor 0 (Unknown), Device 0 (Unknown), Stepping 0
+OpenPIC timer frequency is not set
+MSR is 0x00001000, TCR 0x00000000
+-----------------------------------------
+Exit from bspstart
+Tundra Tsi148 PCI-VME bridge detected at 0x80100000, IRQ 0
+Tsi148 Outbound Ports:
+Port  VME-Addr   Size       PCI-Adrs   Mode:
+0:    0x20000000 0x0E000000 0xC0000000 A32, SUP, D32, SCT
+1:    0x00000000 0x00FF0000 0xCF000000 A24, SUP, D32, SCT
+2:    0x00000000 0x00010000 0xCFFF0000 A16, SUP, D32, SCT
+7:    0x00000000 0x01000000 0xCE000000 CSR, SUP, D32, SCT
+Tsi148 Inbound Ports:
+vmeTsi148 IRQ manager: looking for registers on VME...
+Trying to find CSR on VME...
+vmeTsi148 - IRQ manager using VME CSR to flush FIFO
+Registering i2c ds1621 temp sensor. driver failed :No such file or directory
+5 I2C devices registered
+Registering /dev/console as minor 0 (==/dev/ttyS0)
+
+***** RTEMS Version: rtems-4.10.2(PowerPC/Generic (no FPU)/mvme3100) *****
+
+***** Initializing network *****
+Startup.
+
+***** Setting up file system *****
+***** Using compiled in file data *****
+-> /O.Common/dbTestIoc.dbd - ok
+-> /xRecord.db - ok
+-> /dbPutLinkTest.db - ok
+-> /dbPutLinkTestJ.db - ok
+-> /dbBadLink.db - ok
+-> /dbLockTest.db - ok
+-> /dbStressLock.db - ok
+-> /dbCaStats.db - ok
+-> /dbCaLinkTest1.db - ok
+-> /dbCaLinkTest2.db - ok
+-> /dbCaLinkTest3.db - ok
+-> /scanIoTest.db - ok
+-> /O.Common/dbChArrTest.dbd - ok
+-> /dbChArrTest.db - ok
+***** Initializing TFTP *****
+***** Initializing NFS *****
+Using Local FS
+***** Preparing EPICS application *****
+ In /
+chdir("/")
+***** Starting EPICS application *****
+
+***** testdbConvert *****
+1..15
+# Test dbGetConvertRoutine[DBF_SHORT][DBF_SHORT]
+# Copy out first element
+ok  1 - scratch[0]==s_input[0]
+# Copy out entire array
+ok  2 - memcmp(scratch, s_input, sizeof(s_input))==0
+# Copy out partial array
+ok  3 - memcmp(scratch, s_input, sizeof(short)*2)==0
+ok  4 - scratch[2]==0x4242
+# Copy out w/ offset
+ok  5 - memcmp(scratch, s_input+1, sizeof(short)*2)==0
+ok  6 - scratch[2]==0x4242
+# Copy out end of array
+ok  7 - s_input_len-2 == 5
+ok  8 - memcmp(scratch, s_input+5, sizeof(short)*2)==0
+ok  9 - scratch[2]==0x4242
+# Copy out with wrap
+ok 10 - s_input_len-2 == 5
+ok 11 - scratch[0] == s_input[6]
+ok 12 - scratch[1] == s_input[0]
+ok 13 - scratch[2]==0x4242
+# Test dbPutConvertRoutine[DBF_SHORT][DBF_SHORT]
+# Copy in first element
+ok 14 - scratch[0]==s_input[0]
+# Copy in entire array
+ok 15 - memcmp(scratch, s_input, sizeof(s_input))==0
+
+    Results
+    =======
+       Tests: 15 
+      Passed:  15 = 100.00%
+
+***** callbackTest *****
+1..339
+ok  1 - epicsTimeGetCurrent(&start)==epicsTimeOK
+# Waiting 15.00 sec
+ok  2 - callback 0.00 setup time |0.000000| < 0.05
+ok  3 - callback 0.00 setup time |0.000000| < 0.05
+ok  4 - callback 0.00 setup time |0.000000| < 0.05
+ok  5 - callback 0.25 setup time |0.000000| < 0.05
+ok  6 - callback 0.25 setup time |0.000000| < 0.05
+ok  7 - callback 0.25 setup time |0.000000| < 0.05
+ok  8 - callback 0.50 setup time |0.000000| < 0.05
+ok  9 - callback 0.50 setup time |0.000000| < 0.05
+ok 10 - callback 0.50 setup time |0.000000| < 0.05
+ok 11 - callback 0.75 setup time |0.000000| < 0.05
+ok 12 - callback 0.75 setup time |0.000000| < 0.05
+ok 13 - callback 0.75 setup time |0.000000| < 0.05
+ok 14 - callback 1.00 setup time |0.000000| < 0.05
+ok 15 - callback 1.00 setup time |0.000000| < 0.05
+ok 16 - callback 1.00 setup time |0.000000| < 0.05
+ok 17 - callback 1.25 setup time |0.000000| < 0.05
+ok 18 - callback 1.25 setup time |0.000000| < 0.05
+ok 19 - callback 1.25 setup time |0.000000| < 0.05
+ok 20 - callback 1.50 setup time |0.020000| < 0.05
+ok 21 - callback 1.50 setup time |0.000000| < 0.05
+ok 22 - callback 1.50 setup time |0.000000| < 0.05
+ok 23 - callback 1.75 setup time |0.020000| < 0.05
+ok 24 - callback 1.75 setup time |0.000000| < 0.05
+ok 25 - callback 1.75 setup time |0.000000| < 0.05
+ok 26 - callback 2.00 setup time |0.020000| < 0.05
+ok 27 - callback 2.00 setup time |0.000000| < 0.05
+ok 28 - callback 2.00 setup time |0.000000| < 0.05
+ok 29 - callback 2.25 setup time |0.020000| < 0.05
+ok 30 - callback 2.25 setup time |0.000000| < 0.05
+ok 31 - callback 2.25 setup time |0.000000| < 0.05
+ok 32 - callback 2.50 setup time |0.020000| < 0.05
+ok 33 - callback 2.50 setup time |0.000000| < 0.05
+ok 34 - callback 2.50 setup time |0.000000| < 0.05
+ok 35 - callback 2.75 setup time |0.020000| < 0.05
+ok 36 - callback 2.75 setup time |0.000000| < 0.05
+ok 37 - callback 2.75 setup time |0.000000| < 0.05
+ok 38 - callback 3.00 setup time |0.020000| < 0.05
+ok 39 - callback 3.00 setup time |0.000000| < 0.05
+ok 40 - callback 3.00 setup time |0.000000| < 0.05
+ok 41 - callback 3.25 setup time |0.020000| < 0.05
+ok 42 - callback 3.25 setup time |0.000000| < 0.05
+ok 43 - callback 3.25 setup time |0.000000| < 0.05
+ok 44 - callback 3.50 setup time |0.020000| < 0.05
+ok 45 - callback 3.50 setup time |0.000000| < 0.05
+ok 46 - callback 3.50 setup time |0.000000| < 0.05
+ok 47 - callback 3.75 setup time |0.020000| < 0.05
+ok 48 - callback 3.75 setup time |0.000000| < 0.05
+ok 49 - callback 3.75 setup time |0.000000| < 0.05
+ok 50 - callback 4.00 setup time |0.020000| < 0.05
+ok 51 - callback 4.00 setup time |0.000000| < 0.05
+ok 52 - callback 4.00 setup time |0.000000| < 0.05
+ok 53 - callback 4.25 setup time |0.020000| < 0.05
+ok 54 - callback 4.25 setup time |0.000000| < 0.05
+ok 55 - callback 4.25 setup time |0.000000| < 0.05
+ok 56 - callback 4.50 setup time |0.020000| < 0.05
+ok 57 - callback 4.50 setup time |0.000000| < 0.05
+ok 58 - callback 4.50 setup time |0.000000| < 0.05
+ok 59 - callback 4.75 setup time |0.020000| < 0.05
+ok 60 - callback 4.75 setup time |0.000000| < 0.05
+ok 61 - callback 4.75 setup time |0.000000| < 0.05
+ok 62 - callback 5.00 setup time |0.020000| < 0.05
+ok 63 - callback 5.00 setup time |0.000000| < 0.05
+ok 64 - callback 5.00 setup time |0.000000| < 0.05
+ok 65 - callback 5.25 setup time |0.020000| < 0.05
+ok 66 - callback 5.25 setup time |0.000000| < 0.05
+ok 67 - callback 5.25 setup time |0.000000| < 0.05
+ok 68 - callback 5.50 setup time |0.020000| < 0.05
+ok 69 - callback 5.50 setup time |0.000000| < 0.05
+ok 70 - callback 5.50 setup time |0.000000| < 0.05
+ok 71 - callback 5.75 setup time |0.020000| < 0.05
+ok 72 - callback 5.75 setup time |0.000000| < 0.05
+ok 73 - callback 5.75 setup time |0.000000| < 0.05
+ok 74 - callback 6.00 setup time |0.020000| < 0.05
+ok 75 - callback 6.00 setup time |0.000000| < 0.05
+ok 76 - callback 6.00 setup time |0.000000| < 0.05
+ok 77 - callback 6.25 setup time |0.020000| < 0.05
+ok 78 - callback 6.25 setup time |0.000000| < 0.05
+ok 79 - callback 6.25 setup time |0.000000| < 0.05
+ok 80 - callback 6.50 setup time |0.020000| < 0.05
+ok 81 - callback 6.50 setup time |0.000000| < 0.05
+ok 82 - callback 6.50 setup time |0.000000| < 0.05
+ok 83 - callback 6.75 setup time |0.020000| < 0.05
+ok 84 - callback 6.75 setup time |0.000000| < 0.05
+ok 85 - callback 6.75 setup time |0.000000| < 0.05
+ok 86 - callback 7.00 setup time |0.020000| < 0.05
+ok 87 - callback 7.00 setup time |0.000000| < 0.05
+ok 88 - callback 7.00 setup time |0.000000| < 0.05
+ok 89 - callback 7.25 setup time |0.020000| < 0.05
+ok 90 - callback 7.25 setup time |0.000000| < 0.05
+ok 91 - callback 7.25 setup time |0.000000| < 0.05
+ok 92 - callback 7.50 setup time |0.020000| < 0.05
+ok 93 - callback 7.50 setup time |0.000000| < 0.05
+ok 94 - callback 7.50 setup time |0.000000| < 0.05
+ok 95 - callback 7.75 setup time |0.020000| < 0.05
+ok 96 - callback 7.75 setup time |0.000000| < 0.05
+ok 97 - callback 7.75 setup time |0.000000| < 0.05
+ok 98 - callback 8.00 setup time |0.020000| < 0.05
+ok 99 - callback 8.00 setup time |0.000000| < 0.05
+ok 100 - callback 8.00 setup time |0.000000| < 0.05
+ok 101 - callback 8.25 setup time |0.020000| < 0.05
+ok 102 - callback 8.25 setup time |0.000000| < 0.05
+ok 103 - callback 8.25 setup time |0.000000| < 0.05
+ok 104 - callback 8.50 setup time |0.020000| < 0.05
+ok 105 - callback 8.50 setup time |0.000000| < 0.05
+ok 106 - callback 8.50 setup time |0.000000| < 0.05
+ok 107 - callback 8.75 setup time |0.020000| < 0.05
+ok 108 - callback 8.75 setup time |0.000000| < 0.05
+ok 109 - callback 8.75 setup time |0.000000| < 0.05
+ok 110 - callback 9.00 setup time |0.020000| < 0.05
+ok 111 - callback 9.00 setup time |0.000000| < 0.05
+ok 112 - callback 9.00 setup time |0.000000| < 0.05
+ok 113 - callback 9.25 setup time |0.020000| < 0.05
+ok 114 - callback 9.25 setup time |0.000000| < 0.05
+ok 115 - callback 9.25 setup time |0.000000| < 0.05
+ok 116 - callback 9.50 setup time |0.020000| < 0.05
+ok 117 - callback 9.50 setup time |0.000000| < 0.05
+ok 118 - callback 9.50 setup time |0.000000| < 0.05
+ok 119 - callback 9.75 setup time |0.020000| < 0.05
+ok 120 - callback 9.75 setup time |0.000000| < 0.05
+ok 121 - callback 9.75 setup time |0.000000| < 0.05
+ok 122 - callback 10.00 setup time |0.020000| < 0.05
+ok 123 - callback 10.00 setup time |0.000000| < 0.05
+ok 124 - callback 10.00 setup time |0.000000| < 0.05
+ok 125 - callback 10.25 setup time |0.020000| < 0.05
+ok 126 - callback 10.25 setup time |0.000000| < 0.05
+ok 127 - callback 10.25 setup time |0.000000| < 0.05
+ok 128 - callback 10.50 setup time |0.020000| < 0.05
+ok 129 - callback 10.50 setup time |0.000000| < 0.05
+ok 130 - callback 10.50 setup time |0.000000| < 0.05
+ok 131 - callback 10.75 setup time |0.020000| < 0.05
+ok 132 - callback 10.75 setup time |0.000000| < 0.05
+ok 133 - callback 10.75 setup time |0.000000| < 0.05
+ok 134 - callback 11.00 setup time |0.020000| < 0.05
+ok 135 - callback 11.00 setup time |0.000000| < 0.05
+ok 136 - callback 11.00 setup time |0.000000| < 0.05
+ok 137 - callback 11.25 setup time |0.020000| < 0.05
+ok 138 - callback 11.25 setup time |0.000000| < 0.05
+ok 139 - callback 11.25 setup time |0.000000| < 0.05
+ok 140 - callback 11.50 setup time |0.020000| < 0.05
+ok 141 - callback 11.50 setup time |0.000000| < 0.05
+ok 142 - callback 11.50 setup time |0.000000| < 0.05
+ok 143 - callback 11.75 setup time |0.020000| < 0.05
+ok 144 - callback 11.75 setup time |0.000000| < 0.05
+ok 145 - callback 11.75 setup time |0.000000| < 0.05
+ok 146 - callback 12.00 setup time |0.020000| < 0.05
+ok 147 - callback 12.00 setup time |0.000000| < 0.05
+ok 148 - callback 12.00 setup time |0.000000| < 0.05
+ok 149 - callback 12.25 setup time |0.020000| < 0.05
+ok 150 - callback 12.25 setup time |0.000000| < 0.05
+ok 151 - callback 12.25 setup time |0.000000| < 0.05
+ok 152 - callback 12.50 setup time |0.020000| < 0.05
+ok 153 - callback 12.50 setup time |0.000000| < 0.05
+ok 154 - callback 12.50 setup time |0.000000| < 0.05
+ok 155 - callback 12.75 setup time |0.020000| < 0.05
+ok 156 - callback 12.75 setup time |0.000000| < 0.05
+ok 157 - callback 12.75 setup time |0.000000| < 0.05
+ok 158 - callback 13.00 setup time |0.020000| < 0.05
+ok 159 - callback 13.00 setup time |0.000000| < 0.05
+ok 160 - callback 13.00 setup time |0.000000| < 0.05
+ok 161 - callback 13.25 setup time |0.020000| < 0.05
+ok 162 - callback 13.25 setup time |0.000000| < 0.05
+ok 163 - callback 13.25 setup time |0.000000| < 0.05
+ok 164 - callback 13.50 setup time |0.020000| < 0.05
+ok 165 - callback 13.50 setup time |0.000000| < 0.05
+ok 166 - callback 13.50 setup time |0.000000| < 0.05
+ok 167 - callback 13.75 setup time |0.020000| < 0.05
+ok 168 - callback 13.75 setup time |0.000000| < 0.05
+ok 169 - callback 13.75 setup time |0.000000| < 0.05
+ok 170 - callback 15.00 setup time |0.020000| < 0.05
+ok 171 - delay 0.00 seconds, callback time error |0.0200| < 0.05
+ok 172 - delay 0.00 seconds, callback time error |0.0000| < 0.05
+ok 173 - delay 0.00 seconds, callback time error |0.0000| < 0.05
+ok 174 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 175 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 176 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 177 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 178 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 179 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 180 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 181 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 182 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 183 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 184 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 185 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 186 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 187 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 188 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 189 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 190 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 191 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 192 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 193 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 194 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 195 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 196 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 197 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 198 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 199 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 200 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 201 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 202 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 203 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 204 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 205 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 206 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 207 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 208 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 209 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 210 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 211 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 212 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 213 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 214 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 215 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 216 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 217 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 218 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 219 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 220 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 221 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 222 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 223 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 224 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 225 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 226 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 227 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 228 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 229 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 230 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 231 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 232 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 233 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 234 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 235 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 236 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 237 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 238 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 239 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 240 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 241 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 242 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 243 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 244 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 245 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 246 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 247 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 248 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 249 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 250 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 251 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 252 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 253 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 254 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 255 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 256 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 257 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 258 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 259 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 260 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 261 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 262 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 263 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 264 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 265 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 266 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 267 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 268 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 269 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 270 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 271 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 272 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 273 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 274 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 275 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 276 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 277 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 278 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 279 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 280 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 281 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 282 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 283 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 284 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 285 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 286 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 287 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 288 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 289 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 290 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 291 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 292 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 293 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 294 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 295 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 296 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 297 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 298 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 299 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 300 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 301 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 302 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 303 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 304 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 305 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 306 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 307 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 308 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 309 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 310 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 311 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 312 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 313 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 314 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 315 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 316 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 317 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 318 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 319 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 320 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 321 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 322 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 323 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 324 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 325 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 326 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 327 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 328 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 329 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 330 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 331 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 332 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 333 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 334 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 335 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 336 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 337 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 338 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 339 - delay 15.00 seconds, callback time error |0.0000| < 0.05
+# Setup time statistics
+# Priority  LOW  min/avg/max/sigma = 0.000000 / 0.017895 / 0.020000 / 0.006138
+# Priority  MID  min/avg/max/sigma = 0.000000 / 0.000000 / 0.000000 / 0.000000
+# Priority HIGH  min/avg/max/sigma = 0.000000 / 0.000000 / 0.000000 / 0.000000
+# Delay time statistics
+# Priority  LOW  min/avg/max/sigma = -0.010000 / -0.004561 / 0.020000 / 0.005944
+# Priority  MID  min/avg/max/sigma = -0.010000 / -0.005000 / 0.000000 / 0.005000
+# Priority HIGH  min/avg/max/sigma = -0.010000 / -0.005000 / 0.000000 / 0.005000
+
+    Results
+    =======
+       Tests: 339
+      Passed: 339 = 100.00%
+
+***** callbackParallelTest *****
+1..339
+# Starting 1 parallel callback threads
+ok  1 - epicsTimeGetCurrent(&start)==epicsTimeOK
+# Waiting 15.00 sec
+ok  2 - callback 0.00 setup time |0.000000| < 0.05
+ok  3 - callback 0.00 setup time |0.000000| < 0.05
+ok  4 - callback 0.00 setup time |0.000000| < 0.05
+ok  5 - callback 0.25 setup time |0.000000| < 0.05
+ok  6 - callback 0.25 setup time |0.000000| < 0.05
+ok  7 - callback 0.25 setup time |0.000000| < 0.05
+ok  8 - callback 0.50 setup time |0.000000| < 0.05
+ok  9 - callback 0.50 setup time |0.000000| < 0.05
+ok 10 - callback 0.50 setup time |0.000000| < 0.05
+ok 11 - callback 0.75 setup time |0.000000| < 0.05
+ok 12 - callback 0.75 setup time |0.000000| < 0.05
+ok 13 - callback 0.75 setup time |0.000000| < 0.05
+ok 14 - callback 1.00 setup time |0.000000| < 0.05
+ok 15 - callback 1.00 setup time |0.000000| < 0.05
+ok 16 - callback 1.00 setup time |0.000000| < 0.05
+ok 17 - callback 1.25 setup time |0.000000| < 0.05
+ok 18 - callback 1.25 setup time |0.000000| < 0.05
+ok 19 - callback 1.25 setup time |0.000000| < 0.05
+ok 20 - callback 1.50 setup time |0.000000| < 0.05
+ok 21 - callback 1.50 setup time |0.000000| < 0.05
+ok 22 - callback 1.50 setup time |0.000000| < 0.05
+ok 23 - callback 1.75 setup time |0.000000| < 0.05
+ok 24 - callback 1.75 setup time |0.000000| < 0.05
+ok 25 - callback 1.75 setup time |0.000000| < 0.05
+ok 26 - callback 2.00 setup time |0.000000| < 0.05
+ok 27 - callback 2.00 setup time |0.000000| < 0.05
+ok 28 - callback 2.00 setup time |0.000000| < 0.05
+ok 29 - callback 2.25 setup time |0.000000| < 0.05
+ok 30 - callback 2.25 setup time |0.000000| < 0.05
+ok 31 - callback 2.25 setup time |0.000000| < 0.05
+ok 32 - callback 2.50 setup time |0.000000| < 0.05
+ok 33 - callback 2.50 setup time |0.000000| < 0.05
+ok 34 - callback 2.50 setup time |0.000000| < 0.05
+ok 35 - callback 2.75 setup time |0.000000| < 0.05
+ok 36 - callback 2.75 setup time |0.000000| < 0.05
+ok 37 - callback 2.75 setup time |0.000000| < 0.05
+ok 38 - callback 3.00 setup time |0.000000| < 0.05
+ok 39 - callback 3.00 setup time |0.000000| < 0.05
+ok 40 - callback 3.00 setup time |0.000000| < 0.05
+ok 41 - callback 3.25 setup time |0.000000| < 0.05
+ok 42 - callback 3.25 setup time |0.000000| < 0.05
+ok 43 - callback 3.25 setup time |0.000000| < 0.05
+ok 44 - callback 3.50 setup time |0.000000| < 0.05
+ok 45 - callback 3.50 setup time |0.000000| < 0.05
+ok 46 - callback 3.50 setup time |0.000000| < 0.05
+ok 47 - callback 3.75 setup time |0.000000| < 0.05
+ok 48 - callback 3.75 setup time |0.000000| < 0.05
+ok 49 - callback 3.75 setup time |0.000000| < 0.05
+ok 50 - callback 4.00 setup time |0.000000| < 0.05
+ok 51 - callback 4.00 setup time |0.000000| < 0.05
+ok 52 - callback 4.00 setup time |0.000000| < 0.05
+ok 53 - callback 4.25 setup time |0.000000| < 0.05
+ok 54 - callback 4.25 setup time |0.000000| < 0.05
+ok 55 - callback 4.25 setup time |0.000000| < 0.05
+ok 56 - callback 4.50 setup time |0.000000| < 0.05
+ok 57 - callback 4.50 setup time |0.000000| < 0.05
+ok 58 - callback 4.50 setup time |0.000000| < 0.05
+ok 59 - callback 4.75 setup time |0.000000| < 0.05
+ok 60 - callback 4.75 setup time |0.000000| < 0.05
+ok 61 - callback 4.75 setup time |0.000000| < 0.05
+ok 62 - callback 5.00 setup time |0.000000| < 0.05
+ok 63 - callback 5.00 setup time |0.000000| < 0.05
+ok 64 - callback 5.00 setup time |0.000000| < 0.05
+ok 65 - callback 5.25 setup time |0.000000| < 0.05
+ok 66 - callback 5.25 setup time |0.000000| < 0.05
+ok 67 - callback 5.25 setup time |0.000000| < 0.05
+ok 68 - callback 5.50 setup time |0.000000| < 0.05
+ok 69 - callback 5.50 setup time |0.000000| < 0.05
+ok 70 - callback 5.50 setup time |0.000000| < 0.05
+ok 71 - callback 5.75 setup time |0.000000| < 0.05
+ok 72 - callback 5.75 setup time |0.000000| < 0.05
+ok 73 - callback 5.75 setup time |0.000000| < 0.05
+ok 74 - callback 6.00 setup time |0.000000| < 0.05
+ok 75 - callback 6.00 setup time |0.000000| < 0.05
+ok 76 - callback 6.00 setup time |0.000000| < 0.05
+ok 77 - callback 6.25 setup time |0.000000| < 0.05
+ok 78 - callback 6.25 setup time |0.000000| < 0.05
+ok 79 - callback 6.25 setup time |0.000000| < 0.05
+ok 80 - callback 6.50 setup time |0.000000| < 0.05
+ok 81 - callback 6.50 setup time |0.000000| < 0.05
+ok 82 - callback 6.50 setup time |0.000000| < 0.05
+ok 83 - callback 6.75 setup time |0.000000| < 0.05
+ok 84 - callback 6.75 setup time |0.000000| < 0.05
+ok 85 - callback 6.75 setup time |0.000000| < 0.05
+ok 86 - callback 7.00 setup time |0.000000| < 0.05
+ok 87 - callback 7.00 setup time |0.000000| < 0.05
+ok 88 - callback 7.00 setup time |0.000000| < 0.05
+ok 89 - callback 7.25 setup time |0.000000| < 0.05
+ok 90 - callback 7.25 setup time |0.000000| < 0.05
+ok 91 - callback 7.25 setup time |0.000000| < 0.05
+ok 92 - callback 7.50 setup time |0.000000| < 0.05
+ok 93 - callback 7.50 setup time |0.000000| < 0.05
+ok 94 - callback 7.50 setup time |0.000000| < 0.05
+ok 95 - callback 7.75 setup time |0.000000| < 0.05
+ok 96 - callback 7.75 setup time |0.000000| < 0.05
+ok 97 - callback 7.75 setup time |0.000000| < 0.05
+ok 98 - callback 8.00 setup time |0.000000| < 0.05
+ok 99 - callback 8.00 setup time |0.000000| < 0.05
+ok 100 - callback 8.00 setup time |0.000000| < 0.05
+ok 101 - callback 8.25 setup time |0.000000| < 0.05
+ok 102 - callback 8.25 setup time |0.000000| < 0.05
+ok 103 - callback 8.25 setup time |0.000000| < 0.05
+ok 104 - callback 8.50 setup time |0.000000| < 0.05
+ok 105 - callback 8.50 setup time |0.000000| < 0.05
+ok 106 - callback 8.50 setup time |0.000000| < 0.05
+ok 107 - callback 8.75 setup time |0.000000| < 0.05
+ok 108 - callback 8.75 setup time |0.000000| < 0.05
+ok 109 - callback 8.75 setup time |0.000000| < 0.05
+ok 110 - callback 9.00 setup time |0.000000| < 0.05
+ok 111 - callback 9.00 setup time |0.000000| < 0.05
+ok 112 - callback 9.00 setup time |0.000000| < 0.05
+ok 113 - callback 9.25 setup time |0.000000| < 0.05
+ok 114 - callback 9.25 setup time |0.000000| < 0.05
+ok 115 - callback 9.25 setup time |0.000000| < 0.05
+ok 116 - callback 9.50 setup time |0.000000| < 0.05
+ok 117 - callback 9.50 setup time |0.000000| < 0.05
+ok 118 - callback 9.50 setup time |0.000000| < 0.05
+ok 119 - callback 9.75 setup time |0.000000| < 0.05
+ok 120 - callback 9.75 setup time |0.000000| < 0.05
+ok 121 - callback 9.75 setup time |0.000000| < 0.05
+ok 122 - callback 10.00 setup time |0.000000| < 0.05
+ok 123 - callback 10.00 setup time |0.000000| < 0.05
+ok 124 - callback 10.00 setup time |0.000000| < 0.05
+ok 125 - callback 10.25 setup time |0.000000| < 0.05
+ok 126 - callback 10.25 setup time |0.000000| < 0.05
+ok 127 - callback 10.25 setup time |0.000000| < 0.05
+ok 128 - callback 10.50 setup time |0.000000| < 0.05
+ok 129 - callback 10.50 setup time |0.000000| < 0.05
+ok 130 - callback 10.50 setup time |0.000000| < 0.05
+ok 131 - callback 10.75 setup time |0.000000| < 0.05
+ok 132 - callback 10.75 setup time |0.000000| < 0.05
+ok 133 - callback 10.75 setup time |0.000000| < 0.05
+ok 134 - callback 11.00 setup time |0.000000| < 0.05
+ok 135 - callback 11.00 setup time |0.000000| < 0.05
+ok 136 - callback 11.00 setup time |0.000000| < 0.05
+ok 137 - callback 11.25 setup time |0.000000| < 0.05
+ok 138 - callback 11.25 setup time |0.000000| < 0.05
+ok 139 - callback 11.25 setup time |0.000000| < 0.05
+ok 140 - callback 11.50 setup time |0.000000| < 0.05
+ok 141 - callback 11.50 setup time |0.000000| < 0.05
+ok 142 - callback 11.50 setup time |0.000000| < 0.05
+ok 143 - callback 11.75 setup time |0.000000| < 0.05
+ok 144 - callback 11.75 setup time |0.000000| < 0.05
+ok 145 - callback 11.75 setup time |0.000000| < 0.05
+ok 146 - callback 12.00 setup time |0.000000| < 0.05
+ok 147 - callback 12.00 setup time |0.000000| < 0.05
+ok 148 - callback 12.00 setup time |0.000000| < 0.05
+ok 149 - callback 12.25 setup time |0.000000| < 0.05
+ok 150 - callback 12.25 setup time |0.000000| < 0.05
+ok 151 - callback 12.25 setup time |0.000000| < 0.05
+ok 152 - callback 12.50 setup time |0.000000| < 0.05
+ok 153 - callback 12.50 setup time |0.000000| < 0.05
+ok 154 - callback 12.50 setup time |0.000000| < 0.05
+ok 155 - callback 12.75 setup time |0.000000| < 0.05
+ok 156 - callback 12.75 setup time |0.000000| < 0.05
+ok 157 - callback 12.75 setup time |0.000000| < 0.05
+ok 158 - callback 13.00 setup time |0.000000| < 0.05
+ok 159 - callback 13.00 setup time |0.000000| < 0.05
+ok 160 - callback 13.00 setup time |0.000000| < 0.05
+ok 161 - callback 13.25 setup time |0.000000| < 0.05
+ok 162 - callback 13.25 setup time |0.000000| < 0.05
+ok 163 - callback 13.25 setup time |0.000000| < 0.05
+ok 164 - callback 13.50 setup time |0.000000| < 0.05
+ok 165 - callback 13.50 setup time |0.000000| < 0.05
+ok 166 - callback 13.50 setup time |0.000000| < 0.05
+ok 167 - callback 13.75 setup time |0.000000| < 0.05
+ok 168 - callback 13.75 setup time |0.000000| < 0.05
+ok 169 - callback 13.75 setup time |0.000000| < 0.05
+ok 170 - callback 15.00 setup time |0.000000| < 0.05
+ok 171 - delay 0.00 seconds, callback time error |0.0000| < 0.05
+ok 172 - delay 0.00 seconds, callback time error |0.0000| < 0.05
+ok 173 - delay 0.00 seconds, callback time error |0.0000| < 0.05
+ok 174 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 175 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 176 - delay 0.25 seconds, callback time error |-0.0100| < 0.05
+ok 177 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 178 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 179 - delay 0.50 seconds, callback time error |0.0000| < 0.05
+ok 180 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 181 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 182 - delay 0.75 seconds, callback time error |-0.0100| < 0.05
+ok 183 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 184 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 185 - delay 1.00 seconds, callback time error |0.0000| < 0.05
+ok 186 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 187 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 188 - delay 1.25 seconds, callback time error |-0.0100| < 0.05
+ok 189 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 190 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 191 - delay 1.50 seconds, callback time error |0.0000| < 0.05
+ok 192 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 193 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 194 - delay 1.75 seconds, callback time error |-0.0100| < 0.05
+ok 195 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 196 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 197 - delay 2.00 seconds, callback time error |0.0000| < 0.05
+ok 198 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 199 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 200 - delay 2.25 seconds, callback time error |-0.0100| < 0.05
+ok 201 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 202 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 203 - delay 2.50 seconds, callback time error |0.0000| < 0.05
+ok 204 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 205 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 206 - delay 2.75 seconds, callback time error |-0.0100| < 0.05
+ok 207 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 208 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 209 - delay 3.00 seconds, callback time error |0.0000| < 0.05
+ok 210 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 211 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 212 - delay 3.25 seconds, callback time error |-0.0100| < 0.05
+ok 213 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 214 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 215 - delay 3.50 seconds, callback time error |0.0000| < 0.05
+ok 216 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 217 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 218 - delay 3.75 seconds, callback time error |-0.0100| < 0.05
+ok 219 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 220 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 221 - delay 4.00 seconds, callback time error |0.0000| < 0.05
+ok 222 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 223 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 224 - delay 4.25 seconds, callback time error |-0.0100| < 0.05
+ok 225 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 226 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 227 - delay 4.50 seconds, callback time error |0.0000| < 0.05
+ok 228 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 229 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 230 - delay 4.75 seconds, callback time error |-0.0100| < 0.05
+ok 231 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 232 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 233 - delay 5.00 seconds, callback time error |0.0000| < 0.05
+ok 234 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 235 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 236 - delay 5.25 seconds, callback time error |-0.0100| < 0.05
+ok 237 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 238 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 239 - delay 5.50 seconds, callback time error |0.0000| < 0.05
+ok 240 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 241 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 242 - delay 5.75 seconds, callback time error |-0.0100| < 0.05
+ok 243 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 244 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 245 - delay 6.00 seconds, callback time error |0.0000| < 0.05
+ok 246 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 247 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 248 - delay 6.25 seconds, callback time error |-0.0100| < 0.05
+ok 249 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 250 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 251 - delay 6.50 seconds, callback time error |0.0000| < 0.05
+ok 252 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 253 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 254 - delay 6.75 seconds, callback time error |-0.0100| < 0.05
+ok 255 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 256 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 257 - delay 7.00 seconds, callback time error |0.0000| < 0.05
+ok 258 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 259 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 260 - delay 7.25 seconds, callback time error |-0.0100| < 0.05
+ok 261 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 262 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 263 - delay 7.50 seconds, callback time error |0.0000| < 0.05
+ok 264 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 265 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 266 - delay 7.75 seconds, callback time error |-0.0100| < 0.05
+ok 267 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 268 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 269 - delay 8.00 seconds, callback time error |0.0000| < 0.05
+ok 270 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 271 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 272 - delay 8.25 seconds, callback time error |-0.0100| < 0.05
+ok 273 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 274 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 275 - delay 8.50 seconds, callback time error |0.0000| < 0.05
+ok 276 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 277 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 278 - delay 8.75 seconds, callback time error |-0.0100| < 0.05
+ok 279 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 280 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 281 - delay 9.00 seconds, callback time error |0.0000| < 0.05
+ok 282 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 283 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 284 - delay 9.25 seconds, callback time error |-0.0100| < 0.05
+ok 285 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 286 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 287 - delay 9.50 seconds, callback time error |0.0000| < 0.05
+ok 288 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 289 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 290 - delay 9.75 seconds, callback time error |-0.0100| < 0.05
+ok 291 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 292 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 293 - delay 10.00 seconds, callback time error |0.0000| < 0.05
+ok 294 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 295 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 296 - delay 10.25 seconds, callback time error |-0.0100| < 0.05
+ok 297 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 298 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 299 - delay 10.50 seconds, callback time error |0.0000| < 0.05
+ok 300 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 301 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 302 - delay 10.75 seconds, callback time error |-0.0100| < 0.05
+ok 303 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 304 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 305 - delay 11.00 seconds, callback time error |0.0000| < 0.05
+ok 306 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 307 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 308 - delay 11.25 seconds, callback time error |-0.0100| < 0.05
+ok 309 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 310 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 311 - delay 11.50 seconds, callback time error |0.0000| < 0.05
+ok 312 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 313 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 314 - delay 11.75 seconds, callback time error |-0.0100| < 0.05
+ok 315 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 316 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 317 - delay 12.00 seconds, callback time error |0.0000| < 0.05
+ok 318 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 319 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 320 - delay 12.25 seconds, callback time error |-0.0100| < 0.05
+ok 321 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 322 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 323 - delay 12.50 seconds, callback time error |0.0000| < 0.05
+ok 324 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 325 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 326 - delay 12.75 seconds, callback time error |-0.0100| < 0.05
+ok 327 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 328 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 329 - delay 13.00 seconds, callback time error |0.0000| < 0.05
+ok 330 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 331 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 332 - delay 13.25 seconds, callback time error |-0.0100| < 0.05
+ok 333 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 334 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 335 - delay 13.50 seconds, callback time error |0.0000| < 0.05
+ok 336 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 337 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 338 - delay 13.75 seconds, callback time error |-0.0100| < 0.05
+ok 339 - delay 15.00 seconds, callback time error |0.0000| < 0.05
+# Setup time statistics
+# Priority  LOW  min/avg/max/sigma = 0.000000 / 0.000000 / 0.000000 / 0.000000
+# Priority  MID  min/avg/max/sigma = 0.000000 / 0.000000 / 0.000000 / 0.000000
+# Priority HIGH  min/avg/max/sigma = 0.000000 / 0.000000 / 0.000000 / 0.000000
+# Delay time statistics
+# Priority  LOW  min/avg/max/sigma = -0.010000 / -0.004912 / 0.000000 / 0.004999
+# Priority  MID  min/avg/max/sigma = -0.010000 / -0.005000 / 0.000000 / 0.005000
+# Priority HIGH  min/avg/max/sigma = -0.010000 / -0.005000 / 0.000000 / 0.005000
+
+    Results
+    =======
+       Tests: 339
+      Passed: 339 = 100.00%
+
+***** dbStateTest *****
+1..20
+ok  1 - Finding nonexisting state fails
+ok  2 - Create state 'red'
+ok  3 - Find 'red' returns correct id
+ok  4 - Create existing 'red' returns correct id
+ok  5 - Finding nonexisting state still fails
+ok  6 - Create state 'blue'
+ok  7 - Find 'blue' returns correct id
+ok  8 - Create existing 'blue' returns correct id
+ok  9 - Finding nonexisting state still fails
+ok 10 - Default 'red' state is 0
+ok 11 - Default 'blue' state is 0
+ok 12 - After setting, 'red' state is 1
+ok 13 - 'blue' state is 0
+ok 14 - After setting, 'blue' state is 1
+ok 15 - 'red' state is 1
+ok 16 - After clearing, 'blue' state is 0
+ok 17 - 'red' state is 1
+ok 18 - After clearing, 'red' state is 0
+ok 19 - 'red' state is 0
+ok 20 - Finding nonexisting state still fails
+
+    Results
+    =======
+       Tests: 20 
+      Passed:  20 = 100.00%
+
+***** dbCaStatsTest *****
+1..5
+# Check dbcaStats
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# No CA links
+ok  1 - channels==0 (got 0)
+ok  2 - disconnected==0 (got 0)
+# One CA link, disconnected
+ok  3 - dbPutField(e2.INP, 0, ...) -> 0 ()
+ok  4 - channels==1 (got 1)
+ok  5 - disconnected==1 (got 1)
+
+    Results
+    =======
+       Tests: 5  
+      Passed:   5 = 100.00%
+
+***** dbShutdownTest *****
+1..10
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok  1 - Thread errlog is running
+ok  2 - Thread taskwd is running
+ok  3 - Thread timerQueue is running
+ok  4 - Thread cbLow is running
+ok  5 - Thread scanOnce is running
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok  6 - Thread errlog is running
+ok  7 - Thread taskwd is running
+ok  8 - Thread timerQueue is running
+ok  9 - Thread cbLow is running
+ok 10 - Thread scanOnce is running
+
+    Results
+    =======
+       Tests: 10 
+      Passed:  10 = 100.00%
+
+***** dbScanTest *****
+1..3
+# check scanOnceCallback() callback
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# scanOnce reca
+# Waiting
+ok  1 - junk==(void*)&waiter
+ok  2 - strcmp(prec->name, "reca")==0
+ok  3 - called==1
+
+    Results
+    =======
+       Tests: 3  
+      Passed:   3 = 100.00%
+
+***** scanIoTest *****
+1..152
+# Test single-threaded I/O Intr scanning
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Scan first list
+# Scan second list
+# Wait for first list to complete
+ok  1 - td->hasprocd[prio]==0
+ok  2 - td->hasprocd[prio]==1
+ok  3 - td->getcomplete[prio]==0
+ok  4 - td->hasprocd[prio]==0
+ok  5 - td->hasprocd[prio]==1
+ok  6 - td->getcomplete[prio]==0
+ok  7 - td->hasprocd[prio]==0
+ok  8 - td->hasprocd[prio]==1
+ok  9 - td->getcomplete[prio]==0
+# Wait one more second
+ok 10 - data[0].hasprocd[0]==1
+ok 11 - data[0].hasprocd[1]==1
+ok 12 - data[0].hasprocd[2]==1
+ok 13 - data[0].getcomplete[0]==1
+ok 14 - data[0].getcomplete[1]==1
+ok 15 - data[0].getcomplete[2]==1
+ok 16 - data[1].hasprocd[0]==0
+ok 17 - data[1].hasprocd[1]==0
+ok 18 - data[1].hasprocd[2]==0
+ok 19 - data[1].getcomplete[0]==0
+ok 20 - data[1].getcomplete[1]==0
+ok 21 - data[1].getcomplete[2]==0
+# Release the first scan and wait for the second
+ok 22 - td->hasprocd[prio]==0
+ok 23 - td->hasprocd[prio]==1
+ok 24 - td->getcomplete[prio]==0
+ok 25 - td->hasprocd[prio]==0
+ok 26 - td->hasprocd[prio]==1
+ok 27 - td->getcomplete[prio]==0
+ok 28 - td->hasprocd[prio]==0
+ok 29 - td->hasprocd[prio]==1
+ok 30 - td->getcomplete[prio]==0
+ok 31 - data[0].hasprocd[0]==1
+ok 32 - data[0].hasprocd[1]==1
+ok 33 - data[0].hasprocd[2]==1
+ok 34 - data[0].getcomplete[0]==1
+ok 35 - data[0].getcomplete[1]==1
+ok 36 - data[0].getcomplete[2]==1
+ok 37 - data[1].hasprocd[0]==1
+ok 38 - data[1].hasprocd[1]==1
+ok 39 - data[1].hasprocd[2]==1
+ok 40 - data[1].getcomplete[0]==1
+ok 41 - data[1].getcomplete[1]==1
+ok 42 - data[1].getcomplete[2]==1
+# Release the second scan and complete
+# run a second time to verify shutdown and restart works
+# Test single-threaded I/O Intr scanning
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Scan first list
+# Scan second list
+# Wait for first list to complete
+ok 43 - td->hasprocd[prio]==0
+ok 44 - td->hasprocd[prio]==1
+ok 45 - td->getcomplete[prio]==0
+ok 46 - td->hasprocd[prio]==0
+ok 47 - td->hasprocd[prio]==1
+ok 48 - td->getcomplete[prio]==0
+ok 49 - td->hasprocd[prio]==0
+ok 50 - td->hasprocd[prio]==1
+ok 51 - td->getcomplete[prio]==0
+# Wait one more second
+ok 52 - data[0].hasprocd[0]==1
+ok 53 - data[0].hasprocd[1]==1
+ok 54 - data[0].hasprocd[2]==1
+ok 55 - data[0].getcomplete[0]==1
+ok 56 - data[0].getcomplete[1]==1
+ok 57 - data[0].getcomplete[2]==1
+ok 58 - data[1].hasprocd[0]==0
+ok 59 - data[1].hasprocd[1]==0
+ok 60 - data[1].hasprocd[2]==0
+ok 61 - data[1].getcomplete[0]==0
+ok 62 - data[1].getcomplete[1]==0
+ok 63 - data[1].getcomplete[2]==0
+# Release the first scan and wait for the second
+ok 64 - td->hasprocd[prio]==0
+ok 65 - td->hasprocd[prio]==1
+ok 66 - td->getcomplete[prio]==0
+ok 67 - td->hasprocd[prio]==0
+ok 68 - td->hasprocd[prio]==1
+ok 69 - td->getcomplete[prio]==0
+ok 70 - td->hasprocd[prio]==0
+ok 71 - td->hasprocd[prio]==1
+ok 72 - td->getcomplete[prio]==0
+ok 73 - data[0].hasprocd[0]==1
+ok 74 - data[0].hasprocd[1]==1
+ok 75 - data[0].hasprocd[2]==1
+ok 76 - data[0].getcomplete[0]==1
+ok 77 - data[0].getcomplete[1]==1
+ok 78 - data[0].getcomplete[2]==1
+ok 79 - data[1].hasprocd[0]==1
+ok 80 - data[1].hasprocd[1]==1
+ok 81 - data[1].hasprocd[2]==1
+ok 82 - data[1].getcomplete[0]==1
+ok 83 - data[1].getcomplete[1]==1
+ok 84 - data[1].getcomplete[2]==1
+# Release the second scan and complete
+# Test multi-threaded I/O Intr scanning
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Scan first list
+ok 85 - scanIoRequest(drvs[0]->scan)==0x7
+# Scan second list
+ok 86 - scanIoRequest(drvs[1]->scan)==0x7
+# Wait for everything to start
+ok 87 - td->hasprocd==0
+ok 88 - td->hasprocd==0
+ok 89 - td->hasprocd==0
+ok 90 - td->hasprocd==0
+ok 91 - td->hasprocd==0
+ok 92 - td->hasprocd==0
+# Wait one more second
+ok 93 - data[0].hasprocd==1 (1)
+ok 94 - data[0].getcomplete==0 (0)
+ok 95 - data[1].hasprocd==1 (1)
+ok 96 - data[1].getcomplete==0 (0)
+ok 97 - data[2].hasprocd==1 (1)
+ok 98 - data[2].getcomplete==0 (0)
+ok 99 - data[3].hasprocd==1 (1)
+ok 100 - data[3].getcomplete==0 (0)
+ok 101 - data[4].hasprocd==1 (1)
+ok 102 - data[4].getcomplete==0 (0)
+ok 103 - data[5].hasprocd==1 (1)
+ok 104 - data[5].getcomplete==0 (0)
+# Release all and complete
+ok 105 - (0x0)&(0x4)==0
+ok 106 - (0x0)&(0x4)==0
+ok 107 - (0x4)&(0x2)==0
+ok 108 - (0x4)&(0x2)==0
+ok 109 - (0x6)&(0x1)==0
+ok 110 - (0x6)&(0x1)==0
+ok 111 - data[0].getcomplete==0 (1)
+ok 112 - data[1].getcomplete==0 (1)
+ok 113 - data[2].getcomplete==0 (1)
+ok 114 - data[3].getcomplete==0 (1)
+ok 115 - data[4].getcomplete==0 (1)
+ok 116 - data[5].getcomplete==0 (1)
+ok 117 - masks[0]==0x7
+ok 118 - masks[1]==0x7
+# run a second time to verify shutdown and restart works
+# Test multi-threaded I/O Intr scanning
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Scan first list
+ok 119 - scanIoRequest(drvs[0]->scan)==0x7
+# Scan second list
+ok 120 - scanIoRequest(drvs[1]->scan)==0x7
+# Wait for everything to start
+ok 121 - td->hasprocd==0
+ok 122 - td->hasprocd==0
+ok 123 - td->hasprocd==0
+ok 124 - td->hasprocd==0
+ok 125 - td->hasprocd==0
+ok 126 - td->hasprocd==0
+# Wait one more second
+ok 127 - data[0].hasprocd==1 (1)
+ok 128 - data[0].getcomplete==0 (0)
+ok 129 - data[1].hasprocd==1 (1)
+ok 130 - data[1].getcomplete==0 (0)
+ok 131 - data[2].hasprocd==1 (1)
+ok 132 - data[2].getcomplete==0 (0)
+ok 133 - data[3].hasprocd==1 (1)
+ok 134 - data[3].getcomplete==0 (0)
+ok 135 - data[4].hasprocd==1 (1)
+ok 136 - data[4].getcomplete==0 (0)
+ok 137 - data[5].hasprocd==1 (1)
+ok 138 - data[5].getcomplete==0 (0)
+# Release all and complete
+ok 139 - (0x0)&(0x4)==0
+ok 140 - (0x0)&(0x4)==0
+ok 141 - (0x4)&(0x2)==0
+ok 142 - (0x4)&(0x2)==0
+ok 143 - (0x6)&(0x1)==0
+ok 144 - (0x6)&(0x1)==0
+ok 145 - data[0].getcomplete==0 (1)
+ok 146 - data[1].getcomplete==0 (1)
+ok 147 - data[2].getcomplete==0 (1)
+ok 148 - data[3].getcomplete==0 (1)
+ok 149 - data[4].getcomplete==0 (1)
+ok 150 - data[5].getcomplete==0 (1)
+ok 151 - masks[0]==0x7
+ok 152 - masks[1]==0x7
+
+    Results
+    =======
+       Tests: 152
+      Passed: 152 = 100.00%
+
+***** dbLockTest *****
+1..88
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Check that all records have initialized lockRecord and lockSet
+ok  1 - reca.LSET != NULL
+ok  2 - reca.LSET.plockSet != NULL
+ok  3 - recb.LSET != NULL
+ok  4 - recb.LSET.plockSet != NULL
+ok  5 - recc.LSET != NULL
+ok  6 - recc.LSET.plockSet != NULL
+ok  7 - recd.LSET != NULL
+ok  8 - recd.LSET.plockSet != NULL
+ok  9 - rece.LSET != NULL
+ok 10 - rece.LSET.plockSet != NULL
+ok 11 - recf.LSET != NULL
+ok 12 - recf.LSET.plockSet != NULL
+ok 13 - recg.LSET != NULL
+ok 14 - recg.LSET.plockSet != NULL
+# Check initial creation of DB links
+ok 15 - dbLockGetLockId("reca")!=dbLockGetLockId("recb")
+ok 16 - dbLockGetLockId("reca")!=dbLockGetLockId("recc")
+ok 17 - dbLockGetLockId("reca")!=dbLockGetLockId("recd")
+ok 18 - dbLockGetLockId("reca")!=dbLockGetLockId("rece")
+ok 19 - dbLockGetLockId("reca")!=dbLockGetLockId("recf")
+ok 20 - dbLockGetLockId("recb")==dbLockGetLockId("recc")
+ok 21 - dbLockGetLockId("recb")!=dbLockGetLockId("recd")
+ok 22 - dbLockGetLockId("recb")!=dbLockGetLockId("rece")
+ok 23 - dbLockGetLockId("recb")!=dbLockGetLockId("recf")
+ok 24 - dbLockGetLockId("recc")!=dbLockGetLockId("recd")
+ok 25 - dbLockGetLockId("recc")!=dbLockGetLockId("rece")
+ok 26 - dbLockGetLockId("recc")!=dbLockGetLockId("recf")
+ok 27 - dbLockGetLockId("recd")==dbLockGetLockId("rece")
+ok 28 - dbLockGetLockId("recd")==dbLockGetLockId("recf")
+ok 29 - dbLockGetLockId("rece")==dbLockGetLockId("recf")
+ok 30 - testdbRecordPtr("reca")->lset->plockSet->refcount==1
+ok 31 - testdbRecordPtr("recb")->lset->plockSet->refcount==2
+ok 32 - testdbRecordPtr("recd")->lset->plockSet->refcount==3
+# testing dbScanLock()/dbScanUnlock()
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 33 - prec->lset->plockSet->refcount==1
+ok 34 - prec->lset->plockSet->refcount==1
+ok 35 - prec->lset->plockSet->refcount==1
+# Test multi-locker function (lock everything)
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Test init refcounts
+ok 36 - testdbRecordPtr("reca")->lset->plockSet->refcount (1) == 1 (1)
+ok 37 - testdbRecordPtr("recb")->lset->plockSet->refcount (2) == 2 (2)
+ok 38 - testdbRecordPtr("recd")->lset->plockSet->refcount (3) == 3 (3)
+ok 39 - testdbRecordPtr("recg")->lset->plockSet->refcount (1) == 1 (1)
+# After locker created
+ok 40 - testdbRecordPtr("reca")->lset->plockSet->refcount (2) == 2 (2)
+ok 41 - testdbRecordPtr("recb")->lset->plockSet->refcount (4) == 4 (4)
+ok 42 - testdbRecordPtr("recd")->lset->plockSet->refcount (6) == 6 (6)
+ok 43 - testdbRecordPtr("recg")->lset->plockSet->refcount (2) == 2 (2)
+# After locker locked
+ok 44 - ellCount(&plockA->locked) (4) == 4 (4)
+ok 45 - testdbRecordPtr("reca")->lset->plockSet->refcount (3) == 3 (3)
+ok 46 - testdbRecordPtr("recb")->lset->plockSet->refcount (5) == 5 (5)
+ok 47 - testdbRecordPtr("recd")->lset->plockSet->refcount (7) == 7 (7)
+ok 48 - testdbRecordPtr("recg")->lset->plockSet->refcount (3) == 3 (3)
+ok 49 - testdbRecordPtr("reca")->lset->plockSet->refcount (3) == 3 (3)
+# After locker unlocked
+ok 50 - testdbRecordPtr("reca")->lset->plockSet->refcount (2) == 2 (2)
+ok 51 - testdbRecordPtr("recb")->lset->plockSet->refcount (4) == 4 (4)
+ok 52 - testdbRecordPtr("recd")->lset->plockSet->refcount (6) == 6 (6)
+ok 53 - testdbRecordPtr("recg")->lset->plockSet->refcount (2) == 2 (2)
+# After locker free'd
+ok 54 - testdbRecordPtr("reca")->lset->plockSet->refcount (1) == 1 (1)
+ok 55 - testdbRecordPtr("recb")->lset->plockSet->refcount (2) == 2 (2)
+ok 56 - testdbRecordPtr("recd")->lset->plockSet->refcount (3) == 3 (3)
+ok 57 - testdbRecordPtr("recg")->lset->plockSet->refcount (1) == 1 (1)
+# Test break link
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 58 - precB->lset->plockSet==precC->lset->plockSet
+ok 59 - precB->lset->plockSet->refcount==2
+ok 60 - dbPutField(recb.SDIS, 0, ...) -> 0 ()
+ok 61 - precB->lset->plockSet!=precC->lset->plockSet
+ok 62 - precB->lset->plockSet->refcount (1) == 1 (1)
+ok 63 - precC->lset->plockSet->refcount (1) == 1 (1)
+# Test make link
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 64 - precA->lset->plockSet (0x9860e8) != precG->lset->plockSet (0x986388)
+ok 65 - precA->lset->plockSet->refcount (2) == 2 (2)
+ok 66 - precG->lset->plockSet->refcount (2) == 2 (2)
+ok 67 - dbPutField(reca.SDIS, 0, ...) -> 0 ()
+ok 68 - precA->lset->plockSet (0x9860e8) == precG->lset->plockSet (0x9860e8)
+ok 69 - precA->lset->plockSet->refcount (3) == 3 (3)
+ok 70 - lA->refcount (3) == 3 (3)
+ok 71 - lG->refcount (1) == 1 (1)
+# Test re-target link
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 72 - lB (0x985be8) == precC->lset->plockSet (0x985be8)
+ok 73 - lB (0x985be8) != lG (0x985e08)
+ok 74 - lB->refcount (3) == 3 (3)
+ok 75 - lG->refcount (2) == 2 (2)
+ok 76 - dbPutField(recb.SDIS, 0, ...) -> 0 ()
+ok 77 - precB->lset->plockSet (0x985be8) == lB (0x985be8)
+ok 78 - precG->lset->plockSet (0x985be8) == lB (0x985be8)
+ok 79 - precC->lset->plockSet (0x985c48) != lB (0x985be8)
+ok 80 - precC->lset->plockSet (0x985c48) != lG (0x985e08)
+ok 81 - lB->refcount (3) == 3 (3)
+ok 82 - lG->refcount (1) == 1 (1)
+ok 83 - precC->lset->plockSet->refcount (1) == 1 (1)
+# Test re-target link to the same destination
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 84 - precB->lset->plockSet==precC->lset->plockSet
+ok 85 - precB->lset->plockSet->refcount==2
+ok 86 - dbPutField(recb.SDIS, 0, ...) -> 0 ()
+ok 87 - precB->lset->plockSet==precC->lset->plockSet
+ok 88 - precB->lset->plockSet->refcount==2
+
+    Results
+    =======
+       Tests: 88 
+      Passed:  88 = 100.00%
+
+***** dbPutLinkTest *****
+1..290
+# link parsing
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Parse ""
+ok  1 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok  2 - info.ltype==td->info.ltype
+ok  3 - "" == ""
+# Parse "0.1"
+ok  4 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok  5 - info.ltype==td->info.ltype
+ok  6 - "0.1" == "0.1"
+# Parse "  0.2   "
+ok  7 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok  8 - info.ltype==td->info.ltype
+ok  9 - "0.2" == "0.2"
+# Parse "0.1a"
+ok 10 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 11 - info.ltype==td->info.ltype
+ok 12 - "0.1a" == "0.1a"
+ok 13 - info.modifiers==td->info.modifiers
+# Parse " hello "
+ok 14 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 15 - info.ltype==td->info.ltype
+ok 16 - "hello" == "hello"
+ok 17 - info.modifiers==td->info.modifiers
+# Parse " hellox MSI"
+ok 18 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 19 - info.ltype==td->info.ltype
+ok 20 - "hellox" == "hellox"
+ok 21 - info.modifiers==td->info.modifiers
+# Parse " world MSICP"
+ok 22 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 23 - info.ltype==td->info.ltype
+ok 24 - "world" == "world"
+ok 25 - info.modifiers==td->info.modifiers
+# Parse "#C14 S145 @testing"
+ok 26 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 27 - info.ltype==td->info.ltype
+ok 28 - "testing" == "testing"
+ok 29 - "CS" == "CS"
+ok 30 - 14 == 14
+ok 31 - 145 == 145
+# Parse "#B11 C12 N13 A14 F15 @cparam"
+ok 32 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 33 - info.ltype==td->info.ltype
+ok 34 - "cparam" == "cparam"
+# Parse " #B111 C112 N113 @cparam"
+ok 35 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 36 - info.ltype==td->info.ltype
+ok 37 - "cparam" == "cparam"
+# Parse " @hello world "
+ok 38 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 39 - info.ltype==td->info.ltype
+ok 40 - "hello world" == "hello world"
+# Parse " {"x":true} "
+ok 41 - dbParseLink(td->str, DBF_INLINK, &info)==0
+ok 42 - info.ltype==td->info.ltype
+ok 43 - "{"x":true}" == "{"x":true}"
+# link parsing of invalid input
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Expect failure "#"
+ok 44 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#S"
+ok 45 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#ABC"
+ok 46 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#A0 B"
+ok 47 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#A0 B @"
+ok 48 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#A0 B C @"
+ok 49 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#R1 M2 D3 E4 @oops"
+ok 50 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# Expect failure "#C1 S2"
+ok 51 - dbParseLink(*td, DBF_INLINK, &info)==S_dbLib_badField
+# DB/CA link retargeting
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# x1.LNK <- ""
+ok 52 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 53 - dbGetField("x1.LNK", 0) -> "" == ""
+ok 54 - plink->type==td->linkType
+ok 55 - strcmp(plink->value.constantStr,td->linkstring)==0
+# x1.LNK <- "0"
+ok 56 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 57 - dbGetField("x1.LNK", 0) -> "0" == "0"
+ok 58 - plink->type==td->linkType
+ok 59 - strcmp(plink->value.constantStr,td->linkstring)==0
+# x1.LNK <- "42"
+ok 60 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 61 - dbGetField("x1.LNK", 0) -> "42" == "42"
+ok 62 - plink->type==td->linkType
+ok 63 - strcmp(plink->value.constantStr,td->linkstring)==0
+# x1.LNK <- "0x1"
+ok 64 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 65 - dbGetField("x1.LNK", 0) -> "0x1" == "0x1"
+ok 66 - plink->type==td->linkType
+ok 67 - strcmp(plink->value.constantStr,td->linkstring)==0
+# x1.LNK <- "x1"
+ok 68 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 69 - dbGetField("x1.LNK", 0) -> "x1 NPP NMS" == "x1 NPP NMS"
+ok 70 - plink->type==td->linkType
+ok 71 - pvlMask 0 == 0
+# x1.LNK <- "x1.VAL"
+ok 72 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 73 - dbGetField("x1.LNK", 0) -> "x1.VAL NPP NMS" == "x1.VAL NPP NMS"
+ok 74 - plink->type==td->linkType
+ok 75 - pvlMask 0 == 0
+# x1.LNK <- "x1.TIME"
+ok 76 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 77 - dbGetField("x1.LNK", 0) -> "x1.TIME NPP NMS" == "x1.TIME NPP NMS"
+ok 78 - plink->type==td->linkType
+ok 79 - pvlMask 0 == 0
+# x1.LNK <- "x1 PP"
+ok 80 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 81 - dbGetField("x1.LNK", 0) -> "x1 PP NMS" == "x1 PP NMS"
+ok 82 - plink->type==td->linkType
+ok 83 - pvlMask 4 == 4
+# x1.LNK <- "x1 PP MSS"
+ok 84 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 85 - dbGetField("x1.LNK", 0) -> "x1 PP MSS" == "x1 PP MSS"
+ok 86 - plink->type==td->linkType
+ok 87 - pvlMask 7 == 7
+# x1.LNK <- "x1 PPMSS"
+ok 88 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 89 - dbGetField("x1.LNK", 0) -> "x1 PP MSS" == "x1 PP MSS"
+ok 90 - plink->type==td->linkType
+ok 91 - pvlMask 7 == 7
+# x1.LNK <- "x1 PPMSI"
+ok 92 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 93 - dbGetField("x1.LNK", 0) -> "x1 PP MSI" == "x1 PP MSI"
+ok 94 - plink->type==td->linkType
+ok 95 - pvlMask 6 == 6
+# x1.LNK <- "qq"
+ok 96 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 97 - dbGetField("x1.LNK", 0) -> "qq NPP NMS" == "qq NPP NMS"
+ok 98 - plink->type==td->linkType
+ok 99 - pvlMask 80 == 80
+# x1.LNK <- "qq MSI"
+ok 100 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 101 - dbGetField("x1.LNK", 0) -> "qq NPP MSI" == "qq NPP MSI"
+ok 102 - plink->type==td->linkType
+ok 103 - pvlMask 82 == 82
+# x1.LNK <- "qq MSICA"
+ok 104 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 105 - dbGetField("x1.LNK", 0) -> "qq CA MSI" == "qq CA MSI"
+ok 106 - plink->type==td->linkType
+ok 107 - pvlMask 8a == 8a
+# x1.LNK <- "x1 CA"
+ok 108 - dbPutField(x1.LNK, 0, ...) -> 0 ()
+ok 109 - dbGetField("x1.LNK", 0) -> "x1 CA NMS" == "x1 CA NMS"
+ok 110 - plink->type==td->linkType
+ok 111 - pvlMask 88 == 88
+# HW link parsing during initialization
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# rJSON_LINK == "{"x":true}"
+ok 112 - dbGetField("rJSON_LINK.INP", 0) -> "{"x":true}" == "{"x":true}"
+ok 113 - link type 8 == 8
+ok 114 - strcmp(plink->value.json.string, td->parm)==0
+# rVME_IO == "#C100 S101 @parm VME_IO"
+ok 115 - dbGetField("rVME_IO.INP", 0) -> "#C100 S101 @parm VME_IO" == "#C100 S101 @parm VME_IO"
+ok 116 - link type 2 == 2
+ok 117 - plink->value.vmeio.card==td->vals[0]
+ok 118 - plink->value.vmeio.signal==td->vals[1]
+ok 119 - strcmp(plink->value.vmeio.parm, td->parm)==0
+# rCAMAC_IO == "#B11 C12 N13 A14 F15 @parm CAMAC_IO"
+ok 120 - dbGetField("rCAMAC_IO.INP", 0) -> "#B11 C12 N13 A14 F15 @parm CAMAC_IO" == "#B11 C12 N13 A14 F15 @parm CAMAC_IO"
+ok 121 - link type 3 == 3
+ok 122 - plink->value.camacio.b==td->vals[0]
+ok 123 - plink->value.camacio.c==td->vals[1]
+ok 124 - plink->value.camacio.n==td->vals[2]
+ok 125 - plink->value.camacio.a==td->vals[3]
+ok 126 - plink->value.camacio.f==td->vals[4]
+ok 127 - strcmp(plink->value.camacio.parm, td->parm)==0
+# rAB_IO == "#L21 A22 C23 S24 @parm AB_IO"
+ok 128 - dbGetField("rAB_IO.INP", 0) -> "#L21 A22 C23 S24 @parm AB_IO" == "#L21 A22 C23 S24 @parm AB_IO"
+ok 129 - link type 4 == 4
+ok 130 - plink->value.abio.link==td->vals[0]
+ok 131 - plink->value.abio.adapter==td->vals[1]
+ok 132 - plink->value.abio.card==td->vals[2]
+ok 133 - plink->value.abio.signal==td->vals[3]
+ok 134 - strcmp(plink->value.abio.parm, td->parm)==0
+# rGPIB_IO == "#L31 A32 @parm GPIB_IO"
+ok 135 - dbGetField("rGPIB_IO.INP", 0) -> "#L31 A32 @parm GPIB_IO" == "#L31 A32 @parm GPIB_IO"
+ok 136 - link type 5 == 5
+ok 137 - plink->value.gpibio.link==td->vals[0]
+ok 138 - plink->value.gpibio.addr==td->vals[1]
+ok 139 - strcmp(plink->value.gpibio.parm, td->parm)==0
+# rBITBUS_IO == "#L41 N42 P43 S44 @parm BITBUS_IO"
+ok 140 - dbGetField("rBITBUS_IO.INP", 0) -> "#L41 N42 P43 S44 @parm BITBUS_IO" == "#L41 N42 P43 S44 @parm BITBUS_IO"
+ok 141 - link type 6 == 6
+ok 142 - plink->value.bitbusio.link==td->vals[0]
+ok 143 - plink->value.bitbusio.node==td->vals[1]
+ok 144 - plink->value.bitbusio.port==td->vals[2]
+ok 145 - plink->value.bitbusio.signal==td->vals[3]
+ok 146 - strcmp(plink->value.bitbusio.parm, td->parm)==0
+# rINST_IO == "@parm INST_IO"
+ok 147 - dbGetField("rINST_IO.INP", 0) -> "@parm INST_IO" == "@parm INST_IO"
+ok 148 - link type 12 == 12
+ok 149 - strcmp(plink->value.instio.string, td->parm)==0
+# rBBGPIB_IO == "#L51 B52 G53 @parm BBGPIB_IO"
+ok 150 - dbGetField("rBBGPIB_IO.INP", 0) -> "#L51 B52 G53 @parm BBGPIB_IO" == "#L51 B52 G53 @parm BBGPIB_IO"
+ok 151 - link type 13 == 13
+ok 152 - plink->value.bbgpibio.link==td->vals[0]
+ok 153 - plink->value.bbgpibio.bbaddr==td->vals[1]
+ok 154 - plink->value.bbgpibio.gpibaddr==td->vals[2]
+ok 155 - strcmp(plink->value.bbgpibio.parm, td->parm)==0
+# rRF_IO == "#R61 M62 D63 E64"
+ok 156 - dbGetField("rRF_IO.INP", 0) -> "#R61 M62 D63 E64" == "#R61 M62 D63 E64"
+ok 157 - link type 14 == 14
+ok 158 - plink->value.rfio.cryo==td->vals[0]
+ok 159 - plink->value.rfio.micro==td->vals[1]
+ok 160 - plink->value.rfio.dataset==td->vals[2]
+ok 161 - plink->value.rfio.element==td->vals[3]
+# rVXI_IO1 == "#V71 C72 S73 @parm1 VXI_IO"
+ok 162 - dbGetField("rVXI_IO1.INP", 0) -> "#V71 C72 S73 @parm1 VXI_IO" == "#V71 C72 S73 @parm1 VXI_IO"
+ok 163 - link type 15 == 15
+ok 164 - plink->value.vxiio.frame==td->vals[0]
+ok 165 - plink->value.vxiio.slot==td->vals[1]
+ok 166 - plink->value.vxiio.signal==td->vals[2]
+ok 167 - strcmp(plink->value.vxiio.parm, td->parm)==0
+# rVXI_IO2 == "#V81 S82 @parm2 VXI_IO"
+ok 168 - dbGetField("rVXI_IO2.INP", 0) -> "#V81 S82 @parm2 VXI_IO" == "#V81 S82 @parm2 VXI_IO"
+ok 169 - link type 15 == 15
+ok 170 - plink->value.vxiio.la==td->vals[0]
+ok 171 - plink->value.vxiio.signal==td->vals[1]
+ok 172 - strcmp(plink->value.vxiio.parm, td->parm)==0
+# HW link parsing during retarget
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# rJSON_LINK -> "{"x":true}"
+ok 173 - dbPutField(rJSON_LINK.INP, 0, ...) -> 0 ()
+ok 174 - dbGetField("rJSON_LINK.INP", 0) -> "{"x":true}" == "{"x":true}"
+ok 175 - link type 8 == 8
+ok 176 - strcmp(plink->value.json.string, td->parm)==0
+# rVME_IO -> "#C200 S201 @another VME_IO"
+ok 177 - dbPutField(rVME_IO.INP, 0, ...) -> 0 ()
+ok 178 - dbGetField("rVME_IO.INP", 0) -> "#C200 S201 @another VME_IO" == "#C200 S201 @another VME_IO"
+ok 179 - link type 2 == 2
+ok 180 - plink->value.vmeio.card==td->vals[0]
+ok 181 - plink->value.vmeio.signal==td->vals[1]
+ok 182 - strcmp(plink->value.vmeio.parm, td->parm)==0
+# rCAMAC_IO -> "#B111 C112 N113 A114 F115 @CAMAC_IO"
+ok 183 - dbPutField(rCAMAC_IO.INP, 0, ...) -> 0 ()
+ok 184 - dbGetField("rCAMAC_IO.INP", 0) -> "#B111 C112 N113 A114 F115 @CAMAC_IO" == "#B111 C112 N113 A114 F115 @CAMAC_IO"
+ok 185 - link type 3 == 3
+ok 186 - plink->value.camacio.b==td->vals[0]
+ok 187 - plink->value.camacio.c==td->vals[1]
+ok 188 - plink->value.camacio.n==td->vals[2]
+ok 189 - plink->value.camacio.a==td->vals[3]
+ok 190 - plink->value.camacio.f==td->vals[4]
+ok 191 - strcmp(plink->value.camacio.parm, td->parm)==0
+# rAB_IO -> "#L121 A122 C123 S124 @another AB_IO"
+ok 192 - dbPutField(rAB_IO.INP, 0, ...) -> 0 ()
+ok 193 - dbGetField("rAB_IO.INP", 0) -> "#L121 A122 C123 S124 @another AB_IO" == "#L121 A122 C123 S124 @another AB_IO"
+ok 194 - link type 4 == 4
+ok 195 - plink->value.abio.link==td->vals[0]
+ok 196 - plink->value.abio.adapter==td->vals[1]
+ok 197 - plink->value.abio.card==td->vals[2]
+ok 198 - plink->value.abio.signal==td->vals[3]
+ok 199 - strcmp(plink->value.abio.parm, td->parm)==0
+# rGPIB_IO -> "#L131 A132 @another GPIB_IO"
+ok 200 - dbPutField(rGPIB_IO.INP, 0, ...) -> 0 ()
+ok 201 - dbGetField("rGPIB_IO.INP", 0) -> "#L131 A132 @another GPIB_IO" == "#L131 A132 @another GPIB_IO"
+ok 202 - link type 5 == 5
+ok 203 - plink->value.gpibio.link==td->vals[0]
+ok 204 - plink->value.gpibio.addr==td->vals[1]
+ok 205 - strcmp(plink->value.gpibio.parm, td->parm)==0
+# rBITBUS_IO -> "#L141 N142 P143 S144 @BITBUS_IO"
+ok 206 - dbPutField(rBITBUS_IO.INP, 0, ...) -> 0 ()
+ok 207 - dbGetField("rBITBUS_IO.INP", 0) -> "#L141 N142 P143 S144 @BITBUS_IO" == "#L141 N142 P143 S144 @BITBUS_IO"
+ok 208 - link type 6 == 6
+ok 209 - plink->value.bitbusio.link==td->vals[0]
+ok 210 - plink->value.bitbusio.node==td->vals[1]
+ok 211 - plink->value.bitbusio.port==td->vals[2]
+ok 212 - plink->value.bitbusio.signal==td->vals[3]
+ok 213 - strcmp(plink->value.bitbusio.parm, td->parm)==0
+# rINST_IO -> "@another INST_IO"
+ok 214 - dbPutField(rINST_IO.INP, 0, ...) -> 0 ()
+ok 215 - dbGetField("rINST_IO.INP", 0) -> "@another INST_IO" == "@another INST_IO"
+ok 216 - link type 12 == 12
+ok 217 - strcmp(plink->value.instio.string, td->parm)==0
+# rBBGPIB_IO -> "#L151 B152 G153 @another BBGPIB_IO"
+ok 218 - dbPutField(rBBGPIB_IO.INP, 0, ...) -> 0 ()
+ok 219 - dbGetField("rBBGPIB_IO.INP", 0) -> "#L151 B152 G153 @another BBGPIB_IO" == "#L151 B152 G153 @another BBGPIB_IO"
+ok 220 - link type 13 == 13
+ok 221 - plink->value.bbgpibio.link==td->vals[0]
+ok 222 - plink->value.bbgpibio.bbaddr==td->vals[1]
+ok 223 - plink->value.bbgpibio.gpibaddr==td->vals[2]
+ok 224 - strcmp(plink->value.bbgpibio.parm, td->parm)==0
+# rRF_IO -> "#R161 M162 D163 E164"
+ok 225 - dbPutField(rRF_IO.INP, 0, ...) -> 0 ()
+ok 226 - dbGetField("rRF_IO.INP", 0) -> "#R161 M162 D163 E164" == "#R161 M162 D163 E164"
+ok 227 - link type 14 == 14
+ok 228 - plink->value.rfio.cryo==td->vals[0]
+ok 229 - plink->value.rfio.micro==td->vals[1]
+ok 230 - plink->value.rfio.dataset==td->vals[2]
+ok 231 - plink->value.rfio.element==td->vals[3]
+# rVXI_IO1 -> "#V171 C172 S173 @another1 VXI_IO"
+ok 232 - dbPutField(rVXI_IO1.INP, 0, ...) -> 0 ()
+ok 233 - dbGetField("rVXI_IO1.INP", 0) -> "#V171 C172 S173 @another1 VXI_IO" == "#V171 C172 S173 @another1 VXI_IO"
+ok 234 - link type 15 == 15
+ok 235 - plink->value.vxiio.frame==td->vals[0]
+ok 236 - plink->value.vxiio.slot==td->vals[1]
+ok 237 - plink->value.vxiio.signal==td->vals[2]
+ok 238 - strcmp(plink->value.vxiio.parm, td->parm)==0
+# rVXI_IO2 -> "#V181 S182 @another2 VXI_IO"
+ok 239 - dbPutField(rVXI_IO2.INP, 0, ...) -> 0 ()
+ok 240 - dbGetField("rVXI_IO2.INP", 0) -> "#V181 S182 @another2 VXI_IO" == "#V181 S182 @another2 VXI_IO"
+ok 241 - link type 15 == 15
+ok 242 - plink->value.vxiio.la==td->vals[0]
+ok 243 - plink->value.vxiio.signal==td->vals[1]
+ok 244 - strcmp(plink->value.vxiio.parm, td->parm)==0
+# Link parsing failures during initialization
+Warning: Registration already done.
+ok 245 - dbReadDatabase(&pdbbase, "dbBadLink.db", "." OSI_PATH_LIST_SEPARATOR ".." OSI_PATH_LIST_SEPARATOR "../O.Common" OSI_PATH_LIST_SEPARATOR "O.Common", NULL)!=0
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 246 - dbGetField("eVME_IO1.INP", 0) -> "#C0 S0 @" == "#C0 S0 @"
+ok 247 - plink->type==VME_IO
+ok 248 - plink->value.vmeio.parm!=NULL
+ok 249 - dbGetField("eVME_IO2.INP", 0) -> "#C0 S0 @" == "#C0 S0 @"
+ok 250 - plink->type==VME_IO
+ok 251 - plink->value.vmeio.parm!=NULL
+ok 252 - dbGetField("eINST_IO.INP", 0) -> "@" == "@"
+ok 253 - plink->type==INST_IO
+ok 254 - plink->value.instio.string!=NULL
+# Link parsing failures
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 255 - dbPutField("rINST_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 256 - dbPutField("rINST_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 257 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 258 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 259 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 260 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 261 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 262 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 263 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+dbJLinkInit: lexical error: invalid char in json text.
+                                  {"x":bbbb}
+                     (right here) ------^
+
+ok 264 - dbPutField("rJSON_LINK.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 265 - dbPutField("rVME_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 266 - dbPutField("rVME_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 267 - dbPutField("rVME_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 268 - dbPutField(rVME_IO.INP, 0, ...) -> 0 ()
+ok 269 - dbPutField("rVME_IO.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+# Test json link setup/retarget
+ok 270 - numzalloc==0 (0)
+# Link parsing failures
+Warning: Registration already done.
+# Alloc jlinkz 0x9ab160
+# Free jlinkz 0x9ab160
+# Alloc jlinkz 0x9ab1e0
+# Free jlinkz 0x9ab1e0
+# Alloc jlinkz 0x9ab1d8
+# Free jlinkz 0x9ab1d8
+ok 271 - numzalloc==0 (0)
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Alloc jlinkz 0x98fd98
+# Alloc jlinkz 0x98fdb8
+# Alloc jlinkz 0x98fdd8
+# Open jlinkz 0x98fd98
+# Open jlinkz 0x98fdb8
+# Open jlinkz 0x98fdd8
+ok 272 - numzalloc==3 (3)
+ok 273 - dbPutField(j1.PROC, 5, ...) -> 0 ()
+ok 274 - dbPutField(j2.PROC, 5, ...) -> 0 ()
+ok 275 - dbPutField(j3.PROC, 5, ...) -> 0 ()
+ok 276 - dbGetField("j1.INP", 0) -> "{"z":{"good":1}}" == "{"z":{"good":1}}"
+ok 277 - dbGetField("j1.VAL", 5) -> 1 == 1
+ok 278 - dbGetField("j2.VAL", 5) -> 2 == 2
+ok 279 - dbGetField("j3.VAL", 5) -> 3 == 3
+ok 280 - numzalloc==3 (3)
+# Alloc jlinkz 0x9b1060
+# Remove/free jlinkz 0x98fd98
+# Open jlinkz 0x9b1060
+ok 281 - dbPutField(j1.INP, 0, ...) -> 0 ()
+ok 282 - dbPutField(j1.PROC, 5, ...) -> 0 ()
+ok 283 - dbGetField("j1.VAL", 5) -> 4 == 4
+ok 284 - numzalloc==3 (3)
+# Alloc jlinkz 0x9b10a0
+# Found fail key jlinkz 0x9b10a0
+# Free jlinkz 0x9b10a0
+ok 285 - dbPutField("j1.INP", 0, ...) -> 34013195 ( Bad Field value ) == 34013195 ( Bad Field value )
+ok 286 - dbPutField(j1.PROC, 5, ...) -> 0 ()
+ok 287 - dbGetField("j1.VAL", 5) -> 4 == 4
+ok 288 - dbGetField("j1.INP", 0) -> "{"z":{"good":4}}" == "{"z":{"good":4}}"
+ok 289 - numzalloc==3 (3)
+# Remove/free jlinkz 0x9b1060
+# Remove/free jlinkz 0x98fdb8
+# Remove/free jlinkz 0x98fdd8
+ok 290 - numzalloc==0 (0)
+
+    Results
+    =======
+       Tests: 290
+      Passed: 290 = 100.00%
+
+***** dbCaLinkTest *****
+1..99
+# Link to a scalar numeric field
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok  1 - dbLockGetLockId((dbCommon*)psrc)!=dbLockGetLockId((dbCommon*)ptarg)
+ok  2 - psrclnk->type==CA_LINK
+# Preparing to wait on pca=0x991f48
+# Waiting on pca=0x991f48
+ok  3 - dbCaIsLinkConnected(psrclnk)
+ok  4 - dbCaGetNelements(psrclnk, &nReq)==0
+ok  5 - nReq (1) == 1l (1)
+ok  6 - dbGetLink(psrclnk, DBR_LONG, (void*)&temp, NULL, &nReq)==0
+ok  7 - temp (42) == 42 (42)
+ok  8 - putLink ok
+
+ok  9 - ptarg->val==1010
+# Link to a string field
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 10 - dbLockGetLockId((dbCommon*)psrc)!=dbLockGetLockId((dbCommon*)ptarg)
+ok 11 - psrclnk->type==CA_LINK
+# Preparing to wait on pca=0xa0eb70
+# Waiting on pca=0xa0eb70
+ok 12 - dbCaIsLinkConnected(psrclnk)
+ok 13 - dbGetLink(psrclnk, DBR_STRING, (void*)&temp, NULL, &nReq)==0
+ok 14 - hello == hello
+ok 15 - putLink ok
+
+ok 16 - world == world
+# Link CP modifier
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 17 - waitCounter (1) == 1 (1)
+ok 18 - waitCounter (2) == 2 (2)
+# Link to a array numeric field
+# TARGET=target CA,FTVL=LONG,SNELM=1,TNELM=1
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Preparing to wait on pca=0x9fe6e8
+# Waiting on pca=0x9fe6e8
+# fetch source.INP into source.BPTR
+ok 19 - dbGetLink
+ok 20 - nReq (1) == (long)num_min (1)
+ok 21 - array update
+# fetch source.INP into temp buffer w/ larger capacity
+ok 22 - dbGetLink
+ok 23 - nReq (1) == (long)ntarg (1)
+ok 24 - array update
+ok 25 - putLink ok
+
+ok 26 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 27 - putLink ok
+
+ok 28 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 29 - array update
+# Link to a array numeric field
+# TARGET=target CA,FTVL=LONG,SNELM=10,TNELM=1
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Preparing to wait on pca=0xa01b98
+# Waiting on pca=0xa01b98
+# fetch source.INP into source.BPTR
+ok 30 - dbGetLink
+ok 31 - nReq (1) == (long)num_min (1)
+ok 32 - array update
+# fetch source.INP into temp buffer w/ larger capacity
+ok 33 - dbGetLink
+ok 34 - nReq (1) == (long)ntarg (1)
+ok 35 - array update
+ok 36 - putLink ok
+
+ok 37 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 38 - putLink ok
+
+ok 39 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 40 - array update
+# Link to a array numeric field
+# TARGET=target CA,FTVL=LONG,SNELM=1,TNELM=10
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Preparing to wait on pca=0xa050a8
+# Waiting on pca=0xa050a8
+# fetch source.INP into source.BPTR
+ok 41 - dbGetLink
+ok 42 - nReq (1) == (long)num_min (1)
+ok 43 - array update
+# fetch source.INP into temp buffer w/ larger capacity
+ok 44 - dbGetLink
+ok 45 - nReq (10) == (long)ntarg (10)
+ok 46 - array update
+ok 47 - putLink ok
+
+ok 48 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 49 - putLink ok
+
+ok 50 - (long)ptarg->nord (1) == (long)num_min (1)
+ok 51 - array update
+# Link to a array numeric field
+# TARGET=target CA,FTVL=LONG,SNELM=10,TNELM=10
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# Preparing to wait on pca=0x9fdb08
+# Waiting on pca=0x9fdb08
+# fetch source.INP into source.BPTR
+ok 52 - dbGetLink
+ok 53 - nReq (10) == (long)num_min (10)
+ok 54 - array update
+# fetch source.INP into temp buffer w/ larger capacity
+ok 55 - dbGetLink
+ok 56 - nReq (10) == (long)ntarg (10)
+ok 57 - array update
+ok 58 - putLink ok
+
+ok 59 - (long)ptarg->nord (10) == (long)num_min (10)
+ok 60 - putLink ok
+
+ok 61 - (long)ptarg->nord (10) == (long)num_min (10)
+ok 62 - array update
+# Retarget an link to a PV with a different type DOUBLE->LONG
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 63 - dbGetLink() succeeds
+# Update one with original target
+ok 64 - dbGetLink() succeeds
+# source.VAL[0] - 1.000000
+ok 65 - (long)psrc->nord (5) == (long)5 (5)
+ok 66 - array update
+# Retarget
+ok 67 - dbPutField(source.INP, 0, ...) -> 0 ()
+ok 68 - dbGetLink() succeeds
+# source.VAL[0] - 2.000000
+ok 69 - (long)psrc->nord (5) == (long)5 (5)
+ok 70 - array update
+# Check local CA through libca
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok 71 - ca_create_channel("target1", NULL, NULL, 0, &chanid)
+ok 72 - ca_pend_io(1.0)
+# putgetarray(1.000000,1)
+# Put
+ok 73 - ca_array_put(DBR_DOUBLE, count, chanid, &buf[0])
+ok 74 - ca_pend_io(1.0)
+# Get
+ok 75 - ca_array_get(DBR_DOUBLE, count, chanid, &buf2[0])
+ok 76 - ca_pend_io(1.0)
+ok 77 - 1.000000 == 1.000000
+# putgetarray(2.000000,2)
+# Put
+ok 78 - ca_array_put(DBR_DOUBLE, count, chanid, &buf[0])
+ok 79 - ca_pend_io(1.0)
+# Get
+ok 80 - ca_array_get(DBR_DOUBLE, count, chanid, &buf2[0])
+ok 81 - ca_pend_io(1.0)
+ok 82 - 2.000000 == 2.000000
+ok 83 - 3.000000 == 3.000000
+# putgetarray(2.000000,2)
+# Put
+ok 84 - ca_array_put(DBR_DOUBLE, count, chanid, &buf[0])
+ok 85 - ca_pend_io(1.0)
+# Get
+ok 86 - ca_array_get(DBR_DOUBLE, count, chanid, &buf2[0])
+ok 87 - ca_pend_io(1.0)
+ok 88 - 2.000000 == 2.000000
+ok 89 - 3.000000 == 3.000000
+# putgetarray(5.000000,5)
+# Put
+ok 90 - ca_array_put(DBR_DOUBLE, count, chanid, &buf[0])
+ok 91 - ca_pend_io(1.0)
+# Get
+ok 92 - ca_array_get(DBR_DOUBLE, count, chanid, &buf2[0])
+ok 93 - ca_pend_io(1.0)
+ok 94 - 5.000000 == 5.000000
+ok 95 - 6.000000 == 6.000000
+ok 96 - 7.000000 == 7.000000
+ok 97 - 8.000000 == 8.000000
+ok 98 - 9.000000 == 9.000000
+ok 99 - ca_clear_channel(chanid)
+
+    Results
+    =======
+       Tests: 99 
+      Passed:  99 = 100.00%
+
+***** testDbChannel *****
+1..76
+Warning: Registration already done.
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+ok  1 - !dbChannelTest("x.NAME")
+ok  2 - !dbChannelTest("x.INP")
+ok  3 - !dbChannelTest("x.VAL")
+ok  4 - !dbChannelTest("x.")
+ok  5 - !dbChannelTest("x")
+ok  6 - Test, nonexistent record
+ok  7 - Test, nonexistent field
+ok  8 - !dbChannelTest("x.NAME$")
+ok  9 - !dbChannelTest("x.{}")
+ok 10 - !dbChannelTest("x.VAL{\"json\":true}")
+ok 11 - !!(pch = dbChannelCreate("x.{}"))
+ok 12 - !!(pch = dbChannelCreate("x.VAL{}"))
+ok 13 - pch && dbChannelElements(pch) == 1
+ok 14 - !!(pch = dbChannelCreate("x.NAME$"))
+ok 15 - pch && dbChannelFieldType(pch) == DBF_CHAR
+ok 16 - pch && dbChannelExportType(pch) == DBR_CHAR
+ok 17 - pch && dbChannelElements(pch) == PVNAME_STRINGSZ
+ok 18 - !!(pch = dbChannelCreate("x.INP$"))
+ok 19 - pch && dbChannelFieldType(pch) == DBF_INLINK
+ok 20 - pch && dbChannelExportType(pch) == DBR_CHAR
+ok 21 - pch && dbChannelElements(pch) > PVNAME_STRINGSZ
+ok 22 - !!(pch = dbChannelCreate("x.NAME${}"))
+ok 23 - pch && dbChannelFieldType(pch) == DBF_CHAR
+ok 24 - pch && dbChannelExportType(pch) == DBR_CHAR
+ok 25 - pch && dbChannelElements(pch) == PVNAME_STRINGSZ
+ok 26 - Create, bad record
+ok 27 - Create, bad field
+dbChannelCreate: lexical error: invalid string in json text.
+                                      {not-json}
+                     (right here) ------^
+
+ok 28 - Create, bad JSON
+ok 29 - Create, bad filter
+ok 30 - parse_start called
+ok 31 - !dbChannelCreate("x.{\"any\":null}")
+ok 32 - parse_start called
+ok 33 - parse_null called
+ok 34 - parse_abort called
+ok 35 - !dbChannelCreate("x.{\"any\":null}")
+ok 36 - parse_start called
+ok 37 - parse_null called
+ok 38 - parse_end called
+ok 39 - !dbChannelCreate("x.{\"any\":null}")
+ok 40 - parse_start called
+ok 41 - parse_null called
+ok 42 - parse_end called
+ok 43 - !!(pch = dbChannelCreate("x.{\"any\":null}"))
+ok 44 - channel_close called
+ok 45 - parse_start called
+ok 46 - parse_null called
+ok 47 - parse_end called
+ok 48 - !!(pch = dbChannelCreate("x.{\"scalar\":null}"))
+  Channel: 'x.{"scalar":null}'
+      field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+      1 filter (0 pre eventq, 0 post eventq)
+ok 49 - channel_report called, level = 0
+      final field_type=DBF_STRING (0B), 0 elements
+ok 50 - channel_close called
+ok 51 - parse_start called
+ok 52 - parse_start_array called
+ok 53 - parse_boolean called, val = 1
+ok 54 - parse_integer called, val = 1
+ok 55 - parse_end_array called
+ok 56 - parse_end called
+ok 57 - !!(pch = dbChannelCreate("x.{\"any\":[true,1]}"))
+ok 58 - channel_close called
+ok 59 - parse_start called
+ok 60 - parse_start_map called
+ok 61 - parse_map_key called, key = 'a'
+ok 62 - parse_double called, val = 2.7183
+ok 63 - parse_map_key called, key = 'b'
+ok 64 - parse_string called, val = 'c'
+ok 65 - parse_end_map called
+ok 66 - parse_end called
+ok 67 - !!(pch = dbChannelCreate("x.{\"any\":{\"a\":2.7183,\"b\":\"c\"}}"))
+ok 68 - channel_close called
+ok 69 - parse_start called
+ok 70 - parse_start_array called
+ok 71 - parse_abort called
+ok 72 - !dbChannelCreate("x.{\"scalar\":[null]}")
+ok 73 - parse_start called
+ok 74 - parse_start_map called
+ok 75 - parse_abort called
+ok 76 - !dbChannelCreate("x.{\"scalar\":{}}")
+
+    Results
+    =======
+       Tests: 76 
+      Passed:  76 = 100.00%
+
+***** arrShorthandTest *****
+1..26
+Warning: Registration already done.
+# --------------------------------------------------------
+# Register plugin
+# --------------------------------------------------------
+ok  1 - register fake arr plugin
+############################################################################
+## EPICS R3.16.0.1-DEV $$Date$$
+## EPICS Base built Feb  4 2017
+############################################################################
+# no parameters []
+ok  2 - dbChannelCreate ([]) fails
+# invalid char at beginning [x
+ok  3 - dbChannelCreate ([x) fails
+# invalid char after 1st arg [2x
+ok  4 - dbChannelCreate ([2x) fails
+# invalid char after 2nd arg [2:3x
+ok  5 - dbChannelCreate ([2:3x) fails
+# invalid char after 3rd arg [2:3:4x
+ok  6 - dbChannelCreate ([2:3:4x) fails
+# one element [index]
+ok  7 - dbChannelCreate ([2])
+ok  8 - parameters set correctly: s=2 i=1 e=2
+# to end [s:]
+ok  9 - dbChannelCreate ([2:])
+ok 10 - parameters set correctly: s=2 i=1 e=-1
+# to end [s::]
+ok 11 - dbChannelCreate ([2::])
+ok 12 - parameters set correctly: s=2 i=1 e=-1
+# to end with incr [s:i:]
+ok 13 - dbChannelCreate ([2:3:])
+ok 14 - parameters set correctly: s=2 i=3 e=-1
+# from beginning [:e]
+ok 15 - dbChannelCreate ([:2])
+ok 16 - parameters set correctly: s=0 i=1 e=2
+# from beginning [::e]
+ok 17 - dbChannelCreate ([::2])
+ok 18 - parameters set correctly: s=0 i=1 e=2
+# from begin with incr [:i:e]
+ok 19 - dbChannelCreate ([:3:2])
+ok 20 - parameters set correctly: s=0 i=3 e=2
+# range [s:e]
+ok 21 - dbChannelCreate ([2:4])
+ok 22 - parameters set correctly: s=2 i=1 e=4
+# range [s::e]
+ok 23 - dbChannelCreate ([2::4])
+ok 24 - parameters set correctly: s=2 i=1 e=4
+# range with incr [s:i:e]
+ok 25 - dbChannelCreate ([2:3:4])
+ok 26 - parameters set correctly: s=2 i=3 e=4
+
+    Results
+    =======
+       Tests: 26 
+      Passed:  26 = 100.00%
+
+***** recGblCheckDeadbandTest *****
+1..114
+ok  1 - deadband=-1.0: check for oldvalue=1.000000 newvalue=2.000000 (expected 1, got 1)
+ok  2 - mask set, oldval equals newval
+ok  3 - deadband=-1.0: check for oldvalue=0.000000 newvalue=2.000000 (expected 1, got 1)
+ok  4 - mask set, oldval equals newval
+ok  5 - deadband=-1.0: check for oldvalue=0.000000 newvalue=0.000000 (expected 1, got 1)
+ok  6 - mask set, oldval equals newval
+ok  7 - deadband=-1.0: check for oldvalue=-0.000000 newvalue=0.000000 (expected 1, got 1)
+ok  8 - mask set, oldval equals newval
+ok  9 - deadband=-1.0: check for oldvalue=1.000000 newvalue=nan (expected 1, got 1)
+ok 10 - mask set, oldval equals newval
+ok 11 - deadband=-1.0: check for oldvalue=1.000000 newvalue=inf (expected 1, got 1)
+ok 12 - mask set, oldval equals newval
+ok 13 - deadband=-1.0: check for oldvalue=1.000000 newvalue=-inf (expected 1, got 1)
+ok 14 - mask set, oldval equals newval
+ok 15 - deadband=-1.0: check for oldvalue=nan newvalue=1.000000 (expected 1, got 1)
+ok 16 - mask set, oldval equals newval
+ok 17 - deadband=-1.0: check for oldvalue=nan newvalue=nan (expected 1, got 1)
+ok 18 - mask set, oldval equals newval
+ok 19 - deadband=-1.0: check for oldvalue=nan newvalue=inf (expected 1, got 1)
+ok 20 - mask set, oldval equals newval
+ok 21 - deadband=-1.0: check for oldvalue=nan newvalue=-inf (expected 1, got 1)
+ok 22 - mask set, oldval equals newval
+ok 23 - deadband=-1.0: check for oldvalue=inf newvalue=1.000000 (expected 1, got 1)
+ok 24 - mask set, oldval equals newval
+ok 25 - deadband=-1.0: check for oldvalue=inf newvalue=nan (expected 1, got 1)
+ok 26 - mask set, oldval equals newval
+ok 27 - deadband=-1.0: check for oldvalue=inf newvalue=inf (expected 1, got 1)
+ok 28 - mask set, oldval equals newval
+ok 29 - deadband=-1.0: check for oldvalue=inf newvalue=-inf (expected 1, got 1)
+ok 30 - mask set, oldval equals newval
+ok 31 - deadband=-1.0: check for oldvalue=-inf newvalue=1.000000 (expected 1, got 1)
+ok 32 - mask set, oldval equals newval
+ok 33 - deadband=-1.0: check for oldvalue=-inf newvalue=nan (expected 1, got 1)
+ok 34 - mask set, oldval equals newval
+ok 35 - deadband=-1.0: check for oldvalue=-inf newvalue=inf (expected 1, got 1)
+ok 36 - mask set, oldval equals newval
+ok 37 - deadband=-1.0: check for oldvalue=-inf newvalue=-inf (expected 1, got 1)
+ok 38 - mask set, oldval equals newval
+ok 39 - deadband=0.0: check for oldvalue=1.000000 newvalue=2.000000 (expected 1, got 1)
+ok 40 - mask set, oldval equals newval
+ok 41 - deadband=0.0: check for oldvalue=0.000000 newvalue=2.000000 (expected 1, got 1)
+ok 42 - mask set, oldval equals newval
+ok 43 - deadband=0.0: check for oldvalue=0.000000 newvalue=0.000000 (expected 0, got 0)
+ok 44 - mask not set, oldval unchanged
+ok 45 - deadband=0.0: check for oldvalue=-0.000000 newvalue=0.000000 (expected 0, got 0)
+ok 46 - mask not set, oldval unchanged
+ok 47 - deadband=0.0: check for oldvalue=1.000000 newvalue=nan (expected 1, got 1)
+ok 48 - mask set, oldval equals newval
+ok 49 - deadband=0.0: check for oldvalue=1.000000 newvalue=inf (expected 1, got 1)
+ok 50 - mask set, oldval equals newval
+ok 51 - deadband=0.0: check for oldvalue=1.000000 newvalue=-inf (expected 1, got 1)
+ok 52 - mask set, oldval equals newval
+ok 53 - deadband=0.0: check for oldvalue=nan newvalue=1.000000 (expected 1, got 1)
+ok 54 - mask set, oldval equals newval
+ok 55 - deadband=0.0: check for oldvalue=nan newvalue=nan (expected 0, got 0)
+ok 56 - mask not set, oldval unchanged
+ok 57 - deadband=0.0: check for oldvalue=nan newvalue=inf (expected 1, got 1)
+ok 58 - mask set, oldval equals newval
+ok 59 - deadband=0.0: check for oldvalue=nan newvalue=-inf (expected 1, got 1)
+ok 60 - mask set, oldval equals newval
+ok 61 - deadband=0.0: check for oldvalue=inf newvalue=1.000000 (expected 1, got 1)
+ok 62 - mask set, oldval equals newval
+ok 63 - deadband=0.0: check for oldvalue=inf newvalue=nan (expected 1, got 1)
+ok 64 - mask set, oldval equals newval
+ok 65 - deadband=0.0: check for oldvalue=inf newvalue=inf (expected 0, got 0)
+ok 66 - mask not set, oldval unchanged
+ok 67 - deadband=0.0: check for oldvalue=inf newvalue=-inf (expected 1, got 1)
+ok 68 - mask set, oldval equals newval
+ok 69 - deadband=0.0: check for oldvalue=-inf newvalue=1.000000 (expected 1, got 1)
+ok 70 - mask set, oldval equals newval
+ok 71 - deadband=0.0: check for oldvalue=-inf newvalue=nan (expected 1, got 1)
+ok 72 - mask set, oldval equals newval
+ok 73 - deadband=0.0: check for oldvalue=-inf newvalue=inf (expected 1, got 1)
+ok 74 - mask set, oldval equals newval
+ok 75 - deadband=0.0: check for oldvalue=-inf newvalue=-inf (expected 0, got 0)
+ok 76 - mask not set, oldval unchanged
+ok 77 - deadband=1.5: check for oldvalue=1.000000 newvalue=2.000000 (expected 0, got 0)
+ok 78 - mask not set, oldval unchanged
+ok 79 - deadband=1.5: check for oldvalue=0.000000 newvalue=2.000000 (expected 1, got 1)
+ok 80 - mask set, oldval equals newval
+ok 81 - deadband=1.5: check for oldvalue=0.000000 newvalue=0.000000 (expected 0, got 0)
+ok 82 - mask not set, oldval unchanged
+ok 83 - deadband=1.5: check for oldvalue=-0.000000 newvalue=0.000000 (expected 0, got 0)
+ok 84 - mask not set, oldval unchanged
+ok 85 - deadband=1.5: check for oldvalue=1.000000 newvalue=nan (expected 1, got 1)
+ok 86 - mask set, oldval equals newval
+ok 87 - deadband=1.5: check for oldvalue=1.000000 newvalue=inf (expected 1, got 1)
+ok 88 - mask set, oldval equals newval
+ok 89 - deadband=1.5: check for oldvalue=1.000000 newvalue=-inf (expected 1, got 1)
+ok 90 - mask set, oldval equals newval
+ok 91 - deadband=1.5: check for oldvalue=nan newvalue=1.000000 (expected 1, got 1)
+ok 92 - mask set, oldval equals newval
+ok 93 - deadband=1.5: check for oldvalue=nan newvalue=nan (expected 0, got 0)
+ok 94 - mask not set, oldval unchanged
+ok 95 - deadband=1.5: check for oldvalue=nan newvalue=inf (expected 1, got 1)
+ok 96 - mask set, oldval equals newval
+ok 97 - deadband=1.5: check for oldvalue=nan newvalue=-inf (expected 1, got 1)
+ok 98 - mask set, oldval equals newval
+ok 99 - deadband=1.5: check for oldvalue=inf newvalue=1.000000 (expected 1, got 1)
+ok 100 - mask set, oldval equals newval
+ok 101 - deadband=1.5: check for oldvalue=inf newvalue=nan (expected 1, got 1)
+ok 102 - mask set, oldval equals newval
+ok 103 - deadband=1.5: check for oldvalue=inf newvalue=inf (expected 0, got 0)
+ok 104 - mask not set, oldval unchanged
+ok 105 - deadband=1.5: check for oldvalue=inf newvalue=-inf (expected 1, got 1)
+ok 106 - mask set, oldval equals newval
+ok 107 - deadband=1.5: check for oldvalue=-inf newvalue=1.000000 (expected 1, got 1)
+ok 108 - mask set, oldval equals newval
+ok 109 - deadband=1.5: check for oldvalue=-inf newvalue=nan (expected 1, got 1)
+ok 110 - mask set, oldval equals newval
+ok 111 - deadband=1.5: check for oldvalue=-inf newvalue=inf (expected 1, got 1)
+ok 112 - mask set, oldval equals newval
+ok 113 - deadband=1.5: check for oldvalue=-inf newvalue=-inf (expected 0, got 0)
+ok 114 - mask not set, oldval unchanged
+
+    Results
+    =======
+       Tests: 114
+      Passed: 114 = 100.00%
+
+***** chfPluginTest *****
+1..1433
+# --------------------------------------------------------
+# Enum to string conversion
+# --------------------------------------------------------
+ok  1 - Enum to string: R
+ok  2 - Enum to string: G
+ok  3 - Enum to string: B
+ok  4 - Enum to string: invalid index
+Warning: Registration already done.
+# --------------------------------------------------------
+# Try to register buggy plugins
+# --------------------------------------------------------
+ok  5 - not enough storage for integer
+ok  6 - not enough storage for double
+ok  7 - not enough storage for string
+ok  8 - not enough storage for enum
+# --------------------------------------------------------
+# Register plugins
+# --------------------------------------------------------
+ok  9 - register plugin sloppy-tagged
+ok 10 - register plugin strict-tagged
+ok 11 - register plugin strict
+ok 12 - register plugin noconv
+ok 13 - register plugin sloppy
+ok 14 - register plugin pre
+ok 15 - register plugin post
+ok 16 - register plugin alloc-fail
+# --------------------------------------------------------
+# Failing allocation of plugin private structures
+# --------------------------------------------------------
+ok 17 - allocPvt (1) called
+chfConfigParseStart: plugin pvt alloc failed
+ok 18 - create channel for alloc-fail: allocPvt returning NULL
+ok 19 - user part cleaned up
+ok 20 - all expected calls happened
+# --------------------------------------------------------
+# STRICT TAGGED parsing: all ok
+# --------------------------------------------------------
+ok 21 - allocPvt (1) called
+ok 22 - parse_ok (1) called
+ok 23 - create channel for strict-tagged parsing: D (t and d) and f
+ok 24 - guards intact, values correct
+ok 25 - all expected calls happened
+ok 26 - channel_close (1) called
+ok 27 - freePvt (1) called
+ok 28 - user part cleaned up
+ok 29 - all expected calls happened
+ok 30 - allocPvt (1) called
+ok 31 - parse_ok (1) called
+ok 32 - create channel for strict-tagged parsing: D2 (t and d) and f
+ok 33 - guards intact, values correct
+ok 34 - all expected calls happened
+ok 35 - channel_close (1) called
+ok 36 - freePvt (1) called
+ok 37 - user part cleaned up
+ok 38 - all expected calls happened
+ok 39 - allocPvt (1) called
+ok 40 - parse_error (1) called
+ok 41 - freePvt (1) called
+ok 42 - create channel for strict-tagged parsing: F (t and f), d missing
+ok 43 - user part cleaned up
+ok 44 - all expected calls happened
+ok 45 - allocPvt (1) called
+ok 46 - parse_error (1) called
+ok 47 - freePvt (1) called
+ok 48 - create channel for strict-tagged parsing: I (t and i) and f, d missing
+ok 49 - user part cleaned up
+ok 50 - all expected calls happened
+# --------------------------------------------------------
+# SLOPPY TAGGED parsing: all ok
+# --------------------------------------------------------
+ok 51 - allocPvt (1) called
+ok 52 - parse_ok (1) called
+ok 53 - create channel for sloppy-tagged parsing: I
+ok 54 - guards intact, values correct
+ok 55 - all expected calls happened
+ok 56 - channel_close (1) called
+ok 57 - freePvt (1) called
+ok 58 - user part cleaned up
+ok 59 - all expected calls happened
+ok 60 - allocPvt (1) called
+ok 61 - parse_ok (1) called
+ok 62 - create channel for sloppy-tagged parsing: F
+ok 63 - guards intact, values correct
+ok 64 - all expected calls happened
+ok 65 - channel_close (1) called
+ok 66 - freePvt (1) called
+ok 67 - user part cleaned up
+ok 68 - all expected calls happened
+ok 69 - allocPvt (1) called
+ok 70 - parse_ok (1) called
+ok 71 - create channel for sloppy-tagged parsing: D
+ok 72 - guards intact, values correct
+ok 73 - all expected calls happened
+ok 74 - channel_close (1) called
+ok 75 - freePvt (1) called
+ok 76 - user part cleaned up
+ok 77 - all expected calls happened
+ok 78 - allocPvt (1) called
+ok 79 - parse_ok (1) called
+ok 80 - create channel for sloppy-tagged parsing: S
+ok 81 - guards intact, values correct
+ok 82 - all expected calls happened
+ok 83 - channel_close (1) called
+ok 84 - freePvt (1) called
+ok 85 - user part cleaned up
+ok 86 - all expected calls happened
+ok 87 - allocPvt (1) called
+ok 88 - parse_ok (1) called
+ok 89 - create channel for sloppy-tagged parsing: C
+ok 90 - guards intact, values correct
+ok 91 - all expected calls happened
+ok 92 - channel_close (1) called
+ok 93 - freePvt (1) called
+ok 94 - user part cleaned up
+ok 95 - all expected calls happened
+# --------------------------------------------------------
+# STRICT parsing: all ok
+# --------------------------------------------------------
+ok 96 - allocPvt (1) called
+ok 97 - parse_ok (1) called
+ok 98 - create channel for strict parsing: JSON correct
+ok 99 - guards intact, values correct
+ok 100 - all expected calls happened
+ok 101 - channel_close (1) called
+ok 102 - freePvt (1) called
+ok 103 - user part cleaned up
+ok 104 - all expected calls happened
+# --------------------------------------------------------
+# STRICT parsing: any missing parameter must fail
+# --------------------------------------------------------
+ok 105 - allocPvt (1) called
+ok 106 - parse_error (1) called
+ok 107 - freePvt (1) called
+ok 108 - create channel for strict parsing: c missing
+ok 109 - user part cleaned up
+ok 110 - all expected calls happened
+ok 111 - allocPvt (1) called
+ok 112 - parse_error (1) called
+ok 113 - freePvt (1) called
+ok 114 - create channel for strict parsing: s missing
+ok 115 - user part cleaned up
+ok 116 - all expected calls happened
+ok 117 - allocPvt (1) called
+ok 118 - parse_error (1) called
+ok 119 - freePvt (1) called
+ok 120 - create channel for strict parsing: d missing
+ok 121 - user part cleaned up
+ok 122 - all expected calls happened
+ok 123 - allocPvt (1) called
+ok 124 - parse_error (1) called
+ok 125 - freePvt (1) called
+ok 126 - create channel for strict parsing: f missing
+ok 127 - user part cleaned up
+ok 128 - all expected calls happened
+ok 129 - allocPvt (1) called
+ok 130 - parse_error (1) called
+ok 131 - freePvt (1) called
+ok 132 - create channel for strict parsing: i missing
+ok 133 - user part cleaned up
+ok 134 - all expected calls happened
+# --------------------------------------------------------
+# NOCONV parsing: missing parameters get default value
+# --------------------------------------------------------
+ok 135 - allocPvt (1) called
+ok 136 - parse_ok (1) called
+ok 137 - create channel for noconv parsing: c missing
+ok 138 - guards intact, values correct
+ok 139 - all expected calls happened
+ok 140 - channel_close (1) called
+ok 141 - freePvt (1) called
+ok 142 - user part cleaned up
+ok 143 - all expected calls happened
+ok 144 - allocPvt (1) called
+ok 145 - parse_ok (1) called
+ok 146 - create channel for noconv parsing: s missing
+ok 147 - guards intact, values correct
+ok 148 - channel_close (1) called
+ok 149 - freePvt (1) called
+ok 150 - allocPvt (1) called
+ok 151 - parse_ok (1) called
+ok 152 - create channel for noconv parsing: d missing
+ok 153 - guards intact, values correct
+ok 154 - channel_close (1) called
+ok 155 - freePvt (1) called
+ok 156 - allocPvt (1) called
+ok 157 - parse_ok (1) called
+ok 158 - create channel for noconv parsing: f missing
+ok 159 - guards intact, values correct
+ok 160 - channel_close (1) called
+ok 161 - freePvt (1) called
+ok 162 - allocPvt (1) called
+ok 163 - parse_ok (1) called
+ok 164 - create channel for noconv parsing: i missing
+ok 165 - guards intact, values correct
+ok 166 - channel_close (1) called
+ok 167 - freePvt (1) called
+# --------------------------------------------------------
+# NOCONV parsing: rejection of wrong parameter types
+# --------------------------------------------------------
+ok 168 - allocPvt (1) called
+ok 169 - parse_error (1) called
+ok 170 - freePvt (1) called
+ok 171 - create channel for noconv parsing: wrong type double for i
+ok 172 - user part cleaned up
+ok 173 - all expected calls happened
+ok 174 - allocPvt (1) called
+ok 175 - parse_error (1) called
+ok 176 - freePvt (1) called
+ok 177 - create channel for noconv parsing: wrong type boolean for i
+ok 178 - user part cleaned up
+ok 179 - all expected calls happened
+ok 180 - allocPvt (1) called
+ok 181 - parse_error (1) called
+ok 182 - freePvt (1) called
+ok 183 - create channel for noconv parsing: wrong type string for i
+ok 184 - user part cleaned up
+ok 185 - all expected calls happened
+ok 186 - allocPvt (1) called
+ok 187 - parse_error (1) called
+ok 188 - freePvt (1) called
+ok 189 - create channel for noconv parsing: wrong type string for f
+ok 190 - user part cleaned up
+ok 191 - all expected calls happened
+ok 192 - allocPvt (1) called
+ok 193 - parse_error (1) called
+ok 194 - freePvt (1) called
+ok 195 - create channel for noconv parsing: wrong type double for f
+ok 196 - user part cleaned up
+ok 197 - all expected calls happened
+ok 198 - allocPvt (1) called
+ok 199 - parse_error (1) called
+ok 200 - freePvt (1) called
+ok 201 - create channel for noconv parsing: wrong type integer for f
+ok 202 - user part cleaned up
+ok 203 - all expected calls happened
+ok 204 - allocPvt (1) called
+ok 205 - parse_error (1) called
+ok 206 - freePvt (1) called
+ok 207 - create channel for noconv parsing: wrong type string for d
+ok 208 - user part cleaned up
+ok 209 - all expected calls happened
+ok 210 - allocPvt (1) called
+ok 211 - parse_error (1) called
+ok 212 - freePvt (1) called
+ok 213 - create channel for noconv parsing: wrong type boolean for d
+ok 214 - user part cleaned up
+ok 215 - all expected calls happened
+ok 216 - allocPvt (1) called
+ok 217 - parse_error (1) called
+ok 218 - freePvt (1) called
+ok 219 - create channel for noconv parsing: wrong type integer for d
+ok 220 - user part cleaned up
+ok 221 - all expected calls happened
+ok 222 - allocPvt (1) called
+ok 223 - parse_error (1) called
+ok 224 - freePvt (1) called
+ok 225 - create channel for noconv parsing: wrong type double for s
+ok 226 - user part cleaned up
+ok 227 - all expected calls happened
+ok 228 - allocPvt (1) called
+ok 229 - parse_error (1) called
+ok 230 - freePvt (1) called
+ok 231 - create channel for noconv parsing: wrong type boolean for s
+ok 232 - user part cleaned up
+ok 233 - all expected calls happened
+ok 234 - allocPvt (1) called
+ok 235 - parse_error (1) called
+ok 236 - freePvt (1) called
+ok 237 - create channel for noconv parsing: wrong type integer for s
+ok 238 - user part cleaned up
+ok 239 - all expected calls happened
+ok 240 - allocPvt (1) called
+ok 241 - parse_error (1) called
+ok 242 - freePvt (1) called
+ok 243 - create channel for noconv parsing: wrong type double for c
+ok 244 - user part cleaned up
+ok 245 - all expected calls happened
+ok 246 - allocPvt (1) called
+ok 247 - parse_error (1) called
+ok 248 - freePvt (1) called
+ok 249 - create channel for noconv parsing: wrong type boolean for c
+ok 250 - user part cleaned up
+ok 251 - all expected calls happened
+ok 252 - allocPvt (1) called
+ok 253 - parse_error (1) called
+ok 254 - freePvt (1) called
+ok 255 - create channel for noconv parsing: wrong type integer for c
+ok 256 - user part cleaned up
+ok 257 - all expected calls happened
+# --------------------------------------------------------
+# SLOPPY parsing: conversion to integer
+# --------------------------------------------------------
+# Calling dbChannelCreate x.{"sloppy":{"i":"123e4"}}
+ok 258 - allocPvt (1) called
+ok 259 - parse_ok (1) called
+ok 260 - create channel for sloppy parsing: positive string (good) for i
+ok 261 - guards intact, values correct
+ok 262 - create channel: all expected calls happened
+ok 263 - channel_close (1) called
+ok 264 - freePvt (1) called
+ok 265 - user part cleaned up
+ok 266 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":"-12345"}}
+ok 267 - allocPvt (1) called
+ok 268 - parse_ok (1) called
+ok 269 - create channel for sloppy parsing: negative string (good) for i
+ok 270 - guards intact, values correct
+ok 271 - create channel: all expected calls happened
+ok 272 - channel_close (1) called
+ok 273 - freePvt (1) called
+ok 274 - user part cleaned up
+ok 275 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":"9234567890"}}
+ok 276 - allocPvt (1) called
+ok 277 - parse_error (1) called
+ok 278 - freePvt (1) called
+ok 279 - create channel for sloppy parsing: out-of-range string (bad) for i
+ok 280 - user part cleaned up
+ok 281 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":".4"}}
+ok 282 - allocPvt (1) called
+ok 283 - parse_error (1) called
+ok 284 - freePvt (1) called
+ok 285 - create channel for sloppy parsing: invalid string (bad) for i
+ok 286 - user part cleaned up
+ok 287 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":false}}
+ok 288 - allocPvt (1) called
+ok 289 - parse_ok (1) called
+ok 290 - create channel for sloppy parsing: valid boolean (good) for i
+ok 291 - guards intact, values correct
+ok 292 - create channel: all expected calls happened
+ok 293 - channel_close (1) called
+ok 294 - freePvt (1) called
+ok 295 - user part cleaned up
+ok 296 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":3456.789}}
+ok 297 - allocPvt (1) called
+ok 298 - parse_ok (1) called
+ok 299 - create channel for sloppy parsing: valid double (good) for i
+ok 300 - guards intact, values correct
+ok 301 - create channel: all expected calls happened
+ok 302 - channel_close (1) called
+ok 303 - freePvt (1) called
+ok 304 - user part cleaned up
+ok 305 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"i":34.7e14}}
+ok 306 - allocPvt (1) called
+ok 307 - parse_error (1) called
+ok 308 - freePvt (1) called
+ok 309 - create channel for sloppy parsing: out-of-range double (bad) for i
+ok 310 - user part cleaned up
+ok 311 - create channel: all expected calls happened
+# --------------------------------------------------------
+# SLOPPY parsing: conversion to boolean
+# --------------------------------------------------------
+# Calling dbChannelCreate x.{"sloppy":{"f":"false"}}
+ok 312 - allocPvt (1) called
+ok 313 - parse_ok (1) called
+ok 314 - create channel for sloppy parsing: valid string (good) for f
+ok 315 - guards intact, values correct
+ok 316 - create channel: all expected calls happened
+ok 317 - channel_close (1) called
+ok 318 - freePvt (1) called
+ok 319 - user part cleaned up
+ok 320 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":"False"}}
+ok 321 - allocPvt (1) called
+ok 322 - parse_ok (1) called
+ok 323 - create channel for sloppy parsing: capital valid string (good) for f
+ok 324 - guards intact, values correct
+ok 325 - create channel: all expected calls happened
+ok 326 - channel_close (1) called
+ok 327 - freePvt (1) called
+ok 328 - user part cleaned up
+ok 329 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":"0"}}
+ok 330 - allocPvt (1) called
+ok 331 - parse_ok (1) called
+ok 332 - create channel for sloppy parsing: 0 string (good) for f
+ok 333 - guards intact, values correct
+ok 334 - create channel: all expected calls happened
+ok 335 - channel_close (1) called
+ok 336 - freePvt (1) called
+ok 337 - user part cleaned up
+ok 338 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":"15"}}
+ok 339 - allocPvt (1) called
+ok 340 - parse_ok (1) called
+ok 341 - create channel for sloppy parsing: 15 string (good) for f
+ok 342 - guards intact, values correct
+ok 343 - create channel: all expected calls happened
+ok 344 - channel_close (1) called
+ok 345 - freePvt (1) called
+ok 346 - user part cleaned up
+ok 347 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":".4"}}
+ok 348 - allocPvt (1) called
+ok 349 - parse_error (1) called
+ok 350 - freePvt (1) called
+ok 351 - create channel for sloppy parsing: invalid .4 string (bad) for f
+ok 352 - user part cleaned up
+ok 353 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":"Flase"}}
+ok 354 - allocPvt (1) called
+ok 355 - parse_error (1) called
+ok 356 - freePvt (1) called
+ok 357 - create channel for sloppy parsing: misspelled invalid string (bad) for f
+ok 358 - user part cleaned up
+ok 359 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":0}}
+ok 360 - allocPvt (1) called
+ok 361 - parse_ok (1) called
+ok 362 - create channel for sloppy parsing: zero integer (good) for f
+ok 363 - guards intact, values correct
+ok 364 - create channel: all expected calls happened
+ok 365 - channel_close (1) called
+ok 366 - freePvt (1) called
+ok 367 - user part cleaned up
+ok 368 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":12}}
+ok 369 - allocPvt (1) called
+ok 370 - parse_ok (1) called
+ok 371 - create channel for sloppy parsing: positive integer (good) for f
+ok 372 - guards intact, values correct
+ok 373 - create channel: all expected calls happened
+ok 374 - channel_close (1) called
+ok 375 - freePvt (1) called
+ok 376 - user part cleaned up
+ok 377 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":-1234}}
+ok 378 - allocPvt (1) called
+ok 379 - parse_ok (1) called
+ok 380 - create channel for sloppy parsing: negative integer (good) for f
+ok 381 - guards intact, values correct
+ok 382 - create channel: all expected calls happened
+ok 383 - channel_close (1) called
+ok 384 - freePvt (1) called
+ok 385 - user part cleaned up
+ok 386 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":0.4}}
+ok 387 - allocPvt (1) called
+ok 388 - parse_ok (1) called
+ok 389 - create channel for sloppy parsing: positive non-zero double (good) for f
+ok 390 - guards intact, values correct
+ok 391 - create channel: all expected calls happened
+ok 392 - channel_close (1) called
+ok 393 - freePvt (1) called
+ok 394 - user part cleaned up
+ok 395 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":0.0}}
+ok 396 - allocPvt (1) called
+ok 397 - parse_ok (1) called
+ok 398 - create channel for sloppy parsing: zero double (good) for f
+ok 399 - guards intact, values correct
+ok 400 - create channel: all expected calls happened
+ok 401 - channel_close (1) called
+ok 402 - freePvt (1) called
+ok 403 - user part cleaned up
+ok 404 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":-0.0}}
+ok 405 - allocPvt (1) called
+ok 406 - parse_ok (1) called
+ok 407 - create channel for sloppy parsing: minus-zero double (good) for f
+ok 408 - guards intact, values correct
+ok 409 - create channel: all expected calls happened
+ok 410 - channel_close (1) called
+ok 411 - freePvt (1) called
+ok 412 - user part cleaned up
+ok 413 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"f":-1.24e14}}
+ok 414 - allocPvt (1) called
+ok 415 - parse_ok (1) called
+ok 416 - create channel for sloppy parsing: negative double (good) for f
+ok 417 - guards intact, values correct
+ok 418 - create channel: all expected calls happened
+ok 419 - channel_close (1) called
+ok 420 - freePvt (1) called
+ok 421 - user part cleaned up
+ok 422 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# SLOPPY parsing: conversion to double
+# --------------------------------------------------------
+# Calling dbChannelCreate x.{"sloppy":{"d":"123e4"}}
+ok 423 - allocPvt (1) called
+ok 424 - parse_ok (1) called
+ok 425 - create channel for sloppy parsing: positive double string (good) for d
+ok 426 - guards intact, values correct
+ok 427 - create channel: all expected calls happened
+ok 428 - channel_close (1) called
+ok 429 - freePvt (1) called
+ok 430 - user part cleaned up
+ok 431 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":"-7.89e-14"}}
+ok 432 - allocPvt (1) called
+ok 433 - parse_ok (1) called
+ok 434 - create channel for sloppy parsing: negative double string (good) for d
+ok 435 - guards intact, values correct
+ok 436 - create channel: all expected calls happened
+ok 437 - channel_close (1) called
+ok 438 - freePvt (1) called
+ok 439 - user part cleaned up
+ok 440 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":"123"}}
+ok 441 - allocPvt (1) called
+ok 442 - parse_ok (1) called
+ok 443 - create channel for sloppy parsing: positive integer string (good) for d
+ok 444 - guards intact, values correct
+ok 445 - create channel: all expected calls happened
+ok 446 - channel_close (1) called
+ok 447 - freePvt (1) called
+ok 448 - user part cleaned up
+ok 449 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":"-1234567"}}
+ok 450 - allocPvt (1) called
+ok 451 - parse_ok (1) called
+ok 452 - create channel for sloppy parsing: negative integer string (good) for d
+ok 453 - guards intact, values correct
+ok 454 - create channel: all expected calls happened
+ok 455 - channel_close (1) called
+ok 456 - freePvt (1) called
+ok 457 - user part cleaned up
+ok 458 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":"1.67e407"}}
+ok 459 - allocPvt (1) called
+ok 460 - parse_error (1) called
+ok 461 - freePvt (1) called
+ok 462 - create channel for sloppy parsing: out-of-range double string (bad) for d
+ok 463 - user part cleaned up
+ok 464 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":"blubb"}}
+ok 465 - allocPvt (1) called
+ok 466 - parse_error (1) called
+ok 467 - freePvt (1) called
+ok 468 - create channel for sloppy parsing: invalid blubb string (bad) for d
+ok 469 - user part cleaned up
+ok 470 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":123}}
+ok 471 - allocPvt (1) called
+ok 472 - parse_ok (1) called
+ok 473 - create channel for sloppy parsing: positive integer (good) for d
+ok 474 - guards intact, values correct
+ok 475 - create channel: all expected calls happened
+ok 476 - channel_close (1) called
+ok 477 - freePvt (1) called
+ok 478 - user part cleaned up
+ok 479 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":-12345}}
+ok 480 - allocPvt (1) called
+ok 481 - parse_ok (1) called
+ok 482 - create channel for sloppy parsing: negative integer (good) for d
+ok 483 - guards intact, values correct
+ok 484 - create channel: all expected calls happened
+ok 485 - channel_close (1) called
+ok 486 - freePvt (1) called
+ok 487 - user part cleaned up
+ok 488 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":true}}
+ok 489 - allocPvt (1) called
+ok 490 - parse_ok (1) called
+ok 491 - create channel for sloppy parsing: true boolean (good) for d
+ok 492 - guards intact, values correct
+ok 493 - create channel: all expected calls happened
+ok 494 - channel_close (1) called
+ok 495 - freePvt (1) called
+ok 496 - user part cleaned up
+ok 497 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"d":false}}
+ok 498 - allocPvt (1) called
+ok 499 - parse_ok (1) called
+ok 500 - create channel for sloppy parsing: false boolean (good) for d
+ok 501 - guards intact, values correct
+ok 502 - create channel: all expected calls happened
+ok 503 - channel_close (1) called
+ok 504 - freePvt (1) called
+ok 505 - user part cleaned up
+ok 506 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# SLOPPY parsing: conversion to string
+# --------------------------------------------------------
+# Calling dbChannelCreate x.{"sloppy":{"s":12345}}
+ok 507 - allocPvt (1) called
+ok 508 - parse_ok (1) called
+ok 509 - create channel for sloppy parsing: positive integer (good) for s
+ok 510 - guards intact, values correct
+ok 511 - create channel: all expected calls happened
+ok 512 - channel_close (1) called
+ok 513 - freePvt (1) called
+ok 514 - user part cleaned up
+ok 515 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":-1234567891}}
+ok 516 - allocPvt (1) called
+ok 517 - parse_ok (1) called
+ok 518 - create channel for sloppy parsing: negative integer (good) for s
+ok 519 - guards intact, values correct
+ok 520 - create channel: all expected calls happened
+ok 521 - channel_close (1) called
+ok 522 - freePvt (1) called
+ok 523 - user part cleaned up
+ok 524 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":true}}
+ok 525 - allocPvt (1) called
+ok 526 - parse_ok (1) called
+ok 527 - create channel for sloppy parsing: true boolean (good) for s
+ok 528 - guards intact, values correct
+ok 529 - create channel: all expected calls happened
+ok 530 - channel_close (1) called
+ok 531 - freePvt (1) called
+ok 532 - user part cleaned up
+ok 533 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":false}}
+ok 534 - allocPvt (1) called
+ok 535 - parse_ok (1) called
+ok 536 - create channel for sloppy parsing: false boolean (good) for s
+ok 537 - guards intact, values correct
+ok 538 - create channel: all expected calls happened
+ok 539 - channel_close (1) called
+ok 540 - freePvt (1) called
+ok 541 - user part cleaned up
+ok 542 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":123e4}}
+ok 543 - allocPvt (1) called
+ok 544 - parse_ok (1) called
+ok 545 - create channel for sloppy parsing: small positive double (good) for s
+ok 546 - guards intact, values correct
+ok 547 - create channel: all expected calls happened
+ok 548 - channel_close (1) called
+ok 549 - freePvt (1) called
+ok 550 - user part cleaned up
+ok 551 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":-123e24}}
+ok 552 - allocPvt (1) called
+ok 553 - parse_ok (1) called
+ok 554 - create channel for sloppy parsing: negative double (good) for s
+ok 555 - guards intact, values correct
+ok 556 - create channel: all expected calls happened
+ok 557 - channel_close (1) called
+ok 558 - freePvt (1) called
+ok 559 - user part cleaned up
+ok 560 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"s":-1.23456789123e26}}
+ok 561 - allocPvt (1) called
+ok 562 - parse_ok (1) called
+ok 563 - create channel for sloppy parsing: large negative double (good) for s
+ok 564 - guards intact, values correct
+ok 565 - create channel: all expected calls happened
+ok 566 - channel_close (1) called
+ok 567 - freePvt (1) called
+ok 568 - user part cleaned up
+ok 569 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# SLOPPY parsing: conversion to enum
+# --------------------------------------------------------
+# Calling dbChannelCreate x.{"sloppy":{"c":2}}
+ok 570 - allocPvt (1) called
+ok 571 - parse_ok (1) called
+ok 572 - create channel for sloppy parsing: valid integer choice (good) for c
+ok 573 - guards intact, values correct
+ok 574 - create channel: all expected calls happened
+ok 575 - channel_close (1) called
+ok 576 - freePvt (1) called
+ok 577 - user part cleaned up
+ok 578 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"c":3}}
+ok 579 - allocPvt (1) called
+ok 580 - parse_error (1) called
+ok 581 - freePvt (1) called
+ok 582 - create channel for sloppy parsing: invalid integer choice (bad) for c
+ok 583 - user part cleaned up
+ok 584 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"c":3.2}}
+ok 585 - allocPvt (1) called
+ok 586 - parse_error (1) called
+ok 587 - freePvt (1) called
+ok 588 - create channel for sloppy parsing: double (bad) for c
+ok 589 - user part cleaned up
+ok 590 - create channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"c":"R"}}
+ok 591 - allocPvt (1) called
+ok 592 - parse_ok (1) called
+ok 593 - create channel for sloppy parsing: valid string choice (good) for c
+ok 594 - guards intact, values correct
+ok 595 - create channel: all expected calls happened
+ok 596 - channel_close (1) called
+ok 597 - freePvt (1) called
+ok 598 - user part cleaned up
+ok 599 - delete channel: all expected calls happened
+# Calling dbChannelCreate x.{"sloppy":{"c":"blubb"}}
+ok 600 - allocPvt (1) called
+ok 601 - parse_error (1) called
+ok 602 - freePvt (1) called
+ok 603 - create channel for sloppy parsing: invalid string choice (bad) for c
+ok 604 - user part cleaned up
+ok 605 - create channel: all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 pre filter
+# --------------------------------------------------------
+ok 606 - allocPvt (1) called
+ok 607 - parse_ok (1) called
+ok 608 - filter chains: create channel with 1 pre filter
+ok 609 - create channel: all expected calls happened
+ok 610 - channel_open (1) called
+ok 611 - register_pre (1) called
+ok 612 - register_pre (2) was not called before register_pre (1)
+ok 613 - register_post (1) was not called before register_pre (1)
+ok 614 - register_post (2) was not called before register_pre (1)
+ok 615 - dbChannelOpen returned channel
+ok 616 - open channel: all expected calls happened
+ok 617 - create db_field_log
+ok 618 - pre (1) called
+ok 619 - pre (2) was not called before pre (1)
+ok 620 - post (1) was not called before pre (1)
+ok 621 - post (2) was not called before pre (1)
+ok 622 - pre (1) got field log of expected type
+ok 623 - run pre eventq chain
+ok 624 - run post eventq chain
+ok 625 - final data type is correct
+ok 626 - dbfl_free (1) called
+ok 627 - dbfl_free (1): db_field_log pointer correct
+ok 628 - run filter chains: all expected calls happened
+Channel: 'x.{"pre":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    1 filter (1 pre eventq, 0 post eventq)
+ok 629 - channel_report: level correct 40 == 40
+ok 630 - channel_report (1) called
+    final field_type=DBF_ULONG (4B), 1 element
+ok 631 - report: all expected calls happened
+ok 632 - channel_close (1) called
+ok 633 - freePvt (1) called
+ok 634 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 post filter
+# --------------------------------------------------------
+ok 635 - allocPvt (1) called
+ok 636 - parse_ok (1) called
+ok 637 - filter chains: create channel with 1 post filter
+ok 638 - create channel: all expected calls happened
+ok 639 - channel_open (1) called
+ok 640 - register_post (1) called
+ok 641 - register_post (2) was not called before register_post (1)
+ok 642 - register_pre (1) was called before register_post (1)
+ok 643 - register_pre (2) was called before register_post (1)
+ok 644 - dbChannelOpen returned channel
+ok 645 - open channel: all expected calls happened
+ok 646 - create db_field_log
+ok 647 - run pre eventq chain
+ok 648 - post (1) called
+ok 649 - post (2) was not called before post (1)
+ok 650 - pre (1) was called before post (1)
+ok 651 - pre (2) was called before post (1)
+ok 652 - post (1) got field log of expected type
+ok 653 - run post eventq chain
+ok 654 - final data type is correct
+ok 655 - dbfl_free (1) called
+ok 656 - dbfl_free (1): db_field_log pointer correct
+ok 657 - run filter chains: all expected calls happened
+Channel: 'x.{"post":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    1 filter (0 pre eventq, 1 post eventq)
+ok 658 - channel_report: level correct 40 == 40
+ok 659 - channel_report (1) called
+    final field_type=DBF_ULONG (4B), 1 element
+ok 660 - report: all expected calls happened
+ok 661 - channel_close (1) called
+ok 662 - freePvt (1) called
+ok 663 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 both filter
+# --------------------------------------------------------
+ok 664 - allocPvt (1) called
+ok 665 - parse_ok (1) called
+ok 666 - filter chains: create channel with 1 both filter
+ok 667 - create channel: all expected calls happened
+ok 668 - channel_open (1) called
+ok 669 - register_pre (1) called
+ok 670 - register_pre (2) was not called before register_pre (1)
+ok 671 - register_post (1) was not called before register_pre (1)
+ok 672 - register_post (2) was not called before register_pre (1)
+ok 673 - register_post (1) called
+ok 674 - register_post (2) was not called before register_post (1)
+ok 675 - register_pre (1) was called before register_post (1)
+ok 676 - register_pre (2) was called before register_post (1)
+ok 677 - dbChannelOpen returned channel
+ok 678 - open channel: all expected calls happened
+ok 679 - create db_field_log
+ok 680 - pre (1) called
+ok 681 - pre (2) was not called before pre (1)
+ok 682 - post (1) was not called before pre (1)
+ok 683 - post (2) was not called before pre (1)
+ok 684 - pre (1) got field log of expected type
+ok 685 - run pre eventq chain
+ok 686 - post (1) called
+ok 687 - post (2) was not called before post (1)
+ok 688 - pre (1) was called before post (1)
+ok 689 - pre (2) was called before post (1)
+ok 690 - post (1) got field log of expected type
+ok 691 - run post eventq chain
+ok 692 - final data type is correct
+ok 693 - dbfl_free (1) called
+ok 694 - dbfl_free (1): db_field_log pointer correct
+ok 695 - run filter chains: all expected calls happened
+Channel: 'x.{"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    1 filter (1 pre eventq, 1 post eventq)
+ok 696 - channel_report: level correct 40 == 40
+ok 697 - channel_report (1) called
+    final field_type=DBF_INT64 (4B), 1 element
+ok 698 - report: all expected calls happened
+ok 699 - channel_close (1) called
+ok 700 - freePvt (1) called
+ok 701 - delete channel: all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 pre filters
+# --------------------------------------------------------
+ok 702 - allocPvt (1) called
+ok 703 - parse_ok (1) called
+ok 704 - allocPvt (2) called
+ok 705 - parse_ok (2) called
+ok 706 - filter chains: create channel with 2 pre filters
+ok 707 - create channel (1): all expected calls happened
+ok 708 - create channel (2): all expected calls happened
+ok 709 - channel_open (1) called
+ok 710 - channel_open (2) called
+ok 711 - register_pre (1) called
+ok 712 - register_pre (2) was not called before register_pre (1)
+ok 713 - register_post (1) was not called before register_pre (1)
+ok 714 - register_post (2) was not called before register_pre (1)
+ok 715 - register_pre (2) called
+ok 716 - register_pre (1) was called before register_pre (2)
+ok 717 - register_post (1) was not called before register_pre (2)
+ok 718 - register_post (2) was not called before register_pre (2)
+ok 719 - dbChannelOpen returned channel
+ok 720 - open channel (1): all expected calls happened
+ok 721 - open channel (2): all expected calls happened
+ok 722 - create db_field_log
+ok 723 - pre (1) called
+ok 724 - pre (2) was not called before pre (1)
+ok 725 - post (1) was not called before pre (1)
+ok 726 - post (2) was not called before pre (1)
+ok 727 - pre (1) got field log of expected type
+ok 728 - pre (2) called
+ok 729 - pre (1) was called before pre (2)
+ok 730 - post (1) was not called before pre (2)
+ok 731 - post (2) was not called before pre (2)
+ok 732 - pre (2) got field log of expected type
+ok 733 - run pre eventq chain
+ok 734 - run post eventq chain
+ok 735 - final data type is correct
+ok 736 - dbfl_free (1) called
+ok 737 - dbfl_free (1): db_field_log pointer correct
+ok 738 - run filter chains (1): all expected calls happened
+ok 739 - run filter chains (2): all expected calls happened
+Channel: 'x.{"pre":{},"pre":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 0 post eventq)
+ok 740 - channel_report: level correct 40 == 40
+ok 741 - channel_report (1) called
+ok 742 - channel_report: level correct 40 == 40
+ok 743 - channel_report (2) called
+    final field_type=DBF_INT64 (4B), 1 element
+ok 744 - report (1): all expected calls happened
+ok 745 - report (2): all expected calls happened
+ok 746 - channel_close (2) called
+ok 747 - freePvt (2) called
+ok 748 - channel_close (1) called
+ok 749 - freePvt (1) called
+ok 750 - delete channel (1): all expected calls happened
+ok 751 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 post filters
+# --------------------------------------------------------
+ok 752 - allocPvt (1) called
+ok 753 - parse_ok (1) called
+ok 754 - allocPvt (2) called
+ok 755 - parse_ok (2) called
+ok 756 - filter chains: create channel with 2 post filters
+ok 757 - create channel (1): all expected calls happened
+ok 758 - create channel (2): all expected calls happened
+ok 759 - channel_open (1) called
+ok 760 - channel_open (2) called
+ok 761 - register_post (1) called
+ok 762 - register_post (2) was not called before register_post (1)
+ok 763 - register_pre (1) was called before register_post (1)
+ok 764 - register_pre (2) was called before register_post (1)
+ok 765 - register_post (2) called
+ok 766 - register_post (1) was called before register_post (2)
+ok 767 - register_pre (1) was called before register_post (2)
+ok 768 - register_pre (2) was called before register_post (2)
+ok 769 - dbChannelOpen returned channel
+ok 770 - open channel (1): all expected calls happened
+ok 771 - open channel (2): all expected calls happened
+ok 772 - create db_field_log
+ok 773 - run pre eventq chain
+ok 774 - post (1) called
+ok 775 - post (2) was not called before post (1)
+ok 776 - pre (1) was called before post (1)
+ok 777 - pre (2) was called before post (1)
+ok 778 - post (1) got field log of expected type
+ok 779 - post (2) called
+ok 780 - post (1) was called before post (2)
+ok 781 - pre (1) was called before post (2)
+ok 782 - pre (2) was called before post (2)
+ok 783 - post (2) got field log of expected type
+ok 784 - run post eventq chain
+ok 785 - final data type is correct
+ok 786 - dbfl_free (1) called
+ok 787 - dbfl_free (1): db_field_log pointer correct
+ok 788 - run filter chains (1): all expected calls happened
+ok 789 - run filter chains (2): all expected calls happened
+Channel: 'x.{"post":{},"post":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (0 pre eventq, 2 post eventq)
+ok 790 - channel_report: level correct 40 == 40
+ok 791 - channel_report (1) called
+ok 792 - channel_report: level correct 40 == 40
+ok 793 - channel_report (2) called
+    final field_type=DBF_INT64 (4B), 1 element
+ok 794 - report (1): all expected calls happened
+ok 795 - report (2): all expected calls happened
+ok 796 - channel_close (2) called
+ok 797 - freePvt (2) called
+ok 798 - channel_close (1) called
+ok 799 - freePvt (1) called
+ok 800 - delete channel (1): all expected calls happened
+ok 801 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 both filters
+# --------------------------------------------------------
+ok 802 - allocPvt (1) called
+ok 803 - parse_ok (1) called
+ok 804 - allocPvt (2) called
+ok 805 - parse_ok (2) called
+ok 806 - filter chains: create channel with 2 both filters
+ok 807 - create channel (1): all expected calls happened
+ok 808 - create channel (2): all expected calls happened
+ok 809 - channel_open (1) called
+ok 810 - channel_open (2) called
+ok 811 - register_pre (1) called
+ok 812 - register_pre (2) was not called before register_pre (1)
+ok 813 - register_post (1) was not called before register_pre (1)
+ok 814 - register_post (2) was not called before register_pre (1)
+ok 815 - register_pre (2) called
+ok 816 - register_pre (1) was called before register_pre (2)
+ok 817 - register_post (1) was not called before register_pre (2)
+ok 818 - register_post (2) was not called before register_pre (2)
+ok 819 - register_post (1) called
+ok 820 - register_post (2) was not called before register_post (1)
+ok 821 - register_pre (1) was called before register_post (1)
+ok 822 - register_pre (2) was called before register_post (1)
+ok 823 - register_post (2) called
+ok 824 - register_post (1) was called before register_post (2)
+ok 825 - register_pre (1) was called before register_post (2)
+ok 826 - register_pre (2) was called before register_post (2)
+ok 827 - dbChannelOpen returned channel
+ok 828 - open channel (1): all expected calls happened
+ok 829 - open channel (2): all expected calls happened
+ok 830 - create db_field_log
+ok 831 - pre (1) called
+ok 832 - pre (2) was not called before pre (1)
+ok 833 - post (1) was not called before pre (1)
+ok 834 - post (2) was not called before pre (1)
+ok 835 - pre (1) got field log of expected type
+ok 836 - pre (2) called
+ok 837 - pre (1) was called before pre (2)
+ok 838 - post (1) was not called before pre (2)
+ok 839 - post (2) was not called before pre (2)
+ok 840 - pre (2) got field log of expected type
+ok 841 - run pre eventq chain
+ok 842 - post (1) called
+ok 843 - post (2) was not called before post (1)
+ok 844 - pre (1) was called before post (1)
+ok 845 - pre (2) was called before post (1)
+ok 846 - post (1) got field log of expected type
+ok 847 - post (2) called
+ok 848 - post (1) was called before post (2)
+ok 849 - pre (1) was called before post (2)
+ok 850 - pre (2) was called before post (2)
+ok 851 - post (2) got field log of expected type
+ok 852 - run post eventq chain
+ok 853 - final data type is correct
+ok 854 - dbfl_free (1) called
+ok 855 - dbfl_free (1): db_field_log pointer correct
+ok 856 - run filter chains (1): all expected calls happened
+ok 857 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 2 post eventq)
+ok 858 - channel_report: level correct 40 == 40
+ok 859 - channel_report (1) called
+ok 860 - channel_report: level correct 40 == 40
+ok 861 - channel_report (2) called
+    final field_type=DBF_FLOAT (4B), 1 element
+ok 862 - report (1): all expected calls happened
+ok 863 - report (2): all expected calls happened
+ok 864 - channel_close (2) called
+ok 865 - freePvt (2) called
+ok 866 - channel_close (1) called
+ok 867 - freePvt (1) called
+ok 868 - delete channel (1): all expected calls happened
+ok 869 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 pre, 1 post filters
+# --------------------------------------------------------
+ok 870 - allocPvt (1) called
+ok 871 - parse_ok (1) called
+ok 872 - allocPvt (2) called
+ok 873 - parse_ok (2) called
+ok 874 - filter chains: create channel with 1 pre, 1 post filters
+ok 875 - create channel (1): all expected calls happened
+ok 876 - create channel (2): all expected calls happened
+ok 877 - channel_open (1) called
+ok 878 - channel_open (2) called
+ok 879 - register_pre (1) called
+ok 880 - register_pre (2) was not called before register_pre (1)
+ok 881 - register_post (1) was not called before register_pre (1)
+ok 882 - register_post (2) was not called before register_pre (1)
+ok 883 - register_post (2) called
+ok 884 - register_post (1) was called before register_post (2)
+ok 885 - register_pre (1) was called before register_post (2)
+ok 886 - register_pre (2) was called before register_post (2)
+ok 887 - dbChannelOpen returned channel
+ok 888 - open channel (1): all expected calls happened
+ok 889 - open channel (2): all expected calls happened
+ok 890 - create db_field_log
+ok 891 - pre (1) called
+ok 892 - pre (2) was not called before pre (1)
+ok 893 - post (1) was not called before pre (1)
+ok 894 - post (2) was not called before pre (1)
+ok 895 - pre (1) got field log of expected type
+ok 896 - run pre eventq chain
+ok 897 - post (2) called
+ok 898 - post (1) was called before post (2)
+ok 899 - pre (1) was called before post (2)
+ok 900 - pre (2) was called before post (2)
+ok 901 - post (2) got field log of expected type
+ok 902 - run post eventq chain
+ok 903 - final data type is correct
+ok 904 - dbfl_free (1) called
+ok 905 - dbfl_free (1): db_field_log pointer correct
+ok 906 - run filter chains (1): all expected calls happened
+ok 907 - run filter chains (2): all expected calls happened
+Channel: 'x.{"pre":{},"post":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (1 pre eventq, 1 post eventq)
+ok 908 - channel_report: level correct 40 == 40
+ok 909 - channel_report (1) called
+ok 910 - channel_report: level correct 40 == 40
+ok 911 - channel_report (2) called
+    final field_type=DBF_INT64 (4B), 1 element
+ok 912 - report (1): all expected calls happened
+ok 913 - report (2): all expected calls happened
+ok 914 - channel_close (2) called
+ok 915 - freePvt (2) called
+ok 916 - channel_close (1) called
+ok 917 - freePvt (1) called
+ok 918 - delete channel (1): all expected calls happened
+ok 919 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 post, 1 pre filters
+# --------------------------------------------------------
+ok 920 - allocPvt (1) called
+ok 921 - parse_ok (1) called
+ok 922 - allocPvt (2) called
+ok 923 - parse_ok (2) called
+ok 924 - filter chains: create channel with 1 post, 1 pre filters
+ok 925 - create channel (1): all expected calls happened
+ok 926 - create channel (2): all expected calls happened
+ok 927 - channel_open (1) called
+ok 928 - channel_open (2) called
+ok 929 - register_pre (2) called
+ok 930 - register_pre (1) was called before register_pre (2)
+ok 931 - register_post (1) was not called before register_pre (2)
+ok 932 - register_post (2) was not called before register_pre (2)
+ok 933 - register_post (1) called
+ok 934 - register_post (2) was not called before register_post (1)
+ok 935 - register_pre (1) was called before register_post (1)
+ok 936 - register_pre (2) was called before register_post (1)
+ok 937 - dbChannelOpen returned channel
+ok 938 - open channel (1): all expected calls happened
+ok 939 - open channel (2): all expected calls happened
+ok 940 - create db_field_log
+ok 941 - pre (2) called
+ok 942 - pre (1) was called before pre (2)
+ok 943 - post (1) was not called before pre (2)
+ok 944 - post (2) was not called before pre (2)
+ok 945 - pre (2) got field log of expected type
+ok 946 - run pre eventq chain
+ok 947 - post (1) called
+ok 948 - post (2) was not called before post (1)
+ok 949 - pre (1) was called before post (1)
+ok 950 - pre (2) was called before post (1)
+ok 951 - post (1) got field log of expected type
+ok 952 - run post eventq chain
+ok 953 - final data type is correct
+ok 954 - dbfl_free (2) called
+ok 955 - dbfl_free (2): db_field_log pointer correct
+ok 956 - run filter chains (1): all expected calls happened
+ok 957 - run filter chains (2): all expected calls happened
+Channel: 'x.{"post":{},"pre":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (1 pre eventq, 1 post eventq)
+ok 958 - channel_report: level correct 40 == 40
+ok 959 - channel_report (1) called
+ok 960 - channel_report: level correct 40 == 40
+ok 961 - channel_report (2) called
+    final field_type=DBF_INT64 (4B), 1 element
+ok 962 - report (1): all expected calls happened
+ok 963 - report (2): all expected calls happened
+ok 964 - channel_close (2) called
+ok 965 - freePvt (2) called
+ok 966 - channel_close (1) called
+ok 967 - freePvt (1) called
+ok 968 - delete channel (1): all expected calls happened
+ok 969 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 pre, 1 both filters
+# --------------------------------------------------------
+ok 970 - allocPvt (1) called
+ok 971 - parse_ok (1) called
+ok 972 - allocPvt (2) called
+ok 973 - parse_ok (2) called
+ok 974 - filter chains: create channel with 1 pre, 1 both filters
+ok 975 - create channel (1): all expected calls happened
+ok 976 - create channel (2): all expected calls happened
+ok 977 - channel_open (1) called
+ok 978 - channel_open (2) called
+ok 979 - register_pre (1) called
+ok 980 - register_pre (2) was not called before register_pre (1)
+ok 981 - register_post (1) was not called before register_pre (1)
+ok 982 - register_post (2) was not called before register_pre (1)
+ok 983 - register_pre (2) called
+ok 984 - register_pre (1) was called before register_pre (2)
+ok 985 - register_post (1) was not called before register_pre (2)
+ok 986 - register_post (2) was not called before register_pre (2)
+ok 987 - register_post (2) called
+ok 988 - register_post (1) was called before register_post (2)
+ok 989 - register_pre (1) was called before register_post (2)
+ok 990 - register_pre (2) was called before register_post (2)
+ok 991 - dbChannelOpen returned channel
+ok 992 - open channel (1): all expected calls happened
+ok 993 - open channel (2): all expected calls happened
+ok 994 - create db_field_log
+ok 995 - pre (1) called
+ok 996 - pre (2) was not called before pre (1)
+ok 997 - post (1) was not called before pre (1)
+ok 998 - post (2) was not called before pre (1)
+ok 999 - pre (1) got field log of expected type
+ok 1000 - pre (2) called
+ok 1001 - pre (1) was called before pre (2)
+ok 1002 - post (1) was not called before pre (2)
+ok 1003 - post (2) was not called before pre (2)
+ok 1004 - pre (2) got field log of expected type
+ok 1005 - run pre eventq chain
+ok 1006 - post (2) called
+ok 1007 - post (1) was called before post (2)
+ok 1008 - pre (1) was called before post (2)
+ok 1009 - pre (2) was called before post (2)
+ok 1010 - post (2) got field log of expected type
+ok 1011 - run post eventq chain
+ok 1012 - final data type is correct
+ok 1013 - dbfl_free (1) called
+ok 1014 - dbfl_free (1): db_field_log pointer correct
+ok 1015 - run filter chains (1): all expected calls happened
+ok 1016 - run filter chains (2): all expected calls happened
+Channel: 'x.{"pre":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 1 post eventq)
+ok 1017 - channel_report: level correct 40 == 40
+ok 1018 - channel_report (1) called
+ok 1019 - channel_report: level correct 40 == 40
+ok 1020 - channel_report (2) called
+    final field_type=DBF_UINT64 (4B), 1 element
+ok 1021 - report (1): all expected calls happened
+ok 1022 - report (2): all expected calls happened
+ok 1023 - channel_close (2) called
+ok 1024 - freePvt (2) called
+ok 1025 - channel_close (1) called
+ok 1026 - freePvt (1) called
+ok 1027 - delete channel (1): all expected calls happened
+ok 1028 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 both, 1 pre filters
+# --------------------------------------------------------
+ok 1029 - allocPvt (1) called
+ok 1030 - parse_ok (1) called
+ok 1031 - allocPvt (2) called
+ok 1032 - parse_ok (2) called
+ok 1033 - filter chains: create channel with 1 both, 1 pre filters
+ok 1034 - create channel (1): all expected calls happened
+ok 1035 - create channel (2): all expected calls happened
+ok 1036 - channel_open (1) called
+ok 1037 - channel_open (2) called
+ok 1038 - register_pre (1) called
+ok 1039 - register_pre (2) was not called before register_pre (1)
+ok 1040 - register_post (1) was not called before register_pre (1)
+ok 1041 - register_post (2) was not called before register_pre (1)
+ok 1042 - register_pre (2) called
+ok 1043 - register_pre (1) was called before register_pre (2)
+ok 1044 - register_post (1) was not called before register_pre (2)
+ok 1045 - register_post (2) was not called before register_pre (2)
+ok 1046 - register_post (1) called
+ok 1047 - register_post (2) was not called before register_post (1)
+ok 1048 - register_pre (1) was called before register_post (1)
+ok 1049 - register_pre (2) was called before register_post (1)
+ok 1050 - dbChannelOpen returned channel
+ok 1051 - open channel (1): all expected calls happened
+ok 1052 - open channel (2): all expected calls happened
+ok 1053 - create db_field_log
+ok 1054 - pre (1) called
+ok 1055 - pre (2) was not called before pre (1)
+ok 1056 - post (1) was not called before pre (1)
+ok 1057 - post (2) was not called before pre (1)
+ok 1058 - pre (1) got field log of expected type
+ok 1059 - pre (2) called
+ok 1060 - pre (1) was called before pre (2)
+ok 1061 - post (1) was not called before pre (2)
+ok 1062 - post (2) was not called before pre (2)
+ok 1063 - pre (2) got field log of expected type
+ok 1064 - run pre eventq chain
+ok 1065 - post (1) called
+ok 1066 - post (2) was not called before post (1)
+ok 1067 - pre (1) was called before post (1)
+ok 1068 - pre (2) was called before post (1)
+ok 1069 - post (1) got field log of expected type
+ok 1070 - run post eventq chain
+ok 1071 - final data type is correct
+ok 1072 - dbfl_free (1) called
+ok 1073 - dbfl_free (1): db_field_log pointer correct
+ok 1074 - run filter chains (1): all expected calls happened
+ok 1075 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"pre":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 1 post eventq)
+ok 1076 - channel_report: level correct 40 == 40
+ok 1077 - channel_report (1) called
+ok 1078 - channel_report: level correct 40 == 40
+ok 1079 - channel_report (2) called
+    final field_type=DBF_UINT64 (4B), 1 element
+ok 1080 - report (1): all expected calls happened
+ok 1081 - report (2): all expected calls happened
+ok 1082 - channel_close (2) called
+ok 1083 - freePvt (2) called
+ok 1084 - channel_close (1) called
+ok 1085 - freePvt (1) called
+ok 1086 - delete channel (1): all expected calls happened
+ok 1087 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 post, 1 both filters
+# --------------------------------------------------------
+ok 1088 - allocPvt (1) called
+ok 1089 - parse_ok (1) called
+ok 1090 - allocPvt (2) called
+ok 1091 - parse_ok (2) called
+ok 1092 - filter chains: create channel with 1 post, 1 both filters
+ok 1093 - create channel (1): all expected calls happened
+ok 1094 - create channel (2): all expected calls happened
+ok 1095 - channel_open (1) called
+ok 1096 - channel_open (2) called
+ok 1097 - register_pre (2) called
+ok 1098 - register_pre (1) was called before register_pre (2)
+ok 1099 - register_post (1) was not called before register_pre (2)
+ok 1100 - register_post (2) was not called before register_pre (2)
+ok 1101 - register_post (1) called
+ok 1102 - register_post (2) was not called before register_post (1)
+ok 1103 - register_pre (1) was called before register_post (1)
+ok 1104 - register_pre (2) was called before register_post (1)
+ok 1105 - register_post (2) called
+ok 1106 - register_post (1) was called before register_post (2)
+ok 1107 - register_pre (1) was called before register_post (2)
+ok 1108 - register_pre (2) was called before register_post (2)
+ok 1109 - dbChannelOpen returned channel
+ok 1110 - open channel (1): all expected calls happened
+ok 1111 - open channel (2): all expected calls happened
+ok 1112 - create db_field_log
+ok 1113 - pre (2) called
+ok 1114 - pre (1) was called before pre (2)
+ok 1115 - post (1) was not called before pre (2)
+ok 1116 - post (2) was not called before pre (2)
+ok 1117 - pre (2) got field log of expected type
+ok 1118 - run pre eventq chain
+ok 1119 - post (1) called
+ok 1120 - post (2) was not called before post (1)
+ok 1121 - pre (1) was called before post (1)
+ok 1122 - pre (2) was called before post (1)
+ok 1123 - post (1) got field log of expected type
+ok 1124 - post (2) called
+ok 1125 - post (1) was called before post (2)
+ok 1126 - pre (1) was called before post (2)
+ok 1127 - pre (2) was called before post (2)
+ok 1128 - post (2) got field log of expected type
+ok 1129 - run post eventq chain
+ok 1130 - final data type is correct
+ok 1131 - dbfl_free (2) called
+ok 1132 - dbfl_free (2): db_field_log pointer correct
+ok 1133 - run filter chains (1): all expected calls happened
+ok 1134 - run filter chains (2): all expected calls happened
+Channel: 'x.{"post":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (1 pre eventq, 2 post eventq)
+ok 1135 - channel_report: level correct 40 == 40
+ok 1136 - channel_report (1) called
+ok 1137 - channel_report: level correct 40 == 40
+ok 1138 - channel_report (2) called
+    final field_type=DBF_UINT64 (4B), 1 element
+ok 1139 - report (1): all expected calls happened
+ok 1140 - report (2): all expected calls happened
+ok 1141 - channel_close (2) called
+ok 1142 - freePvt (2) called
+ok 1143 - channel_close (1) called
+ok 1144 - freePvt (1) called
+ok 1145 - delete channel (1): all expected calls happened
+ok 1146 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 1 both, 1 post filters
+# --------------------------------------------------------
+ok 1147 - allocPvt (1) called
+ok 1148 - parse_ok (1) called
+ok 1149 - allocPvt (2) called
+ok 1150 - parse_ok (2) called
+ok 1151 - filter chains: create channel with 1 both, 1 post filters
+ok 1152 - create channel (1): all expected calls happened
+ok 1153 - create channel (2): all expected calls happened
+ok 1154 - channel_open (1) called
+ok 1155 - channel_open (2) called
+ok 1156 - register_pre (1) called
+ok 1157 - register_pre (2) was not called before register_pre (1)
+ok 1158 - register_post (1) was not called before register_pre (1)
+ok 1159 - register_post (2) was not called before register_pre (1)
+ok 1160 - register_post (1) called
+ok 1161 - register_post (2) was not called before register_post (1)
+ok 1162 - register_pre (1) was called before register_post (1)
+ok 1163 - register_pre (2) was called before register_post (1)
+ok 1164 - register_post (2) called
+ok 1165 - register_post (1) was called before register_post (2)
+ok 1166 - register_pre (1) was called before register_post (2)
+ok 1167 - register_pre (2) was called before register_post (2)
+ok 1168 - dbChannelOpen returned channel
+ok 1169 - open channel (1): all expected calls happened
+ok 1170 - open channel (2): all expected calls happened
+ok 1171 - create db_field_log
+ok 1172 - pre (1) called
+ok 1173 - pre (2) was not called before pre (1)
+ok 1174 - post (1) was not called before pre (1)
+ok 1175 - post (2) was not called before pre (1)
+ok 1176 - pre (1) got field log of expected type
+ok 1177 - run pre eventq chain
+ok 1178 - post (1) called
+ok 1179 - post (2) was not called before post (1)
+ok 1180 - pre (1) was called before post (1)
+ok 1181 - pre (2) was called before post (1)
+ok 1182 - post (1) got field log of expected type
+ok 1183 - post (2) called
+ok 1184 - post (1) was called before post (2)
+ok 1185 - pre (1) was called before post (2)
+ok 1186 - pre (2) was called before post (2)
+ok 1187 - post (2) got field log of expected type
+ok 1188 - run post eventq chain
+ok 1189 - final data type is correct
+ok 1190 - dbfl_free (1) called
+ok 1191 - dbfl_free (1): db_field_log pointer correct
+ok 1192 - run filter chains (1): all expected calls happened
+ok 1193 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"post":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (1 pre eventq, 2 post eventq)
+ok 1194 - channel_report: level correct 40 == 40
+ok 1195 - channel_report (1) called
+ok 1196 - channel_report: level correct 40 == 40
+ok 1197 - channel_report (2) called
+    final field_type=DBF_UINT64 (4B), 1 element
+ok 1198 - report (1): all expected calls happened
+ok 1199 - report (2): all expected calls happened
+ok 1200 - channel_close (2) called
+ok 1201 - freePvt (2) called
+ok 1202 - channel_close (1) called
+ok 1203 - freePvt (1) called
+ok 1204 - delete channel (1): all expected calls happened
+ok 1205 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 both (drop at 0) filters
+# --------------------------------------------------------
+ok 1206 - allocPvt (1) called
+ok 1207 - parse_ok (1) called
+ok 1208 - allocPvt (2) called
+ok 1209 - parse_ok (2) called
+ok 1210 - filter chains: create channel with 2 both (drop at 0) filters
+ok 1211 - create channel (1): all expected calls happened
+ok 1212 - create channel (2): all expected calls happened
+ok 1213 - channel_open (1) called
+ok 1214 - channel_open (2) called
+ok 1215 - register_pre (1) called
+ok 1216 - register_pre (2) was not called before register_pre (1)
+ok 1217 - register_post (1) was not called before register_pre (1)
+ok 1218 - register_post (2) was not called before register_pre (1)
+ok 1219 - register_pre (2) called
+ok 1220 - register_pre (1) was called before register_pre (2)
+ok 1221 - register_post (1) was not called before register_pre (2)
+ok 1222 - register_post (2) was not called before register_pre (2)
+ok 1223 - register_post (1) called
+ok 1224 - register_post (2) was not called before register_post (1)
+ok 1225 - register_pre (1) was called before register_post (1)
+ok 1226 - register_pre (2) was called before register_post (1)
+ok 1227 - register_post (2) called
+ok 1228 - register_post (1) was called before register_post (2)
+ok 1229 - register_pre (1) was called before register_post (2)
+ok 1230 - register_pre (2) was called before register_post (2)
+ok 1231 - dbChannelOpen returned channel
+ok 1232 - open channel (1): all expected calls happened
+ok 1233 - open channel (2): all expected calls happened
+ok 1234 - create db_field_log
+ok 1235 - pre (1) called
+ok 1236 - pre (2) was not called before pre (1)
+ok 1237 - post (1) was not called before pre (1)
+ok 1238 - post (2) was not called before pre (1)
+ok 1239 - pre (1) got field log of expected type
+# pre (1) is dropping the field log
+ok 1240 - run pre eventq chain
+ok 1241 - run filter chains (1): all expected calls happened
+ok 1242 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 2 post eventq)
+ok 1243 - channel_report: level correct 40 == 40
+ok 1244 - channel_report (1) called
+ok 1245 - channel_report: level correct 40 == 40
+ok 1246 - channel_report (2) called
+    final field_type=DBF_FLOAT (4B), 1 element
+ok 1247 - report (1): all expected calls happened
+ok 1248 - report (2): all expected calls happened
+ok 1249 - channel_close (2) called
+ok 1250 - freePvt (2) called
+ok 1251 - channel_close (1) called
+ok 1252 - freePvt (1) called
+ok 1253 - delete channel (1): all expected calls happened
+ok 1254 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 both (drop at 1) filters
+# --------------------------------------------------------
+ok 1255 - allocPvt (1) called
+ok 1256 - parse_ok (1) called
+ok 1257 - allocPvt (2) called
+ok 1258 - parse_ok (2) called
+ok 1259 - filter chains: create channel with 2 both (drop at 1) filters
+ok 1260 - create channel (1): all expected calls happened
+ok 1261 - create channel (2): all expected calls happened
+ok 1262 - channel_open (1) called
+ok 1263 - channel_open (2) called
+ok 1264 - register_pre (1) called
+ok 1265 - register_pre (2) was not called before register_pre (1)
+ok 1266 - register_post (1) was not called before register_pre (1)
+ok 1267 - register_post (2) was not called before register_pre (1)
+ok 1268 - register_pre (2) called
+ok 1269 - register_pre (1) was called before register_pre (2)
+ok 1270 - register_post (1) was not called before register_pre (2)
+ok 1271 - register_post (2) was not called before register_pre (2)
+ok 1272 - register_post (1) called
+ok 1273 - register_post (2) was not called before register_post (1)
+ok 1274 - register_pre (1) was called before register_post (1)
+ok 1275 - register_pre (2) was called before register_post (1)
+ok 1276 - register_post (2) called
+ok 1277 - register_post (1) was called before register_post (2)
+ok 1278 - register_pre (1) was called before register_post (2)
+ok 1279 - register_pre (2) was called before register_post (2)
+ok 1280 - dbChannelOpen returned channel
+ok 1281 - open channel (1): all expected calls happened
+ok 1282 - open channel (2): all expected calls happened
+ok 1283 - create db_field_log
+ok 1284 - pre (1) called
+ok 1285 - pre (2) was not called before pre (1)
+ok 1286 - post (1) was not called before pre (1)
+ok 1287 - post (2) was not called before pre (1)
+ok 1288 - pre (1) got field log of expected type
+ok 1289 - pre (2) called
+ok 1290 - pre (1) was called before pre (2)
+ok 1291 - post (1) was not called before pre (2)
+ok 1292 - post (2) was not called before pre (2)
+ok 1293 - pre (2) got field log of expected type
+# pre (2) is dropping the field log
+ok 1294 - run pre eventq chain
+ok 1295 - run filter chains (1): all expected calls happened
+ok 1296 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 2 post eventq)
+ok 1297 - channel_report: level correct 40 == 40
+ok 1298 - channel_report (1) called
+ok 1299 - channel_report: level correct 40 == 40
+ok 1300 - channel_report (2) called
+    final field_type=DBF_FLOAT (4B), 1 element
+ok 1301 - report (1): all expected calls happened
+ok 1302 - report (2): all expected calls happened
+ok 1303 - channel_close (2) called
+ok 1304 - freePvt (2) called
+ok 1305 - channel_close (1) called
+ok 1306 - freePvt (1) called
+ok 1307 - delete channel (1): all expected calls happened
+ok 1308 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 both (drop at 2) filters
+# --------------------------------------------------------
+ok 1309 - allocPvt (1) called
+ok 1310 - parse_ok (1) called
+ok 1311 - allocPvt (2) called
+ok 1312 - parse_ok (2) called
+ok 1313 - filter chains: create channel with 2 both (drop at 2) filters
+ok 1314 - create channel (1): all expected calls happened
+ok 1315 - create channel (2): all expected calls happened
+ok 1316 - channel_open (1) called
+ok 1317 - channel_open (2) called
+ok 1318 - register_pre (1) called
+ok 1319 - register_pre (2) was not called before register_pre (1)
+ok 1320 - register_post (1) was not called before register_pre (1)
+ok 1321 - register_post (2) was not called before register_pre (1)
+ok 1322 - register_pre (2) called
+ok 1323 - register_pre (1) was called before register_pre (2)
+ok 1324 - register_post (1) was not called before register_pre (2)
+ok 1325 - register_post (2) was not called before register_pre (2)
+ok 1326 - register_post (1) called
+ok 1327 - register_post (2) was not called before register_post (1)
+ok 1328 - register_pre (1) was called before register_post (1)
+ok 1329 - register_pre (2) was called before register_post (1)
+ok 1330 - register_post (2) called
+ok 1331 - register_post (1) was called before register_post (2)
+ok 1332 - register_pre (1) was called before register_post (2)
+ok 1333 - register_pre (2) was called before register_post (2)
+ok 1334 - dbChannelOpen returned channel
+ok 1335 - open channel (1): all expected calls happened
+ok 1336 - open channel (2): all expected calls happened
+ok 1337 - create db_field_log
+ok 1338 - pre (1) called
+ok 1339 - pre (2) was not called before pre (1)
+ok 1340 - post (1) was not called before pre (1)
+ok 1341 - post (2) was not called before pre (1)
+ok 1342 - pre (1) got field log of expected type
+ok 1343 - pre (2) called
+ok 1344 - pre (1) was called before pre (2)
+ok 1345 - post (1) was not called before pre (2)
+ok 1346 - post (2) was not called before pre (2)
+ok 1347 - pre (2) got field log of expected type
+ok 1348 - run pre eventq chain
+ok 1349 - post (1) called
+ok 1350 - post (2) was not called before post (1)
+ok 1351 - pre (1) was called before post (1)
+ok 1352 - pre (2) was called before post (1)
+ok 1353 - post (1) got field log of expected type
+# post (1) is dropping the field log
+ok 1354 - run post eventq chain
+ok 1355 - run filter chains (1): all expected calls happened
+ok 1356 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 2 post eventq)
+ok 1357 - channel_report: level correct 40 == 40
+ok 1358 - channel_report (1) called
+ok 1359 - channel_report: level correct 40 == 40
+ok 1360 - channel_report (2) called
+    final field_type=DBF_FLOAT (4B), 1 element
+ok 1361 - report (1): all expected calls happened
+ok 1362 - report (2): all expected calls happened
+ok 1363 - channel_close (2) called
+ok 1364 - freePvt (2) called
+ok 1365 - channel_close (1) called
+ok 1366 - freePvt (1) called
+ok 1367 - delete channel (1): all expected calls happened
+ok 1368 - delete channel (2): all expected calls happened
+# --------------------------------------------------------
+# Filter chain test, 2 both (drop at 3) filters
+# --------------------------------------------------------
+ok 1369 - allocPvt (1) called
+ok 1370 - parse_ok (1) called
+ok 1371 - allocPvt (2) called
+ok 1372 - parse_ok (2) called
+ok 1373 - filter chains: create channel with 2 both (drop at 3) filters
+ok 1374 - create channel (1): all expected calls happened
+ok 1375 - create channel (2): all expected calls happened
+ok 1376 - channel_open (1) called
+ok 1377 - channel_open (2) called
+ok 1378 - register_pre (1) called
+ok 1379 - register_pre (2) was not called before register_pre (1)
+ok 1380 - register_post (1) was not called before register_pre (1)
+ok 1381 - register_post (2) was not called before register_pre (1)
+ok 1382 - register_pre (2) called
+ok 1383 - register_pre (1) was called before register_pre (2)
+ok 1384 - register_post (1) was not called before register_pre (2)
+ok 1385 - register_post (2) was not called before register_pre (2)
+ok 1386 - register_post (1) called
+ok 1387 - register_post (2) was not called before register_post (1)
+ok 1388 - register_pre (1) was called before register_post (1)
+ok 1389 - register_pre (2) was called before register_post (1)
+ok 1390 - register_post (2) called
+ok 1391 - register_post (1) was called before register_post (2)
+ok 1392 - register_pre (1) was called before register_post (2)
+ok 1393 - register_pre (2) was called before register_post (2)
+ok 1394 - dbChannelOpen returned channel
+ok 1395 - open channel (1): all expected calls happened
+ok 1396 - open channel (2): all expected calls happened
+ok 1397 - create db_field_log
+ok 1398 - pre (1) called
+ok 1399 - pre (2) was not called before pre (1)
+ok 1400 - post (1) was not called before pre (1)
+ok 1401 - post (2) was not called before pre (1)
+ok 1402 - pre (1) got field log of expected type
+ok 1403 - pre (2) called
+ok 1404 - pre (1) was called before pre (2)
+ok 1405 - post (1) was not called before pre (2)
+ok 1406 - post (2) was not called before pre (2)
+ok 1407 - pre (2) got field log of expected type
+ok 1408 - run pre eventq chain
+ok 1409 - post (1) called
+ok 1410 - post (2) was not called before post (1)
+ok 1411 - pre (1) was called before post (1)
+ok 1412 - pre (2) was called before post (1)
+ok 1413 - post (1) got field log of expected type
+ok 1414 - post (2) called
+ok 1415 - post (1) was called before post (2)
+ok 1416 - pre (1) was called before post (2)
+ok 1417 - pre (2) was called before post (2)
+ok 1418 - post (2) got field log of expected type
+# post (2) is dropping the field log
+ok 1419 - run post eventq chain
+ok 1420 - run filter chains (1): all expected calls happened
+ok 1421 - run filter chains (2): all expected calls happened
+Channel: 'x.{"sloppy":{},"sloppy":{}}'
+    field_type=DBF_LONG (4 bytes), dbr_type=DBF_LONG, 1 element
+    2 filters (2 pre eventq, 2 post eventq)
+ok 1422 - channel_report: level correct 40 == 40
+ok 1423 - channel_report (1) called
+ok 1424 - channel_report: level correct 40 == 40
+ok 1425 - channel_report (2) called
+    final field_type=DBF_FLOAT (4B), 1 element
+ok 1426 - report (1): all expected calls happened
+ok 1427 - report (2): all expected calls happened
+ok 1428 - channel_close (2) called
+ok 1429 - freePvt (2) called
+ok 1430 - channel_close (1) called
+ok 1431 - freePvt (1) called
+ok 1432 - delete channel (1): all expected calls happened
+ok 1433 - delete channel (2): all expected calls happened
+
+    Results
+    =======
+       Tests: 1433
+      Passed: 1433 = 100.00%
+
+
+    EPICS Test Harness Results
+    ==========================
+
+All tests successful.
+Programs=15, Tests=3009, 80 wallclock secs
+
