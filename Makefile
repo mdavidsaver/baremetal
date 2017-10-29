@@ -2,6 +2,7 @@
 PREFIX=/home/travis/.rtems/bin/powerpc-rtems4.10-
 GCC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
+SIZE=$(PREFIX)size
 
 HOST_GCC=gcc
 
@@ -15,33 +16,56 @@ LDFLAGS=-static
 
 CFLAGS+=-Os
 
-all: tomload.bin investigate.bin test-ell
+EXE += tomload investigate
 
-tomload.elf: Makefile init.S init-tom.S asm.h \
-	tomload.c \
-	common.c uart.c pci.c pci.h pci_def.h \
-	fw_cfg.c fw_cfg.h \
-	ell.c ell.h \
-	common.h tlb.h mmio.h \
-	tomload.ld
+TARGETS += test-ell
 
-investigate.elf: Makefile init.S init-reloc.S asm.h \
-	investigate.c \
-	common.c common.h \
-	uart.c \
-	mmio.h \
-	os.ld
+tomload_NAME = tomload.bin
+tomload_LD = tomload.ld
+tomload_OBJS += init.o init-tom.o tomload.o common.o uart.o fw_cfg.o pci.o ell.o
+
+investigate_NAME = investigate.bin
+investigate_OBJS += init.o init-reloc.o investigate.o common.o uart.o
+
+# $(1) - EXE name
+define exe_defs
+$(1)_NAME ?= $(1)
+$(1)_LD ?= os.ld
+TARGETS += $($(1)_NAME)
+CLEANS += $($(1)_NAME) $(1).elf $(1).map
+OBJS += $($(1)_OBJS)
+endef
+$(foreach name,$(EXE),$(eval $(call exe_defs,$(name))))
+
+DEPS = $(OBJS:%.o=%.d)
+
+all: $(TARGETS)
+
+-include $(DEPS)
+
+# $(1) - EXE name
+define exe_rules
+$(1).elf : $($(1)_LD) $($(1)_OBJS)
+endef
+$(foreach name,$(EXE),$(eval $(call exe_rules,$(name))))
 
 clean:
-	rm -f *.o
-	rm -f *.elf *.bin *.map
-	rm -f test-ell
+	rm -f $(OBJS)
+	rm -f $(DEPS)
+	rm -f $(CLEANS)
+
+%.o: %.c Makefile
+	$(GCC) -o $@ -c $< -MD $(CFLAGS) $($*_CFLAGS)
+
+%.o: %.S Makefile
+	$(GCC) -o $@ -c $< -MD $(CFLAGS) $($*_CFLAGS)
 
 %.elf:
-	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.c,$^) $(filter %.S,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
+	$(SIZE) $<
 	$(OBJCOPY) -O binary $< $@
 
-test-ell: test/test-ell.c ell.c ell.h
-	$(HOST_GCC) -DHOST_BUILD -I. -o $@ $(filter %.c,$^) $(filter %.S,$^)
+test-ell: test/test-ell.c ell.c ell.h Makefile
+	$(HOST_GCC) -DHOST_BUILD -g -Wall -Wextra -I. -o $@ $(filter %.c,$^)

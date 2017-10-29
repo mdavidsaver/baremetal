@@ -126,7 +126,9 @@ tlb_update:
 .section .text.init
 
 .global _vec_reset
+.global _start
 _vec_reset:
+_start:
   b _early_setup_tlb
 
 .section .text
