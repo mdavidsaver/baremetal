@@ -29,7 +29,7 @@ void show_tlb0(void)
             if(!(mas1&MAS1_V))
                 continue;
             printk("TLB0 entry #%u.%u %08x %08x %08x %08x\n",
-                way, i,
+                i, way,
                 (unsigned)mas0, (unsigned)mas1, (unsigned)mas2, (unsigned)mas3);
         }
     }

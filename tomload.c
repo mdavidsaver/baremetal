@@ -318,3 +318,9 @@ void os_return(void)
     printk("TOMLOAD: Image returns.  Halt.\n");
     out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
 }
+
+void os_exception(void)
+{
+    printk("TOMLOAD: Image exception.  Halt.\n");
+    out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
+}

@@ -1,5 +1,6 @@
 #include "asm.h"
 
+#include "spr.h"
 #include "tlb.h"
 
 /* The mpc8540 ref. manual states that the initial tlb mapping
@@ -93,7 +94,9 @@ tlb_loop:
   isync
   lwz %r0, 0(%r4)
   isync
-  
+
+  bl install_bad_exception
+
   b _pre_Init /* prepare eabi C environment then jump to Init() */
 
 
@@ -132,6 +135,35 @@ _start:
   b _early_setup_tlb
 
 .section .text
+
+.type bad_exception, @function
+bad_exception:
+  bl _setup_eabi
+  bl os_exception
+  b spin
+
+install_bad_exception:
+  load_const %r3, bad_exception
+  mtspr SPR_IVPR, %r3
+  lis %r3, 0
+  mtspr SPR_IVOR(0), %r3
+  mtspr SPR_IVOR(1), %r3
+  mtspr SPR_IVOR(2), %r3
+  mtspr SPR_IVOR(3), %r3
+  mtspr SPR_IVOR(4), %r3
+  mtspr SPR_IVOR(5), %r3
+  mtspr SPR_IVOR(6), %r3
+  mtspr SPR_IVOR(7), %r3
+  mtspr SPR_IVOR(8), %r3
+  mtspr SPR_IVOR(9), %r3
+  mtspr SPR_IVOR(10), %r3
+  mtspr SPR_IVOR(11), %r3
+  mtspr SPR_IVOR(12), %r3
+  mtspr SPR_IVOR(13), %r3
+  mtspr SPR_IVOR(14), %r3
+  mtspr SPR_IVOR(15), %r3
+
+  blr
 
 /* cleanup registers and exit bootloader */
 .global load_os

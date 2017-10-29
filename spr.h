@@ -3,6 +3,9 @@
 
 #define SPR_IVPR 63
 #define SPR_PVR 287
+
+#define SPR_IVOR(N) ((400)+(N))
+
 #define SPR_SVR 1023
 
 #define SPR_HID0 1008
