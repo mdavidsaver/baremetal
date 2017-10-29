@@ -170,5 +170,10 @@ load_os:
   li %r29, 0
   li %r30, 0
   li %r31, 0
-  blr
+  blrl
+  /* reached if OS image returns to us */
+  bl _setup_eabi
+  bl os_return
+spin:
+  b spin
 .size load_os, .-load_os

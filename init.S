@@ -3,6 +3,28 @@
 .section .text
 .global _pre_Init
 _pre_Init:
+  bl _setup_eabi
+
+  bl Init
+_stuck:
+  b _stuck
+
+.global _setup_eabi
+_setup_eabi:
+  // update MSR
+  mtmsr %r3
+  // disable all exceptions
+  load_const %r2, MSR_BOOKE_MASK
+  andc %r3, %r3, %r2
+
+  // enable floating point
+  load_const %r2, MSR_FP
+  or %r3, %r3, %r2
+
+  mtmsr %r3
+
+  mflr %r31
+
   load_const %r1, __bss_start
   load_const %r2, __bss_end
   bl _mzero
@@ -37,20 +59,18 @@ _pre_Init:
   /* r1 stack pointer */
   load_const %r1 stack_top
 
-  li %r3,0x2000 /* set power managment bit, clear all others */
-  mtmsr %r3
-
   /* r2 read-only small data area pointer */
   load_const %r2 _SDA2_BASE_
 
   /* r13 read/write small data area pointer */
   load_const %r13 _SDA_BASE_
-  bl Init
-_stuck:
-  b _stuck
+
+  mtlr %r31
+  blr
 
 _mzero:
   /* r1 start address, r2 end address */
+  /* clobbers r4 */
   cmplw %r1, %r2
   bgelr-
 

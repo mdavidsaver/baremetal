@@ -312,3 +312,9 @@ void Init(void)
     printk("Load from %x\n", (unsigned)image_addr);
 	load_os(image_addr);
 }
+
+void os_return(void)
+{
+    printk("TOMLOAD: Image returns.  Halt.\n");
+    out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
+}
