@@ -104,7 +104,7 @@ void show_fw_cfg(void)
 
     {
         uint64_t i64 = fw_cfg_read64(FW_CFG_RAM_SIZE);
-        printk("Ram size %x%x\n", (unsigned)(i64>>32), (unsigned)i64);
+        printk("Ram size %08x%08x\n", (unsigned)(i64>>32), (unsigned)i64);
     }
 
     {
@@ -138,7 +138,7 @@ void show_fw_cfg(void)
                 pos += 2;
                 if(id==0xff || id==0)
                     break;
-                printk("VPD %x \"", (unsigned)id);
+                printk("VPD %02x \"", (unsigned)id);
                 for(;len; len--) {
                     putc_escape(fw_cfg_readbyte());
                     pos++;
@@ -309,7 +309,7 @@ void Init(void)
 	setup_i2c();
 
 	prepare_tsi148();
-    printk("Load from %x\n", (unsigned)image_addr);
+    printk("Load from %08x\n", (unsigned)image_addr);
 	load_os(image_addr);
 }
 

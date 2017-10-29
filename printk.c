@@ -27,6 +27,10 @@ void show_unsigned(format *info, unsigned long num)
     char buf[9], *cur = &buf[8];
     unsigned base = info->type=='x' ? 16 : 10;
 
+    if(!num) {
+        *--cur = '0';
+        info->width--;
+    }
     for(;info->width && num; info->width--) {
         *--cur = hexchars[num%base];
         num = num/base;
@@ -114,6 +118,7 @@ void vprintk(const char *fmt, va_list args)
                     break;
                 case '9':
                 case '\0':
+                default:
                     goto oops;
                     return;
                 }

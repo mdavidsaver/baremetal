@@ -57,14 +57,14 @@ unsigned fw_cfg_list_files(void)
 
     count = __builtin_bswap32(fw_cfg_read32(FW_CFG_FILE_DIR));
     
-    printk("Found %x files\n", count);
+    printk("Found %u files\n", count);
 
     for(i=0; i<count; i++) {
         FWCfgFile info;
         fw_cfg_readmore(&info, sizeof(info));
         if(info.select==0)
             break; /* should not be necessary if count is correct */
-        printk("%x %x %s\n", info.select, (unsigned)info.size, info.name);
+        printk("%u %u %s\n", info.select, (unsigned)info.size, info.name);
     }
 
     return count;

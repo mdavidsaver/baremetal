@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     printk("literal %% percent\n");
 
     printf("====\n");
+    printk("unsigned 0 = '%u'\n", 0u);
     printk("unsigned 123 = '%u'\n", 123u);
     printk("unsigned long 123 = '%lu'\n", 123ul);
     printk("pad unsigned 0123 = '%04u'\n", 123u);

@@ -6,7 +6,7 @@
 #include "mmio.h"
 
 #define SHOW_SPR(NAME) ({uint32_t val = READ_SPR(NAME); \
-    printk(#NAME " %x\n", (unsigned)val); \
+    printk(#NAME " %08x\n", (unsigned)val); \
     val;})
 
 static
@@ -28,7 +28,7 @@ void show_tlb0(void)
 
             if(!(mas1&MAS1_V))
                 continue;
-            printk("TLB0 entry #%x.%x %x %x %x %x\n",
+            printk("TLB0 entry #%u.%u %08x %08x %08x %08x\n",
                 way, i,
                 (unsigned)mas0, (unsigned)mas1, (unsigned)mas2, (unsigned)mas3);
         }
@@ -51,7 +51,7 @@ void show_tlb1(void)
 
         if(!(mas1&MAS1_V))
             continue;
-        printk("TLB1 entry #%x %x %x %x %x\n",
+        printk("TLB1 entry #%u %08x %08x %08x %08x\n",
                i,
                (unsigned)mas0, (unsigned)mas1, (unsigned)mas2, (unsigned)mas3);
     }
@@ -61,42 +61,42 @@ static
 void show_ccsr(void)
 {
     unsigned i;
-    printk("CCSRBAR %x %x\n", (unsigned)CCSRBASE, (unsigned)in32x(CCSRBASE, 0));
-    printk("PORPLLSR %x\n", (unsigned)in32x(CCSRBASE, 0xe0000));
-    printk("PORBMSR %x\n", (unsigned)in32x(CCSRBASE, 0xe0004));
-    printk("PORIMPSCR %x\n", (unsigned)in32x(CCSRBASE, 0xe0008));
-    printk("PORDEVSR %x\n", (unsigned)in32x(CCSRBASE, 0xe000c));
-    printk("PORDBGMSR %x\n", (unsigned)in32x(CCSRBASE, 0xe0010));
-    printk("PVR %x\n", (unsigned)in32x(CCSRBASE, 0xe00a0));
-    printk("SVR %x\n", (unsigned)in32x(CCSRBASE, 0xe00a4));
+    printk("CCSRBAR %08x %08x\n", (unsigned)CCSRBASE, (unsigned)in32x(CCSRBASE, 0));
+    printk("PORPLLSR %08x\n", (unsigned)in32x(CCSRBASE, 0xe0000));
+    printk("PORBMSR %08x\n", (unsigned)in32x(CCSRBASE, 0xe0004));
+    printk("PORIMPSCR %08x\n", (unsigned)in32x(CCSRBASE, 0xe0008));
+    printk("PORDEVSR %08x\n", (unsigned)in32x(CCSRBASE, 0xe000c));
+    printk("PORDBGMSR %08x\n", (unsigned)in32x(CCSRBASE, 0xe0010));
+    printk("PVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a0));
+    printk("SVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a4));
 
     for(i=0; i<8; i++) {
-        printk("LAWBAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0xc08, 0x20*i));
-        printk("LAWAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0xc10, 0x20*i));
+        printk("LAWBAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0xc08, 0x20*i));
+        printk("LAWAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0xc10, 0x20*i));
     }
 
     for(i=0; i<4; i++) {
-        printk("CS%x_BNDS %x\n", i, (unsigned)in32x(CCSRBASE+0x2000, 8*i));
-        printk("CS%x_CONFIG %x\n", i, (unsigned)in32x(CCSRBASE+0x2080, 4*i));
+        printk("CS%u_BNDS %08x\n", i, (unsigned)in32x(CCSRBASE+0x2000, 8*i));
+        printk("CS%u_CONFIG %08x\n", i, (unsigned)in32x(CCSRBASE+0x2080, 4*i));
     }
 
     for(i=0; i<4; i++) {
-        printk("LBC BR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8000, 8*i));
-        printk("LBC OR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8004, 8*i));
+        printk("LBC BR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8000, 8*i));
+        printk("LBC OR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8004, 8*i));
     }
     
     for(i=0; i<4; i++) {
-        printk("POTAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8C00, 0x20*i));
-        printk("POTEAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8C04, 0x20*i));
-        printk("POWBAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8C08, 0x20*i));
-        printk("POWAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8C10, 0x20*i));
+        printk("POTAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8C00, 0x20*i));
+        printk("POTEAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8C04, 0x20*i));
+        printk("POWBAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8C08, 0x20*i));
+        printk("POWAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8C10, 0x20*i));
     }
 
     for(i=0; i<4; i++) {
-        printk("PITAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8da0, 0x20*i));
-        printk("PITEAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8da4, 0x20*i));
-        printk("PIWBAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8da8, 0x20*i));
-        printk("PIWAR%x %x\n", i, (unsigned)in32x(CCSRBASE+0x8da0, 0x20*i));
+        printk("PITAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8da0, 0x20*i));
+        printk("PITEAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8da4, 0x20*i));
+        printk("PIWBAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8da8, 0x20*i));
+        printk("PIWAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0x8da0, 0x20*i));
     }
 }
 
@@ -106,7 +106,7 @@ void show_cpu(void)
     /* Short special registers */
     uint32_t msr, pvr;
     __asm__ ("mfmsr %0" : "=r"(msr));
-    printk("MSR %x\n", (unsigned)msr);
+    printk("MSR %08x\n", (unsigned)msr);
     SHOW_SPR(SPR_IVPR);
     pvr = SHOW_SPR(SPR_PVR);
 

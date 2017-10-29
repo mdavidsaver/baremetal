@@ -24,10 +24,10 @@ int pci_setup_bar(unsigned b, unsigned d, unsigned f, unsigned bar, pci_info *in
     mask = (val&PCI_BAR_SPACE_MASK) ? PCI_BAR_IO_MASK : PCI_BAR_MEM_MASK;
 
     if(mask==PCI_BAR_MEM_MASK && (val&PCI_BAR_MEM_TYPE_MASK)==PCI_BAR_MEM_TYPE_64) {
-        printk("  BAR%x ERROR: 64-bit BAR not supported\n", bar);
+        printk("  BAR%u ERROR: 64-bit BAR not supported\n", bar);
         return -1; /* we don't know how to configure 64-bit BARs */
     } else if(mask==PCI_BAR_MEM_MASK && (val&PCI_BAR_MEM_TYPE_MASK)!=PCI_BAR_MEM_TYPE_32) {
-        printk("  BAR%x WARN: ignore non MMIO32\n", bar);
+        printk("  BAR%u WARN: ignore non MMIO32\n", bar);
         return 0;  /* ignore <1MB or prefetchable */
     };
 
@@ -47,7 +47,7 @@ int pci_setup_bar(unsigned b, unsigned d, unsigned f, unsigned bar, pci_info *in
     val = ((val-1)|(size-1u))+1;
 
     pci_out32(b,d,f, PCI_BAR(bar), val);
-    printk("  BAR%x %sio %x -> %x\n",
+    printk("  BAR%u %sio %08x -> %08x\n",
         bar, (mask==PCI_BAR_MEM_MASK) ? "mm" : "",
         (unsigned)val, (unsigned)(val+size-1u)
     );
@@ -115,7 +115,7 @@ int pci_setup_bridge(unsigned b, unsigned d, unsigned f, pci_info *info)
 
     pci_out8(b,d,f, PCI_SUBORDINATE_BUS, info->next_bus-1u);
 
-    printk("Bridge Child bus  primary=%x secondary=%x subordinate=%x\n",
+    printk("Bridge Child bus  primary=%u secondary=%u subordinate=%u\n",
            b, b+1, info->next_bus-1u);
 
     /* ensure that addresses are aligned for bridge limit */
@@ -130,7 +130,7 @@ int pci_setup_bridge(unsigned b, unsigned d, unsigned f, pci_info *info)
         pci_out16(b,d,f, PCI_MEMORY_BASE, base>>16);
         pci_out16(b,d,f, PCI_MEMORY_LIMIT,limit>>16);
 
-        printk("BRIDGE %x:%x.%x MMIO %x -> %x\n",  b,d,f, (unsigned)base, (unsigned)limit);
+        printk("BRIDGE %x:%x.%x MMIO %08x -> %08x\n",  b,d,f, (unsigned)base, (unsigned)limit);
     } else {
         /* limit < base disables */
         pci_out16(b,d,f, PCI_MEMORY_BASE, 0x0010);
@@ -144,7 +144,7 @@ int pci_setup_bridge(unsigned b, unsigned d, unsigned f, pci_info *info)
         pci_out16(b,d,f, PCI_IO_BASE, base>>8);
         pci_out16(b,d,f, PCI_IO_LIMIT,limit>>8);
 
-        printk("BRIDGE %x:%x.%x IO %x -> %x\n",  b,d,f, (unsigned)base, (unsigned)limit);
+        printk("BRIDGE %x:%x.%x IO %08x -> %08x\n",  b,d,f, (unsigned)base, (unsigned)limit);
     } else {
         /* limit < base disables */
         pci_out16(b,d,f, PCI_IO_BASE, 0x0010);
@@ -163,7 +163,7 @@ int pci_setup(pci_info *info)
     unsigned d;
     const unsigned f=0;
 
-    printk("Scan Bus %x\n", b);
+    printk("Scan Bus %u\n", b);
     for(d=0; d<0x20; d++) {
         uint32_t cmd;
         uint16_t val = pci_in16(b,d,f, PCI16_VENDOR_ID);
