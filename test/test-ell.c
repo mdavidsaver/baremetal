@@ -320,6 +320,8 @@ void testRemoveMiddle(void)
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
     testPFPF();
     testPFPB();
     testPBPF();

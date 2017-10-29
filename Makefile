@@ -19,13 +19,14 @@ CFLAGS+=-Os
 EXE += tomload investigate
 
 TARGETS += test-ell
+TARGETS += test-printk
 
 tomload_NAME = tomload.bin
 tomload_LD = tomload.ld
-tomload_OBJS += init.o init-tom.o tomload.o common.o uart.o fw_cfg.o pci.o ell.o
+tomload_OBJS += init.o init-tom.o tomload.o common.o uart.o printk.o fw_cfg.o pci.o ell.o
 
 investigate_NAME = investigate.bin
-investigate_OBJS += init.o init-reloc.o investigate.o common.o uart.o
+investigate_OBJS += init.o init-reloc.o investigate.o common.o uart.o printk.o
 
 # $(1) - EXE name
 define exe_defs
@@ -68,4 +69,7 @@ clean:
 	$(OBJCOPY) -O binary $< $@
 
 test-ell: test/test-ell.c ell.c ell.h Makefile
+test-printk: test/test-printk.c printk.c
+
+test-ell test-printk:
 	$(HOST_GCC) -DHOST_BUILD -g -Wall -Wextra -I. -o $@ $(filter %.c,$^)

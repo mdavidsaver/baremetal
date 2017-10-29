@@ -12,5 +12,7 @@ void vprintk(const char *fmt, va_list) __attribute__((format(__printf__,1,0)));
 
 void putc(char c);
 void putc_escape(char c);
+void puts(const char *s);
+extern const char hexchars[];
 
 #endif /* COMMON_H */

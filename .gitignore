@@ -11,4 +11,6 @@
 *.files
 *.includes
 
-test-ell
+*.swp
+
+/test-*
