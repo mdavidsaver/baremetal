@@ -13,17 +13,23 @@
 #define MAS1_IS 0
 #define MAS1_TID(N) (((N)&0xff)<<(63-47))
 /* Size in bytes is 4**N
- * e500 only support some sizes: N in [1,9] (4k -> 256MB)
+ * mpc8540 only support some sizes: N in [1,9] (4k -> 256MB)
  */
 #define MAS1_TSIZE(N) (((N)&0xf)<<(63-55))
 
 #define MAS2_EPN(ADR) ((ADR)&0xfffff000)
+#define MAS2_X (3<<(63-58))
+#define MAS2_W (1<<(63-59))
+#define MAS2_I (1<<(63-60))
+#define MAS2_M (1<<(63-61))
+#define MAS2_G (1<<(63-62))
+#define MAS2_E (1<<(63-63))
 /* mem coherence */
-#define MAS2_RAM  0x4
+#define MAS2_RAM  MAS2_M
 /* mem coherence */
-#define MAS2_ROM  0x4
+#define MAS2_ROM  MAS2_M
 /* cache inhibit, mem coherence, guarded */
-#define MAS2_DEVICE 0xe
+#define MAS2_DEVICE (MAS2_I|MAS2_M|MAS2_G)
 
 #define MAS3_RPN(ADR) ((ADR)&0xfffff000)
 /* All RWX */
