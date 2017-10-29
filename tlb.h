@@ -1,10 +1,7 @@
 #ifndef TLB_H
 #define TLB_H
 
-#define SPR_MAS0 624
-#define SPR_MAS1 625
-#define SPR_MAS2 626
-#define SPR_MAS3 627
+#include "spr.h"
 
 #define MAS0_TLB0 0
 #define MAS0_TLB1 (1<<(63-35))

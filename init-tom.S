@@ -1,10 +1,6 @@
+#include "asm.h"
 
 #include "tlb.h"
-
-.macro load_const rD, expr
-  lis \rD, \expr@h
-  ori \rD, \rD, \expr@l
-.endm
 
 /* The mpc8540 ref. manual states that the initial tlb mapping
  * is only the high 4KB.
@@ -98,7 +94,7 @@ tlb_loop:
   lwz %r0, 0(%r4)
   isync
   
-  b _start /* prepare eabi C environment then jump to Init() */
+  b _pre_Init /* prepare eabi C environment then jump to Init() */
 
 
 .global tlb_update

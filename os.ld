@@ -31,23 +31,23 @@ SECTIONS
    * .gcc_except_table
   */
 
-  /* placeholder for ISR vectors */
-  . = 0x2000;
-
   /* TODO, do something with the ~16 MB between the vectors and .text */
 
-  . = 0x1000000;
+  . = 0x100000;
 
   .text :
   {
+    __text_start = .;
     *(.text.start) /* ensure that _start() appears first */
     *(.text)
+    __text_end = .;
   } =0 /* =0 zeros unused rom areas */
 
   .rodata :
   {
+    __rodata_start = .;
     *(.rodata .rodata.* .gnu.linkonce.r.*)
-    /* store load (LMA) addresses for sections */
+    __rodata_end = .;
   } =0
 
   .sdata :

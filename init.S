@@ -1,11 +1,8 @@
-.macro load_const rD, expr
-  lis \rD, \expr@h
-  ori \rD, \rD, \expr@l
-.endm
+#include "asm.h"
 
 .section .text
-.global _start
-_start:
+.global _pre_Init
+_pre_Init:
   load_const %r1, __bss_start
   load_const %r2, __bss_end
   bl _mzero
@@ -68,8 +65,10 @@ _mzero_loop:
 
   blr
 
+.global _mcopy
 _mcopy:
   /* r1 dst start address, r2 dst end address, r3 src start address */
+  /* clobbers r4 */
   cmplw %r1, %r2
   bgelr-
 

@@ -2,10 +2,11 @@
 #define MMIO_H
 #include <stdint.h>
 
-#define CCSRBASE 0xe1000000
+extern uint32_t ccsr_base;
+#define CCSRBASE ccsr_base
 
-#define PCI_CONF_IDX (CCSRBASE+0x8000)
-#define PCI_CONF_DATA (CCSRBASE+0x8004)
+#define PCI_CONF_IDX (ccsr_base+0x8000)
+#define PCI_CONF_DATA (ccsr_base+0x8004)
 
 /* 0x80000000 - enable
  * 0x00ff0000 - bus

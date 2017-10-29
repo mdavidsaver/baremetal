@@ -68,7 +68,7 @@ SECTIONS
   .text :
   {
 	  PROVIDE(__text_start = .);
-      *(.text)
+      *(.text .text.start)
 
       /* as per the mpc8540 ref. manual, assume that after reset the TLB
        * only maps the last 4kb and place early setup code here.

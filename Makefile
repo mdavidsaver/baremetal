@@ -13,23 +13,32 @@ DEBUG=-gdwarf-2
 CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
 LDFLAGS=-static
 
-#CFLAGS+=-Os
+CFLAGS+=-Os
 
-all: tomload.bin test-ell
+all: tomload.bin investigate.bin test-ell
 
-tomload.elf: init.S tomload.c init-tom.S \
+tomload.elf: Makefile init.S init-tom.S asm.h \
+	tomload.c \
 	common.c uart.c pci.c pci.h pci_def.h \
 	fw_cfg.c fw_cfg.h \
 	ell.c ell.h \
-	common.h tlb.h mmio.h
+	common.h tlb.h mmio.h \
+	tomload.ld
+
+investigate.elf: Makefile init.S init-reloc.S asm.h \
+	investigate.c \
+	common.c common.h \
+	uart.c \
+	mmio.h \
+	os.ld
 
 clean:
 	rm -f *.o
 	rm -f *.elf *.bin *.map
 	rm -f test-ell
 
-%.elf: %.ld
-	$(GCC) -T$*.ld -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.c,$^) $(filter %.S,$^) -lgcc
+%.elf:
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.c,$^) $(filter %.S,$^) -lgcc
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
