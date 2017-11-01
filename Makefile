@@ -51,6 +51,7 @@ endef
 $(foreach name,$(EXE),$(eval $(call exe_rules,$(name))))
 
 clean:
+	rm -f $(TARGETS)
 	rm -f $(OBJS)
 	rm -f $(DEPS)
 	rm -f $(CLEANS)
