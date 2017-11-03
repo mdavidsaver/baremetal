@@ -1,5 +1,5 @@
 
-CROSS_COMPILE=/home/travis/.rtems/bin/powerpc-rtems4.10-
+CROSS_COMPILE=powerpc-linux-gnu-
 GCC=$(CROSS_COMPILE)gcc
 OBJCOPY=$(CROSS_COMPILE)objcopy
 SIZE=$(CROSS_COMPILE)size
@@ -11,8 +11,12 @@ HOST_GCC=gcc
 DEBUG=-gdwarf-2
 #DEBUG=-g -O2
 
-CFLAGS=-mcpu=powerpc -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
-LDFLAGS=-static
+CFLAGS+=-mcpu=powerpc
+
+CFLAGS+= -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
+
+LDFLAGS+=-static
+LDFLAGS+=-Wl,--orphan-handling=error
 
 CFLAGS+=-Os
 

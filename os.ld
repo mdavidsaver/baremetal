@@ -7,11 +7,23 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
               "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 ENTRY(_start)
-SEARCH_DIR("=/usr/local/lib/powerpc-linux-gnu"); SEARCH_DIR("=/lib/powerpc-linux-gnu"); SEARCH_DIR("=/usr/lib/powerpc-linux-gnu"); SEARCH_DIR("=/usr/local/lib32"); SEARCH_DIR("=/lib32"); SEARCH_DIR("=/usr/lib32"); SEARCH_DIR("=/usr/local/lib"); SEARCH_DIR("=/lib"); SEARCH_DIR("=/usr/lib"); SEARCH_DIR("=/usr/powerpc-linux-gnu/lib32"); SEARCH_DIR("=/usr/powerpc-linux-gnu/lib");
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x10000000)); . = SEGMENT_START("text-segment", 0x10000000) + SIZEOF_HEADERS;
+  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x100000)); . = SEGMENT_START("text-segment", 0x100000);
+  PROVIDE(__text_start = .);
+  .text           :
+  {
+    *(.text.start) /* ensure that _start() appears first */
+    *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+    *(.text.exit .text.exit.*)
+    *(.text.startup .text.startup.*)
+    *(.text.hot .text.hot.*)
+    *(.text .stub .text.* .gnu.linkonce.t.*)
+    /* .gnu.warning sections are handled specially by elf32.em.  */
+    *(.gnu.warning)
+    *(.glink)
+  }
   .interp         : { *(.interp) }
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }
@@ -52,17 +64,6 @@ SECTIONS
   {
     KEEP (*(SORT_NONE(.init)))
   }
-  .text           :
-  {
-    *(.text.unlikely .text.*_unlikely .text.unlikely.*)
-    *(.text.exit .text.exit.*)
-    *(.text.startup .text.startup.*)
-    *(.text.hot .text.hot.*)
-    *(.text .stub .text.* .gnu.linkonce.t.*)
-    /* .gnu.warning sections are handled specially by elf32.em.  */
-    *(.gnu.warning)
-    *(.glink)
-  }
   .fini           :
   {
     KEEP (*(SORT_NONE(.fini)))
@@ -70,13 +71,22 @@ SECTIONS
   PROVIDE (__etext = .);
   PROVIDE (_etext = .);
   PROVIDE (etext = .);
+  PROVIDE (__text_end = .);
+  PROVIDE (__rodata_start = .);
   .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
   .rodata1        : { *(.rodata1) }
+  PROVIDE (__rodata_end = .);
+  PROVIDE (__sdata2_start = .);
   .sdata2         :
   {
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
   }
+  PROVIDE (__sdata2_end = .);
+  PROVIDE (__sdata2_load = LOADADDR(.sdata2));
+  PROVIDE (__sbss2_start = .);
   .sbss2          : { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*) }
+  PROVIDE (__sbss2_end = .);
+  PROVIDE (__data_start = .);
   .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) }
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) }
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table
@@ -160,6 +170,9 @@ SECTIONS
   }
   .data1          : { *(.data1) }
   .got            : SPECIAL { *(.got) }
+  PROVIDE (__data_end = .);
+  PROVIDE (__data_load = LOADADDR(.eh_frame_hdr));
+  PROVIDE (__sdata_start = .);
   /* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */
@@ -169,7 +182,10 @@ SECTIONS
   }
   _edata = .; PROVIDE (edata = .);
   . = .;
+  PROVIDE (__sdata_end = .);
+  PROVIDE (__sdata_load = LOADADDR(.sdata));
   __bss_start = .;
+  PROVIDE (__sbss_start = .);
   .sbss           :
   {
     PROVIDE (__sbss_start = .); PROVIDE (___sbss_start = .);
@@ -178,6 +194,8 @@ SECTIONS
     *(.scommon)
     PROVIDE (__sbss_end = .); PROVIDE (___sbss_end = .);
   }
+  PROVIDE (__sbss_end = .);
+  PROVIDE (__bss_start = .);
   .plt            : SPECIAL { *(.plt) }
   .iplt           : { *(.iplt) }
   .bss            :
@@ -191,10 +209,12 @@ SECTIONS
       FIXME: Why do we need it? When there is no .bss section, we don't
       pad the .data section.  */
    . = ALIGN(. != 0 ? 32 / 8 : 1);
+   *(.stack)
   }
   . = ALIGN(32 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(32 / 8);
+  PROVIDE (__bss_end = .);
   _end = .; PROVIDE (end = .);
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
