@@ -105,8 +105,6 @@ _mcopy_loop:
 
   blr
 
-.size bad_exception, .-bad_exception
-
 
 .section .bss
 stack_bottom:

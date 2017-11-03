@@ -141,6 +141,7 @@ bad_exception:
   bl _setup_eabi
   bl os_exception
   b spin
+.size bad_exception, .-bad_exception
 
 install_bad_exception:
   load_const %r3, bad_exception
