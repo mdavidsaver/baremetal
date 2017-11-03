@@ -1,8 +1,8 @@
 
-PREFIX=/home/travis/.rtems/bin/powerpc-rtems4.10-
-GCC=$(PREFIX)gcc
-OBJCOPY=$(PREFIX)objcopy
-SIZE=$(PREFIX)size
+CROSS_COMPILE=/home/travis/.rtems/bin/powerpc-rtems4.10-
+GCC=$(CROSS_COMPILE)gcc
+OBJCOPY=$(CROSS_COMPILE)objcopy
+SIZE=$(CROSS_COMPILE)size
 
 HOST_GCC=gcc
 
