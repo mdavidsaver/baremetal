@@ -1,7 +1,47 @@
 
 #include "common.h"
 
-void memset(void *addr, int val, uint32_t cnt)
+void memcpy(void *rdest, const void *rsrc, size_t cnt)
+{
+    char *dest = rdest;
+    const char *src = rsrc;
+
+    if(dest==src) return;
+
+    while(cnt--)
+        *dest++ = *src++;
+}
+
+void memmove(void *rdest, const void *rsrc, size_t cnt)
+{
+    char *dest = rdest;
+    const char *src = rsrc;
+
+    if(dest < src) {
+        /* |--- dest ---|
+         *     |--- src ---|
+         *
+         * Start from src[0]
+         */
+
+        while(cnt--)
+            *dest++ = *src++;
+    } else if(dest > src) {
+        /*     |--- dest ---|
+         * |--- src ---|
+         *
+         * Start from src[cnt-1]
+         */
+
+        dest += cnt;
+        src += cnt;
+
+        while(cnt--)
+            *--dest = *--src;
+    }
+}
+
+void memset(void *addr, int val, size_t cnt)
 {
     char *ptr = addr;
     while(cnt--)

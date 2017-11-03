@@ -18,42 +18,45 @@ startx:
   mflr %r0 /* holds actual address of 'startx' */
   load_const %r1, startx  /* desired location of 'startx' */
 
-  sub. %r10, %r0, %r1 /* actual - desired */
+  sub. %r26, %r0, %r1 /* actual - desired */
   beq done
 
-  load_const %r1, __text_start
-  load_const %r2, __text_end
-  add %r3, %r1, %r10 /* desired + actual - desired */
-  bl _mcopy
+  load_const %r1 stack_top
+  load_const %r2 _SDA2_BASE_
+  load_const %r13 _SDA_BASE_
 
-  load_const %r1, __rodata_start
-  load_const %r2, __rodata_end
-  add %r3, %r1, %r10
-  bl _mcopy
+  load_const %r3, __text_start /* desired */
+  load_const %r5, __text_end
+  add %r4, %r3, %r26 /* actual = desired + actual - desired */
+  sub %r5, %r5, %r3  /* count */
+  bl memmove
 
-  load_const %r1, __data_load
-  load_const %r2, __data_start
-  load_const %r3, __data_end
-  sub %r2, %r3, %r2
-  add %r2, %r1, %r2
-  add %r3, %r1, %r10
-  bl _mcopy
+  load_const %r3, __rodata_start /* desired */
+  load_const %r5, __rodata_end
+  add %r4, %r3, %r26 /* actual = desired + actual - desired */
+  sub %r5, %r5, %r3  /* count */
+  bl memmove
 
-  load_const %r1, __sdata_load
-  load_const %r2, __sdata_start
-  load_const %r3, __sdata_end
-  sub %r2, %r3, %r2
-  add %r2, %r1, %r2
-  add %r3, %r1, %r10
-  bl _mcopy
+  load_const %r3, __data_load /* desired */
+  load_const %r4, __data_start
+  load_const %r5, __data_end
+  sub %r5, %r5, %r4 /* count */
+  add %r4, %r3, %r26 /* actual = desired + actual - desired */
+  bl memmove
 
-  load_const %r1, __sdata2_load
-  load_const %r2, __sdata2_start
-  load_const %r3, __sdata2_end
-  sub %r2, %r3, %r2
-  add %r2, %r1, %r2
-  add %r3, %r1, %r10
-  bl _mcopy
+  load_const %r3, __sdata_load /* desired */
+  load_const %r4, __sdata_start
+  load_const %r5, __sdata_end
+  sub %r5, %r5, %r4 /* count */
+  add %r4, %r3, %r26 /* actual = desired + actual - desired */
+  bl memmove
+
+  load_const %r3, __sdata2_load /* desired */
+  load_const %r4, __sdata2_start
+  load_const %r5, __sdata2_end
+  sub %r5, %r5, %r4 /* count */
+  add %r4, %r3, %r26 /* actual = desired + actual - desired */
+  bl memmove
 
   sync
   isync

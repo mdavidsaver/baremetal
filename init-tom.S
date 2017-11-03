@@ -134,7 +134,11 @@ _vec_reset:
 _start:
   b _early_setup_tlb
 
-.section .text
+/* place before other .text to make alignment easier */
+.section .text.start
+
+.align 8
+exception_base:
 
 .type bad_exception, @function
 bad_exception:
@@ -144,9 +148,9 @@ bad_exception:
 .size bad_exception, .-bad_exception
 
 install_bad_exception:
-  load_const %r3, bad_exception
+  load_const %r3, exception_base
   mtspr SPR_IVPR, %r3
-  lis %r3, 0
+  lis %r3, bad_exception-exception_base
   mtspr SPR_IVOR(0), %r3
   mtspr SPR_IVOR(1), %r3
   mtspr SPR_IVOR(2), %r3
@@ -165,6 +169,8 @@ install_bad_exception:
   mtspr SPR_IVOR(15), %r3
 
   blr
+
+.section .text
 
 /* cleanup registers and exit bootloader */
 .global load_os

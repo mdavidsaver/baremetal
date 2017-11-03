@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdarg.h>
 
-void memset(void *addr, int val, uint32_t cnt);
+void memcpy(void *dest, const void *src, size_t cnt);
+void memmove(void *dest, const void *src, size_t cnt);
+void memset(void *addr, int val, size_t cnt);
 int strcmp(const char *lhs, const char *rhs);
 
 void printk(const char *fmt, ...) __attribute__((format(__printf__,1,2)));

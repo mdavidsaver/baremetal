@@ -184,8 +184,6 @@ SECTIONS
   . = .;
   PROVIDE (__sdata_end = .);
   PROVIDE (__sdata_load = LOADADDR(.sdata));
-  __bss_start = .;
-  PROVIDE (__sbss_start = .);
   .sbss           :
   {
     PROVIDE (__sbss_start = .); PROVIDE (___sbss_start = .);
@@ -194,7 +192,6 @@ SECTIONS
     *(.scommon)
     PROVIDE (__sbss_end = .); PROVIDE (___sbss_end = .);
   }
-  PROVIDE (__sbss_end = .);
   PROVIDE (__bss_start = .);
   .plt            : SPECIAL { *(.plt) }
   .iplt           : { *(.iplt) }
@@ -203,18 +200,13 @@ SECTIONS
    *(.dynbss)
    *(.bss .bss.* .gnu.linkonce.b.*)
    *(COMMON)
-   /* Align here to ensure that the .bss section occupies space up to
-      _end.  Align after .bss to ensure correct alignment even if the
-      .bss section disappears because there are no input sections.
-      FIXME: Why do we need it? When there is no .bss section, we don't
-      pad the .data section.  */
-   . = ALIGN(. != 0 ? 32 / 8 : 1);
+   PROVIDE (__bss_end = .);
+   /* don't zero stack, this allows initialization from C code */
    *(.stack)
   }
   . = ALIGN(32 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(32 / 8);
-  PROVIDE (__bss_end = .);
   _end = .; PROVIDE (end = .);
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
@@ -259,4 +251,5 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/     : { *(.fixup) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
+  /DISCARD/ : { *(.PPC.EMB.apuinfo) }
 }

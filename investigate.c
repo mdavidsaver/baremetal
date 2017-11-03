@@ -100,8 +100,7 @@ void show_ccsr(void)
     }
 }
 
-static
-void show_cpu(void)
+void Init(void)
 {
     /* Short special registers */
     uint32_t msr, pvr;
@@ -125,16 +124,14 @@ void show_cpu(void)
 
             show_ccsr();
 
+            /* assume mvme3100 */
+            printk("Halt.\n");
+            out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
         }
 
     } else {
         printk("Unknown PPC core\n");
     }
-}
-
-void Init(void)
-{
-    show_cpu();
     printk("Done\n");
     while(1) {}
 }

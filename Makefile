@@ -6,19 +6,25 @@ SIZE=$(CROSS_COMPILE)size
 
 HOST_GCC=gcc
 
-# use dwarf-2 as gdb 4.8 doesn't understand dwarf 4.
-# Replace w/ '-g'
-DEBUG=-gdwarf-2
-#DEBUG=-g -O2
+CFLAGS+=-mcpu=8540 -msoft-float
 
-CFLAGS+=-mcpu=powerpc
+# Don't use OS headers/libraries
+CFLAGS+=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
 
-CFLAGS+= -ffreestanding -nostdlib -nostartfiles -nodefaultlibs $(DEBUG) -Wall -Wextra
+CFLAGS+=-g
 
-LDFLAGS+=-static
-LDFLAGS+=-Wl,--orphan-handling=error
+CFLAGS+=-Wall -Wextra -Werror
 
 CFLAGS+=-Os
+
+LDFLAGS+=-static
+
+# newer ld will allow us to complain instead of just
+# jumping orphaned sections somewhere random...
+LDFLAGS+=-Wl,--orphan-handling=error
+
+CFLAGS+=$(USR_CFLAGS)
+LDFLAGS+=$(USR_LDFLAGS)
 
 EXE += tomload investigate
 
@@ -27,10 +33,17 @@ TARGETS += test-printk
 
 tomload_NAME = tomload.bin
 tomload_LD = tomload.ld
-tomload_OBJS += init.o init-tom.o tomload.o common.o uart.o printk.o fw_cfg.o pci.o ell.o
+tomload_OBJS += init.o init-tom.o
+tomload_OBJS += tomload.o
+tomload_OBJS += eabi.o common.o uart.o
+tomload_OBJS += printk.o
+tomload_OBJS += fw_cfg.o pci.o ell.o
 
 investigate_NAME = investigate.bin
-investigate_OBJS += init.o init-reloc.o investigate.o common.o uart.o printk.o
+investigate_OBJS += init.o init-reloc.o
+investigate_OBJS += investigate.o
+investigate_OBJS += eabi.o common.o uart.o
+investigate_OBJS += printk.o
 
 # $(1) - EXE name
 define exe_defs

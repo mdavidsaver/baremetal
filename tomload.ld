@@ -9,23 +9,27 @@ OUTPUT_ARCH(powerpc:common)
 ENTRY(_start)
 
 MEMORY {
-  rom (rx) : ORIGIN = 0xff800000, LENGTH = 8M
   ram (rwx) : ORIGIN = 0x0, LENGTH = 64K
+  rom (rx) : ORIGIN = 0xff800000, LENGTH = 8M
+  /* as per the mpc8540 ref. manual, assume that after reset the TLB
+   * only maps the last 4kb and place early setup code here.
+   */
+  early (rx) : ORIGIN = 0xfffff000, LENGTH = 4K
+  /* reset vector */
+  reset (rx) : ORIGIN = 0xfffffffc, LENGTH = 4
 }
 
 SECTIONS
 {
-  /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x100000)); . = SEGMENT_START("text-segment", 0x100000);
-  PROVIDE(__text_start = .);
   .text           :
   {
+    PROVIDE(__text_start = .);
     *(.text.start) /* ensure that _start() appears first */
     *(.text.unlikely .text.*_unlikely .text.unlikely.*)
     *(.text.exit .text.exit.*)
     *(.text.startup .text.startup.*)
     *(.text.hot .text.hot.*)
-    *(.text .stub .text.* .gnu.linkonce.t.*)
+    *(.text .stub .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
     *(.glink)
@@ -82,31 +86,32 @@ SECTIONS
   .fini           :
   {
     KEEP (*(SORT_NONE(.fini)))
+    PROVIDE (__text_end = .);
   } >rom
-  PROVIDE (__etext = .);
-  PROVIDE (_etext = .);
-  PROVIDE (etext = .);
-  PROVIDE (__text_end = .);
-  PROVIDE (__rodata_start = .);
-  .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
-   >rom
-  .rodata1        : { *(.rodata1) }
-   >rom
-  PROVIDE (__rodata_end = .);
-  PROVIDE (__sdata2_start = .);
+  .rodata         : {
+    PROVIDE (__rodata_start = .);
+    *(.rodata .rodata.* .gnu.linkonce.r.*) 
+  } >rom
+  .rodata1        : {
+    *(.rodata1)
+    PROVIDE (__rodata_end = .);
+  } >rom
   .sdata2         :
   {
+    PROVIDE (__sdata2_start = .);
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
+    PROVIDE (__sdata2_end = .);
   } >ram AT>rom
-  PROVIDE (__sdata2_end = .);
   PROVIDE (__sdata2_load = LOADADDR(.sdata2));
-  PROVIDE (__sbss2_start = .);
-  .sbss2          : { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*) }
-  >ram AT>rom
-  PROVIDE (__sbss2_end = .);
-  PROVIDE (__data_start = .);
-  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) }
-  >ram AT>rom
+  .sbss2          : {
+    PROVIDE (__sbss2_start = .);
+    *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
+    PROVIDE (__sbss2_end = .);
+  } >ram AT>rom
+  .eh_frame_hdr : {
+    PROVIDE (__data_start = .);
+    *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*)
+  } >ram AT>rom
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) }
   >ram AT>rom
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table
@@ -207,24 +212,22 @@ SECTIONS
   >ram AT>rom
   .data1          : { *(.data1) }
   >ram AT>rom
-  .got            : SPECIAL { *(.got) }
-  >ram AT>rom
-  PROVIDE (__data_end = .);
+  .got            : SPECIAL {
+    *(.got)
+    PROVIDE (__data_end = .);
+  } >ram AT>rom
   PROVIDE (__data_load = LOADADDR(.eh_frame_hdr));
-  PROVIDE (__sdata_start = .);
   /* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */
   .sdata          :
   {
+    PROVIDE (__sdata_start = .);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
+    PROVIDE (__sdata_end = .);
   } >ram AT>rom
-  _edata = .; PROVIDE (edata = .);
-  . = .;
-  PROVIDE (__sdata_end = .);
   PROVIDE (__sdata_load = LOADADDR(.sdata));
-  __bss_start = .;
-  PROVIDE (__sbss_start = .);
+
   .sbss           :
   {
     PROVIDE (__sbss_start = .); PROVIDE (___sbss_start = .);
@@ -233,9 +236,10 @@ SECTIONS
     *(.scommon)
     PROVIDE (__sbss_end = .); PROVIDE (___sbss_end = .);
   } >ram AT>rom
-  PROVIDE (__sbss_end = .);
-  PROVIDE (__bss_start = .);
-  .plt            : SPECIAL { *(.plt) }
+  .plt            : SPECIAL {
+    PROVIDE (__bss_start = .);
+    *(.plt)
+  }
   >ram AT>rom
   .iplt           : { *(.iplt) }
   >ram AT>rom
@@ -244,19 +248,14 @@ SECTIONS
    *(.dynbss)
    *(.bss .bss.* .gnu.linkonce.b.*)
    *(COMMON)
-   /* Align here to ensure that the .bss section occupies space up to
-      _end.  Align after .bss to ensure correct alignment even if the
-      .bss section disappears because there are no input sections.
-      FIXME: Why do we need it? When there is no .bss section, we don't
-      pad the .data section.  */
-   . = ALIGN(. != 0 ? 32 / 8 : 1);
+   PROVIDE (__bss_end = .);
+   /* don't zero stack, this allows initialization from C code */
    *(.stack)
   } >ram AT>rom
-  . = ALIGN(32 / 8);
-  . = SEGMENT_START("ldata-segment", .);
-  . = ALIGN(32 / 8);
-  PROVIDE (__bss_end = .);
-  _end = .; PROVIDE (end = .);
+  
+  .text.early : {*(.text.early)} >early
+  .text.reset : {*(.text.init)} >reset
+
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
@@ -300,4 +299,5 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/     : { *(.fixup) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
+  /DISCARD/ : { *(.PPC.EMB.apuinfo) }
 }
