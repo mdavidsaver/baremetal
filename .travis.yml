@@ -1,0 +1,9 @@
+sudo: false
+dist: trusty
+language: c
+addons:
+  apt:
+    packages:
+    - gcc-powerpc-linux-gnu
+script:
+  - make
