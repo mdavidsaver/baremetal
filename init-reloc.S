@@ -1,5 +1,8 @@
 #include "asm.h"
-/* Relocate all sections as the bootloader has placed us arbitrarily in RAM */
+/* Relocate all sections as the bootloader has placed us arbitrarily in RAM.
+ *
+ * TOOD: doesn't handle overlap
+ */
 
 .section .text.start
 .global _start
@@ -21,9 +24,9 @@ startx:
   sub. %r26, %r0, %r1 /* actual - desired */
   beq done
 
-  load_const %r1 stack_top
-  load_const %r2 _SDA2_BASE_
-  load_const %r13 _SDA_BASE_
+  load_const %r1, stack_top
+  load_const %r2, _SDA2_BASE_
+  load_const %r13, _SDA_BASE_
 
   load_const %r3, __text_start /* desired */
   load_const %r5, __text_end
