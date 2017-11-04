@@ -11,7 +11,7 @@
 #define NELEMENTS(ARR) (sizeof(ARR)/sizeof(ARR[0]))
 
 static uint32_t image_addr = 0x10000;
-void load_os(uint32_t); /* in init-tom.S */
+void load_os(uint32_t, const uint32_t*); /* in bootos.S */
 
 static const
 tlbentry initial_mappings[] = {
@@ -115,9 +115,11 @@ void show_fw_cfg(void)
     }
 
     {
-        uint32_t addr = fw_cfg_read32(FW_CFG_KERNEL_ADDR);
-        if(addr)
+        uint32_t addr = fw_cfg_read32(FW_CFG_KERNEL_ENTRY);
+        if(addr) {
             image_addr = addr;
+            printk("Entry %08x\n", addr);
+        }
     }
 
     fw_cfg_list_files();
@@ -310,7 +312,10 @@ void Init(void)
 
 	prepare_tsi148();
     printk("Load from %08x\n", (unsigned)image_addr);
-	load_os(image_addr);
+
+    uint32_t regs[32];
+    memset(regs, 0 ,sizeof(regs));
+	load_os(image_addr, regs);
 }
 
 void os_return(void)

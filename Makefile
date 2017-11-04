@@ -9,7 +9,9 @@ HOST_GCC=gcc
 CFLAGS+=-mcpu=8540 -msoft-float
 
 # Don't use OS headers/libraries
-CFLAGS+=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+STANDALONE=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+CFLAGS += $(STANDALONE)
+LDFLAGS += $(STANDALONE)
 
 CFLAGS+=-g
 
@@ -34,7 +36,7 @@ TARGETS += test-printk
 tomload_NAME = tomload.bin
 tomload_LD = tomload.ld
 tomload_OBJS += init.o init-tom.o
-tomload_OBJS += tomload.o
+tomload_OBJS += tomload.o bootos.o
 tomload_OBJS += eabi.o common.o uart.o
 tomload_OBJS += printk.o
 tomload_OBJS += fw_cfg.o pci.o ell.o
@@ -80,7 +82,7 @@ clean:
 	$(GCC) -o $@ -c $< -MD $(CFLAGS) $($*_CFLAGS)
 
 %.elf:
-	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(CFLAGS) $(LDFLAGS) $(filter %.o,$^) -lgcc
+	$(GCC) -T$(filter %.ld,$^) -Wl,-Map=$*.map -o $@ $(LDFLAGS) $($*_LDFLAGS) $(filter %.o,$^) -lgcc
 
 %.bin: %.elf
 	$(SIZE) $<

@@ -8,10 +8,9 @@
 #define MAS0_ENT(N) (((N)&0xf)<<(63-47))
 
 #define MAS1_V (1<<(63-32))
-/* TODO, what does TS set mean? */
-#define MAS1_DS 0
-#define MAS1_IS 0
+#define MAS1_IPROT (1<<(63-33))
 #define MAS1_TID(N) (((N)&0xff)<<(63-47))
+#define MAS1_TS(N) ((N)<<(63-51))
 /* Size in bytes is 4**N
  * mpc8540 only support some sizes: N in [1,9] (4k -> 256MB)
  */

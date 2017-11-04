@@ -10,6 +10,7 @@
 #define FW_CFG_RAM_SIZE         0x03
 #define FW_CFG_KERNEL_ADDR      0x07
 #define FW_CFG_KERNEL_SIZE      0x08
+#define FW_CFG_KERNEL_ENTRY     0x10
 
 #define FW_CFG_CMDLINE_SIZE     0x14
 #define FW_CFG_CMDLINE_DATA     0x15

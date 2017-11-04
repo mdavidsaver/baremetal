@@ -36,9 +36,11 @@ _tlb_data_early:
 .long MAS2_EPN(0xff800000)|MAS2_ROM
 .long MAS3_RPN(0xff800000)|MAS3_ROM
 
-/* RAM */
+/* RAM
+ * Linux expects IPROT
+ */
 .long MAS0_TLB1|MAS0_ENT(2)
-.long MAS1_V|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
 .long MAS2_EPN(0)|MAS2_RAM
 .long MAS3_RPN(0)|MAS3_RAM
 
@@ -137,13 +139,17 @@ _start:
 /* place before other .text to make alignment easier */
 .section .text.start
 
-.align 8
+/* base of all exception vector */
+.align 17
 exception_base:
 
+/* each handler must be aligned to 16 bytes */
+.align 4
 .type bad_exception, @function
 bad_exception:
   bl _setup_eabi
   bl os_exception
+spin:
   b spin
 .size bad_exception, .-bad_exception
 
@@ -151,68 +157,23 @@ install_bad_exception:
   load_const %r3, exception_base
   mtspr SPR_IVPR, %r3
   lis %r3, bad_exception-exception_base
-  mtspr SPR_IVOR(0), %r3
-  mtspr SPR_IVOR(1), %r3
-  mtspr SPR_IVOR(2), %r3
-  mtspr SPR_IVOR(3), %r3
-  mtspr SPR_IVOR(4), %r3
-  mtspr SPR_IVOR(5), %r3
-  mtspr SPR_IVOR(6), %r3
-  mtspr SPR_IVOR(7), %r3
-  mtspr SPR_IVOR(8), %r3
-  mtspr SPR_IVOR(9), %r3
-  mtspr SPR_IVOR(10), %r3
-  mtspr SPR_IVOR(11), %r3
-  mtspr SPR_IVOR(12), %r3
-  mtspr SPR_IVOR(13), %r3
-  mtspr SPR_IVOR(14), %r3
-  mtspr SPR_IVOR(15), %r3
+  mtspr SPR_IVOR(0), %r3 /* Critical */
+  mtspr SPR_IVOR(1), %r3 /* MachineCheck */
+  mtspr SPR_IVOR(2), %r3 /* DataStorage */
+  mtspr SPR_IVOR(3), %r3 /* InstructionStorage */
+  mtspr SPR_IVOR(4), %r3 /* ExternalInterrupt */
+  mtspr SPR_IVOR(5), %r3 /* Alignment */
+  mtspr SPR_IVOR(6), %r3 /* Program */
+  mtspr SPR_IVOR(7), %r3 /* NO FPU */
+  mtspr SPR_IVOR(8), %r3 /* syscall */
+  mtspr SPR_IVOR(9), %r3 /* NO APU */
+  mtspr SPR_IVOR(10), %r3 /* Decrementer */
+  mtspr SPR_IVOR(11), %r3 /* interval timer */
+  mtspr SPR_IVOR(12), %r3 /* watchdog timer */
+  mtspr SPR_IVOR(13), %r3 /* data TLB */
+  mtspr SPR_IVOR(14), %r3 /* instruction TLB */
+  mtspr SPR_IVOR(15), %r3 /* debug crit */
 
   blr
 
 .section .text
-
-/* cleanup registers and exit bootloader */
-.global load_os
-.type load_os, @function
-load_os:
-  mtlr %r3 /* OS entry point address */
-  li %r0, 0
-  li %r1, 0
-  li %r2, 0
-  li %r3, 0
-  li %r4, 0
-  li %r5, 0
-  li %r6, 0
-  li %r7, 0
-  li %r8, 0
-  li %r9, 0
-  li %r10, 0
-  li %r11, 0
-  li %r12, 0
-  li %r13, 0
-  li %r14, 0
-  li %r15, 0
-  li %r16, 0
-  li %r17, 0
-  li %r18, 0
-  li %r19, 0
-  li %r20, 0
-  li %r21, 0
-  li %r22, 0
-  li %r23, 0
-  li %r24, 0
-  li %r25, 0
-  li %r26, 0
-  li %r27, 0
-  li %r28, 0
-  li %r29, 0
-  li %r30, 0
-  li %r31, 0
-  blrl
-  /* reached if OS image returns to us */
-  bl _setup_eabi
-  bl os_return
-spin:
-  b spin
-.size load_os, .-load_os
