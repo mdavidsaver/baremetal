@@ -1,8 +1,41 @@
 #ifndef SPR_H
 #define SPR_H
 
+#define SPR_DEC 22
+#define SPR_DECAR 54
+#define SPR_TBL 284
+#define SPR_TBH 285
+#define SPR_TCR 340
+#define SPR_TSR 336
+
+#define SPR_SRR0 26
+#define SPR_SRR1 27
+
+#define SPR_CSRR0 58
+#define SPR_CSRR1 59
+
+#define SPR_ESR 62
+#define ESR_PIL (1u<<(63-36))
+#define ESR_PPR (1u<<(63-37))
+#define ESR_PTR (1u<<(63-38))
+#define ESR_ST  (1u<<(63-40))
+#define ESR_DLK (1u<<(63-42))
+#define ESR_ILK (1u<<(63-43))
+#define ESR_BO  (1u<<(63-46))
+#define ESR_SPE (1u<<(63-53))
+
+#define SPR_DEAR 61
+
+#define SPR_MCAR 573
+#define SPR_MCSR 572
+#define SPR_MCSRR0 570
+#define SPR_MCSRR1 571
+
 #define SPR_IVPR 63
+
 #define SPR_PVR 287
+/* SCR aka. SVR */
+#define SPR_SCR 1023
 
 #define SPR_IVOR(N) ((400)+(N))
 
@@ -21,6 +54,27 @@
 #define SPR_MAS3 627
 #define SPR_MAS4 628
 #define SPR_MAS6 630
+
+#define SPR_PID0 48
+#define SPR_PID1 633
+#define SPR_PID2 634
+
+#define SPR_L1CSR0 1010
+#define SPR_L1CSR1 1011
+
+/* SPRG0-2 supervisor only
+ * 3-7 user read
+ */
+#define SPR_SPRG0 272
+#define SPR_SPRG1 273
+#define SPR_SPRG2 274
+#define SPR_SPRG3 275
+#define SPR_SPRG4 276
+#define SPR_SPRG5 277
+#define SPR_SPRG6 278
+#define SPR_SPRG7 279
+
+#define SPR_USPRG0 256
 
 #ifndef __ASSEMBLER__
 

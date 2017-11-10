@@ -3,6 +3,7 @@
 
 #include "mmio.h"
 #include "tlb.h"
+#include "exc.h"
 #include "pci.h"
 #include "pci_def.h"
 #include "fw_cfg.h"
@@ -325,9 +326,47 @@ void os_return(void)
     while(1) {}
 }
 
-void os_exception(void)
+void cpu_exception(unsigned num, const exc_frame* frame)
 {
-    printk("TOMLOAD: Image exception.  Halt.\n");
+    uint32_t inst_addr;
+    if(num==EXC_CRIT) {
+        inst_addr = READ_SPR(SPR_CSRR0);
+    } else if(num==EXC_MC) {
+        inst_addr = READ_SPR(SPR_MCSRR0);
+    } else {
+        inst_addr = READ_SPR(SPR_SRR0);
+    }
+
+    uint32_t esr = READ_SPR(SPR_ESR);
+
+    (void)frame;
+    printk("TOMLOAD: exception %u @%08x ESR=%08x\n  ", num, (unsigned)inst_addr, (unsigned)esr);
+
+    switch(num) {
+    case EXC_CRIT: printk("Critial\n"); break;
+    case EXC_MC:   printk("Machine Check\n"); break;
+    case EXC_DS:   printk("Data Store\n"); break;
+    case EXC_IS:   printk("Inst Store\n"); break;
+    case EXC_EXT:  printk("External \n"); break;
+    case EXC_ALIGN:printk("Alignment\n"); break;
+    case EXC_PROG: printk("Program\n"); break;
+    case EXC_NOFPU:printk("FPU\n"); break;
+    case EXC_SYSCALL: printk("SYSCALL\n"); break;
+    case EXC_NOAPU:printk("APU\n"); break;
+    case EXC_DEC:  printk("Dec\n"); break;
+    case EXC_TIMER:printk("Timer\n"); break;
+    case EXC_WD:   printk("WD\n"); break;
+    case EXC_DTLB: printk("Data TLB\n"); break;
+    case EXC_ITLB: printk("Inst TLB\n"); break;
+    case EXC_DEBUG:printk("Debug\n"); break;
+    default:
+        printk("Unknown\n");
+    }
+
+    if(esr&ESR_PIL) {
+        printk("  illegal instruction\n");
+    }
+
     out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
     while(1) {}
 }
