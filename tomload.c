@@ -115,13 +115,7 @@ void show_fw_cfg(void)
         printk("Append: \"%s\"\n", cmdline);
     }
 
-    {
-        uint32_t addr = fw_cfg_read32(FW_CFG_KERNEL_ENTRY);
-        if(addr) {
-            image_addr = addr;
-            printk("Entry %08x\n", addr);
-        }
-    }
+    image_addr = fw_cfg_read32(FW_CFG_KERNEL_ENTRY);
 
     fw_cfg_list_files();
 
