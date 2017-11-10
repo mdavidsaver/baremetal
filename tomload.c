@@ -322,6 +322,7 @@ void os_return(void)
 
 void cpu_exception(unsigned num, const exc_frame* frame)
 {
+    unsigned show_dear = 0;
     uint32_t inst_addr;
     if(num==EXC_CRIT) {
         inst_addr = READ_SPR(SPR_CSRR0);
@@ -339,22 +340,26 @@ void cpu_exception(unsigned num, const exc_frame* frame)
     switch(num) {
     case EXC_CRIT: printk("Critial\n"); break;
     case EXC_MC:   printk("Machine Check\n"); break;
-    case EXC_DS:   printk("Data Store\n"); break;
-    case EXC_IS:   printk("Inst Store\n"); break;
+    case EXC_DS:   printk("Data Store\n"); show_dear = 1; break;
+    case EXC_IS:   printk("Inst Store\n"); show_dear = 1; break;
     case EXC_EXT:  printk("External \n"); break;
-    case EXC_ALIGN:printk("Alignment\n"); break;
-    case EXC_PROG: printk("Program\n"); break;
+    case EXC_ALIGN:printk("Alignment\n"); show_dear = 1; break;
+    case EXC_PROG: printk("Program\n"); show_dear = 1; break;
     case EXC_NOFPU:printk("FPU\n"); break;
     case EXC_SYSCALL: printk("SYSCALL\n"); break;
     case EXC_NOAPU:printk("APU\n"); break;
     case EXC_DEC:  printk("Dec\n"); break;
     case EXC_TIMER:printk("Timer\n"); break;
     case EXC_WD:   printk("WD\n"); break;
-    case EXC_DTLB: printk("Data TLB\n"); break;
-    case EXC_ITLB: printk("Inst TLB\n"); break;
+    case EXC_DTLB: printk("Data TLB\n"); show_dear = 1; break;
+    case EXC_ITLB: printk("Inst TLB\n"); show_dear = 1; break;
     case EXC_DEBUG:printk("Debug\n"); break;
     default:
         printk("Unknown\n");
+    }
+
+    if(show_dear) {
+        printk("  Address %08x\n", (unsigned)READ_SPR(SPR_DEAR));
     }
 
     if(esr&ESR_PIL) {
