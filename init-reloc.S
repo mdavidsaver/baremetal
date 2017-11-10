@@ -18,54 +18,68 @@ startx:
   mr %r30, %r6
   mr %r31, %r7
 
-  mflr %r0 /* holds actual address of 'startx' */
+  mflr %r0                /* holds actual address of 'startx' */
   load_const %r1, startx  /* desired location of 'startx' */
 
-  sub. %r26, %r0, %r1 /* actual - desired */
-  beq done
+  sub. %r26, %r0, %r1 /* actual - desired, aka.  src - dest */
 
-  load_const %r1, stack_top
-  load_const %r2, _SDA2_BASE_
-  load_const %r13, _SDA_BASE_
+  /* we are in one of 5 possible arrangements
+   * 1. already in right place
+   *     |--- dest ---|
+   *     |--- src ----|
+   * 2. no overlap dest lower
+   *     |--- dest ---|
+   *                    |--- src ----|
+   * 3. no overlap src lower
+   *                    |--- dest ---|
+   *     |--- src ----|
+   * 4. overlap dest lower
+   *     |--- dest ---|
+   *          |--- src ----|
+   * 5. overlap dest lower
+   *          |--- dest ---|
+   *     |--- src ----|
+   */
 
-  load_const %r3, __text_start /* desired */
-  load_const %r5, __text_end
-  add %r4, %r3, %r26 /* actual = desired + actual - desired */
-  sub %r5, %r5, %r3  /* count */
-  bl memmove
+  /* place relocator above max(src, dest)+size */
 
-  load_const %r3, __rodata_start /* desired */
-  load_const %r5, __rodata_end
-  add %r4, %r3, %r26 /* actual = desired + actual - desired */
-  sub %r5, %r5, %r3  /* count */
-  bl memmove
+  load_const %r5, _end /* dest+size */
 
-  load_const %r3, __data_load /* desired */
-  load_const %r4, __data_start
-  load_const %r5, __data_end
-  sub %r5, %r5, %r4 /* count */
-  add %r4, %r3, %r26 /* actual = desired + actual - desired */
-  bl memmove
+  cmpwi %r26, 0
+  blt usedest
+  /* src >= dest */
+  add %r5, %r5, %r26 /* src+size */
+usedest:
 
-  load_const %r3, __sdata_load /* desired */
-  load_const %r4, __sdata_start
-  load_const %r5, __sdata_end
-  sub %r5, %r5, %r4 /* count */
-  add %r4, %r3, %r26 /* actual = desired + actual - desired */
-  bl memmove
+  /* ensure alignment */
+  ori %r5, %r5, 0x3
+  addi %r5, %r5, 1
 
-  load_const %r3, __sdata2_load /* desired */
-  load_const %r4, __sdata2_start
-  load_const %r5, __sdata2_end
-  sub %r5, %r5, %r4 /* count */
-  add %r4, %r3, %r26 /* actual = desired + actual - desired */
-  bl memmove
+  load_const %r3, mmove
+  add %r3, %r3, %r26 /* actual mmove */
 
-  sync
-  isync
+  load_const %r4, end_mmove - mmove
 
-  load_const %r1, _pre_Init
-  mtlr %r1
+  mr %r8, %r5 /* save pointer to relocator mmove */
+  bl mmove
+
+  /* jump to relocator to copy ourself to final destination.
+   * relocator must jump to final destination as this location
+   * may be clobbered.
+   */
+
+  load_const %r5, __text_start /* dset */
+  load_const %r4, _end
+  sub %r4, %r4, %r5
+  add %r3, %r5, %r26 /* src */
+
+  mtctr %r8 /* branch to relocator (copy of mmove() ) */
+  load_const %r8, atfinal /* return to atfinal in final location */
+  mtlr %r8
+
+  bctr
+
+atfinal:
 
   mr %r3, %r27
   mr %r4, %r28
@@ -73,5 +87,55 @@ startx:
   mr %r6, %r30
   mr %r7, %r31
 
-done:
+  b _pre_Init
+
+/* relocator
+ * r3 - base address of code to move
+ * r4 - size of code to move
+ * r5 - address of destination
+ *
+ * clobbers
+ *  ctr
+ *  cr0
+ *  r3 - r5
+ */
+mmove:
+  cmpwi %r4, 0
+  beqlr-
+
+  addi %r4, %r4, 1
+  mtctr %r4
+  subi %r4, %r4, 1
+
+  cmpw %r5, %r3
+  beq relcd /* dest == src */
+
+  bgt down
+
+up: /* dest < src */
+  subi %r3, %r3, 1
+  subi %r5, %r5, 1
+
+uploop:
+  lbzu %r4, 1(%r3)
+  stbu %r4, 1(%r5)
+  bdnz+ uploop
+
+  b relcd
+down: /* dest > src */
+  add %r3, %r3, %r4
+  add %r5, %r5, %r4
+  addi %r3, %r3, 1
+  addi %r5, %r5, 1
+
+downloop:
+  lbzu %r4, -1(%r3)
+  stbu %r4, -1(%r5)
+  bdnz+ downloop
+
+relcd:
+  /* TODO: L1 cache invalidate */
+  sync
+  isync
   blr
+end_mmove:
