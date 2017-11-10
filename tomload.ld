@@ -9,12 +9,15 @@ OUTPUT_ARCH(powerpc:common)
 ENTRY(_start)
 
 MEMORY {
-  ram (rwx) : ORIGIN = 0x0, LENGTH = 64K
-  rom (rx) : ORIGIN = 0xff800000, LENGTH = 8M
+  /* RAM begins at 0, but we leave lower 64MB
+   * free for QEMU to load guest image
+   */
+  ram (rwx) : ORIGIN = 0x4000000, LENGTH = 64K
+  rom (rx) : ORIGIN = 0xff800000, LENGTH = 8M - 4K
   /* as per the mpc8540 ref. manual, assume that after reset the TLB
    * only maps the last 4kb and place early setup code here.
    */
-  early (rx) : ORIGIN = 0xfffff000, LENGTH = 4K
+  early (rx) : ORIGIN = 0xfffff000, LENGTH = 4K - 4
   /* reset vector */
   reset (rx) : ORIGIN = 0xfffffffc, LENGTH = 4
 }
