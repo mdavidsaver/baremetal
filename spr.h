@@ -61,6 +61,9 @@
 
 #define SPR_L1CSR0 1010
 #define SPR_L1CSR1 1011
+#define SPR_L1CFG0 515
+#define L1CFG0_CSIZE 0xff
+#define SPR_L1CFG1 516
 
 /* SPRG0-2 supervisor only
  * 3-7 user read

@@ -22,8 +22,8 @@ CFLAGS+=-Os
 LDFLAGS+=-static
 
 # newer ld will allow us to complain instead of just
-# jumping orphaned sections somewhere random...
-LDFLAGS+=-Wl,--orphan-handling=error
+# dumping orphaned sections somewhere unexpected
+#LDFLAGS+=-Wl,--orphan-handling=error
 
 CFLAGS+=$(USR_CFLAGS)
 LDFLAGS+=$(USR_LDFLAGS)

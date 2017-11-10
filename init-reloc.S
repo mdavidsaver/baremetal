@@ -1,4 +1,6 @@
 #include "asm.h"
+#include "spr.h"
+
 /* Relocate all sections as the bootloader has placed us arbitrarily in RAM.
  *
  * TOOD: doesn't handle overlap
@@ -23,6 +25,11 @@ startx:
 
   sub. %r26, %r0, %r1 /* actual - desired, aka.  src - dest */
 
+  mfspr %r25, SPR_L1CFG0
+  andi. %r25, %r25, L1CFG0_CSIZE
+  subi %r25, %r25, 1 /* cache size mask */
+  /* TODO: use for invalidation */
+
   /* we are in one of 5 possible arrangements
    * 1. already in right place
    *     |--- dest ---|
@@ -39,6 +46,10 @@ startx:
    * 5. overlap dest lower
    *          |--- dest ---|
    *     |--- src ----|
+   *
+   * We do a two stage copy.
+   * 1. copy codemove() after both src and dest
+   * 2. use copied codemove() to copy ourselves
    */
 
   /* place relocator above max(src, dest)+size */
@@ -55,13 +66,13 @@ usedest:
   ori %r5, %r5, 0x3
   addi %r5, %r5, 1
 
-  load_const %r3, mmove
-  add %r3, %r3, %r26 /* actual mmove */
+  load_const %r3, codemove
+  add %r3, %r3, %r26 /* actual codemove */
 
-  load_const %r4, end_mmove - mmove
+  load_const %r4, end_codemove - codemove
 
-  mr %r8, %r5 /* save pointer to relocator mmove */
-  bl mmove
+  mr %r8, %r5 /* save pointer to relocator codemove */
+  bl codemove
 
   /* jump to relocator to copy ourself to final destination.
    * relocator must jump to final destination as this location
@@ -73,7 +84,7 @@ usedest:
   sub %r4, %r4, %r5
   add %r3, %r5, %r26 /* src */
 
-  mtctr %r8 /* branch to relocator (copy of mmove() ) */
+  mtctr %r8 /* branch to relocator (copy of codemove() ) */
   load_const %r8, atfinal /* return to atfinal in final location */
   mtlr %r8
 
@@ -97,9 +108,9 @@ atfinal:
  * clobbers
  *  ctr
  *  cr0
- *  r3 - r5
+ *  r3 - r7
  */
-mmove:
+codemove:
   cmpwi %r4, 0
   beqlr-
 
@@ -138,4 +149,4 @@ relcd:
   sync
   isync
   blr
-end_mmove:
+end_codemove:
