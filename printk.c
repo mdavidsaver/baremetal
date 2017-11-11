@@ -116,6 +116,12 @@ void vprintk(const char *fmt, va_list args)
                     puts(v);
                 }
                     break;
+                case 'c': {
+                    info.type = c;
+                    char num = va_arg(args, int);
+                    putc(num);
+                }
+                    break;
                 case '9':
                 case '\0':
                 default:

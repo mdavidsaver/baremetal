@@ -57,6 +57,39 @@ void show_tlb1(void)
     }
 }
 
+/* DUART is 16550 compatible */
+static
+void show_uart(unsigned n)
+{
+    uint32_t base = CCSRBASE + (n==0 ? 0x4500 : 0x4600);
+    uint8_t lcr, mcr, scratch;
+    uint16_t div;
+
+    lcr = in8x(base, 3);
+    mcr = in8x(base, 4);
+    scratch = in8x(base, 7);
+
+    out8x(base, 3, lcr|0x80); // set DLAB
+    div = in8x(base, 1); // MSB
+    div<<=8;
+    div|= in8x(base, 0); // LSB
+
+    out8x(base, 3, lcr); // restore DLAB
+
+    printk("UART%u LCR=%02x MCR=%02x UD=%04x scratch=%02x\n",
+           n, lcr, mcr, div, scratch);
+    printk(" Format %u%c%u\n",
+           5+(lcr&3),
+           (lcr&0x10) ? ((lcr&0x80) ? 'E' : 'O') : 'N',
+           (lcr&0x4) ? 2 : 1);
+
+    /* for 8500, baud rate is
+     *   CCB Freq/(16*div)
+     *  266e6/(16*1736) = 9576 (~9600)
+     *  333e6/(16*2170) = 9591 (~9600)
+     */
+}
+
 static
 void show_ccsr(void)
 {
@@ -69,6 +102,9 @@ void show_ccsr(void)
     printk("PORDBGMSR %08x\n", (unsigned)in32x(CCSRBASE, 0xe0010));
     printk("PVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a0));
     printk("SVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a4));
+
+    show_uart(0);
+    show_uart(1);
 
     for(i=0; i<8; i++) {
         printk("LAWBAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0xc08, 0x20*i));

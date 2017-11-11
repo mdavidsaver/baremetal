@@ -280,9 +280,30 @@ void prepare_tsi148(void)
 	out32x(bar, 0x604, 1<<27); /* master enable on */
 }
 
+static void setup_uart(unsigned n)
+{
+    uint32_t base = CCSRBASE + (n==0 ? 0x4500 : 0x4600);
+
+    /* Setup for 9600 8N1
+     *
+     * Set baud rate divider (CCB=333MHz)
+     *  333e6/(16*2170) = 9591 (~9600)
+     */
+
+    // LCR
+    out8x(base, 3, 0x83);
+    out8x(base, 1, 2170>>8);
+    out8x(base, 0, 2170&0xff);
+
+    out8x(base, 3, 0x03);
+}
+
 /* on entry only ROM, RAM, and CCSR are accessible */
 void Init(void)
 {
+    setup_uart(0);
+    setup_uart(1);
+
 	uint16_t vend = pci_in16(0,0,0,0),
 	         device = pci_in16(0,0,0,2);
 	if(vend!=0x1957 || device!=0x30)
