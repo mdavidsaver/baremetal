@@ -102,6 +102,7 @@ SECTIONS
   .sdata2         :
   {
     PROVIDE (__sdata2_start = .);
+    PROVIDE(_SDA2_BASE_ = .);
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
     PROVIDE (__sdata2_end = .);
   } >ram AT>rom
@@ -226,6 +227,7 @@ SECTIONS
   .sdata          :
   {
     PROVIDE (__sdata_start = .);
+    PROVIDE(_SDA_BASE_ = .);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     PROVIDE (__sdata_end = .);
   } >ram AT>rom

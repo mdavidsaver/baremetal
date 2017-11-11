@@ -79,6 +79,7 @@ SECTIONS
   PROVIDE (__sdata2_start = .);
   .sdata2         :
   {
+    PROVIDE(_SDA2_BASE_ = .);
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
   }
   PROVIDE (__sdata2_end = .);
@@ -178,6 +179,7 @@ SECTIONS
      we can shorten the on-disk segment size.  */
   .sdata          :
   {
+    PROVIDE(_SDA_BASE_ = .);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
   }
   _edata = .; PROVIDE (edata = .);
