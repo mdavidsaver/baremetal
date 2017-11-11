@@ -14,6 +14,8 @@
 static uint32_t image_addr = 0x10000;
 void load_os(uint32_t, const uint32_t*); /* in bootos.S */
 
+static uint8_t macaddr[6];
+
 static const
 tlbentry initial_mappings[] = {
 	/* leave initial ROM and RAM mappings in place (first 3) */
@@ -124,23 +126,39 @@ void show_fw_cfg(void)
         fw_cfg_readmore(buf, 8);
         buf[8] = '\0';
         size-=8;
+
         if(strcmp(buf, "MOTOROLA")!=0) {
             printk("Bad VPD\n");
+
         } else {
             uint32_t pos=0;
             char prev='\0';
+            unsigned maccnt = 0;
+
             while(pos<size) {
                 uint8_t id = fw_cfg_readbyte(),
                         len= fw_cfg_readbyte();
                 pos += 2;
                 if(id==0xff || id==0)
                     break;
-                printk("VPD %02x \"", (unsigned)id);
-                for(;len; len--) {
-                    putc_escape(fw_cfg_readbyte());
-                    pos++;
+                if(id==8 && len>=6 && maccnt++==0) {
+                    // MAC Address
+                    unsigned i;
+                    for(i=0; i<6; i++) {
+                        macaddr[i] = fw_cfg_readbyte();
+                    }
+                    for(; i<len; i++)
+                        fw_cfg_readbyte();
+                    printk("VPD Mac 0\n");
+
+                } else {
+                    printk("VPD %02x (%u) \"", id, len);
+                    for(;len; len--) {
+                        putc_escape(fw_cfg_readbyte());
+                        pos++;
+                    }
+                    printk("\"\n");
                 }
-                printk("\"\n");
             }
             while(pos<0x10f0) {
                 fw_cfg_readbyte();
@@ -298,6 +316,34 @@ static void setup_uart(unsigned n)
     out8x(base, 3, 0x03);
 }
 
+static
+void set_mac(void)
+{
+    uint32_t addr1, addr2;
+
+    addr2 = macaddr[1];
+    addr2<<=8;
+    addr2|= macaddr[0];
+    addr2<<=16;
+
+    addr1 = macaddr[5];
+    addr1<<=8;
+    addr1|= macaddr[4];
+    addr1<<=8;
+    addr1|= macaddr[3];
+    addr1<<=8;
+    addr1|= macaddr[2];
+
+    if(!addr1 && !addr2)
+        return;
+
+    printk("Set MAC0 %08x %08x\n", (unsigned)addr1, (unsigned)addr2);
+
+    /* place the default MAC where RTEMS expects it */
+    out32x(CCSRBASE, 0x24540, addr1); // TSEC1 MACSTNADDR1
+    out32x(CCSRBASE, 0x24544, addr2); // TSEC1 MACSTNADDR2
+}
+
 /* on entry only ROM, RAM, and CCSR are accessible */
 void Init(void)
 {
@@ -327,6 +373,9 @@ void Init(void)
 	setup_i2c();
 
 	prepare_tsi148();
+
+    set_mac();
+
     printk("Load from %08x\n", (unsigned)image_addr);
 
     uint32_t regs[32];
