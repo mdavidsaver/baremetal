@@ -2,8 +2,6 @@
 #include "spr.h"
 
 /* Relocate all sections as the bootloader has placed us arbitrarily in RAM.
- *
- * TOOD: doesn't handle overlap
  */
 
 .section .text.start
@@ -26,9 +24,7 @@ startx:
   sub. %r26, %r0, %r1 /* actual - desired, aka.  src - dest */
 
   mfspr %r25, SPR_L1CFG0
-  andi. %r25, %r25, L1CFG0_CSIZE
-  subi %r25, %r25, 1 /* cache size mask */
-  /* TODO: use for invalidation */
+  andi. %r25, %r25, L1CFG0_CSIZE /* L1 cache line size */
 
   /* we are in one of 5 possible arrangements
    * 1. already in right place
@@ -79,9 +75,9 @@ usedest:
    * may be clobbered.
    */
 
-  load_const %r5, __text_start /* dset */
+  load_const %r5, __text_start /* dest */
   load_const %r4, _end
-  sub %r4, %r4, %r5
+  sub %r4, %r4, %r5  /* # of bytes */
   add %r3, %r5, %r26 /* src */
 
   mtctr %r8 /* branch to relocator (copy of codemove() ) */
@@ -100,7 +96,8 @@ atfinal:
 
   b _pre_Init
 
-/* relocator
+/* relocator (memmove() with L1 icache clear)
+ *
  * r3 - base address of code to move
  * r4 - size of code to move
  * r5 - address of destination
@@ -114,6 +111,11 @@ codemove:
   cmpwi %r4, 0
   beqlr-
 
+  /* save for later use w/ L1 */
+  mr %r6, %r4
+  mr %r7, %r5
+
+  /* add one as 'bdnz' equivalent is if(--ctr) */
   addi %r4, %r4, 1
   mtctr %r4
   subi %r4, %r4, 1
@@ -145,8 +147,21 @@ downloop:
   bdnz+ downloop
 
 relcd:
-  /* TODO: L1 cache invalidate */
   sync
   isync
+
+  /* invalidate destination in L1 instruction cache */
+  add %r3, %r7, %r6 /* dest+size */
+  mr %r5, %r7       /* dest */
+
+iline:
+  icbi 0, %r5
+  add %r5, %r5, %r25
+  cmpw %r5, %r3
+  blt+ iline
+
+  sync
+  isync
+
   blr
 end_codemove:
