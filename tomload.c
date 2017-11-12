@@ -237,7 +237,8 @@ void map_pci_interrupt(unsigned b, unsigned d, unsigned f, struct pci_info *info
         line = (pin-1u+d)&3u;
         line += 4u;
     }
-    
+
+    printk("Assign IRQ %x:%x.%x pin=%u line=%u\n", b, d, f, pin, line);
     pci_out8(b, d, f, PCI_INTERRUPT_LINE, line);
 }
 
