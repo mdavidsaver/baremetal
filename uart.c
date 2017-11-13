@@ -9,8 +9,7 @@ uint32_t ccsr_base = 0xe1000000;
 static
 void uart_tx(char c)
 {
-    //TODO: proper wait for TX not full
-    //while(!(in8x(UART, 0x5)&(1<<1))) {}
+    while(!(in8x(UART, 0x5)&0x40)) {}
     out8x(UART, 0x0, c);
 }
 
