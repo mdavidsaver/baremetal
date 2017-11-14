@@ -163,13 +163,12 @@ relcd:
 
 iline:
   dcbst 0, %r5 /* force d-cache write back */
+  sync
   icbi 0, %r5  /* invalidate i-cache */
+  isync
   add %r5, %r5, %r25
   cmpw %r5, %r3
   blt+ iline
-
-  sync
-  isync
 
   blr
 end_codemove:
