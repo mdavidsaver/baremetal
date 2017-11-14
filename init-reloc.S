@@ -7,11 +7,17 @@
 .section .text.start
 .global _start
 _start:
-  /* assume r3-r7 hold info from bootloader to be preserved */
+
+  // update MSR
+  mfmsr %r8
+  // disable all exceptions
+  load_const %r9, MSR_BOOKE_MASK
+  andc %r8, %r8, %r9
 
   bl startx
 startx:
 
+  /* assume r3-r7 hold info from bootloader to be preserved */
   mr %r27, %r3
   mr %r28, %r4
   mr %r29, %r5
@@ -24,7 +30,7 @@ startx:
   sub. %r26, %r0, %r1 /* actual - desired, aka.  src - dest */
 
   mfspr %r25, SPR_L1CFG0
-  andi. %r25, %r25, L1CFG0_CSIZE /* L1 cache line size */
+  andi. %r25, %r25, L1CFG0_CSIZE /* L1 cache line size (power of 2) */
 
   /* we are in one of 5 possible arrangements
    * 1. already in right place
@@ -58,8 +64,9 @@ startx:
   add %r5, %r5, %r26 /* src+size */
 usedest:
 
-  /* ensure alignment */
-  ori %r5, %r5, 0x3
+  /* skip to start of next cache line */
+  subi %r3, %r25, 1
+  or %r5, %r5, %r3
   addi %r5, %r5, 1
 
   load_const %r3, codemove
@@ -81,7 +88,7 @@ usedest:
   add %r3, %r5, %r26 /* src */
 
   mtctr %r8 /* branch to relocator (copy of codemove() ) */
-  load_const %r8, atfinal /* return to atfinal in final location */
+  load_const %r8, atfinal /* which returns to atfinal in final location */
   mtlr %r8
 
   bctr
@@ -155,7 +162,8 @@ relcd:
   mr %r5, %r7       /* dest */
 
 iline:
-  icbi 0, %r5
+  dcbst 0, %r5 /* force d-cache write back */
+  icbi 0, %r5  /* invalidate i-cache */
   add %r5, %r5, %r25
   cmpw %r5, %r3
   blt+ iline
