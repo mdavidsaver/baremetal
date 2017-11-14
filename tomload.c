@@ -16,74 +16,18 @@ void load_os(uint32_t, const uint32_t*); /* in bootos.S */
 
 static uint8_t macaddr[6];
 
-static const
-tlbentry initial_mappings[] = {
-	/* leave initial ROM and RAM mappings in place (first 3) */
-
-	/* CCSR (after relocation) */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x5), /* 1 MB */
-	 .mas2 = MAS2_EPN(0xe1000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0xe1000000)|MAS3_DEVICE,
-	},
-
-	/* mvme3100 CPLD registers */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x7), /* 16 MB */
-	 .mas2 = MAS2_EPN(0xe2000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0xe2000000)|MAS3_DEVICE,
-	},
-
-	/* PCI IO ports (cf. setup_pci_host()) */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x7), /* 16 MB */
-	 .mas2 = MAS2_EPN(0xe0000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0xe0000000)|MAS3_DEVICE,
-	},
-
-	/* PCI (cf. setup_pci_host()) */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
-	 .mas2 = MAS2_EPN(0x80000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0x80000000)|MAS3_DEVICE,
-	},
-
-	/* PCI (cf. setup_pci_host()) */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
-	 .mas2 = MAS2_EPN(0xc0000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0xc0000000)|MAS3_DEVICE,
-	},
-
-	/* ROM (and QEMU FW info) */
-	{.mas0 = MAS0_TLB1,
-	 .mas1 = MAS1_V|MAS1_TSIZE(0x9), /* 256 MB */
-	 .mas2 = MAS2_EPN(0xf0000000)|MAS2_DEVICE,
-	 .mas3 = MAS3_RPN(0xf0000000)|MAS3_DEVICE,
-	},
-};
-
 static
 void setup_tlb(void)
 {
-	tlbentry disabled;
-	unsigned idx, n;
-	/* Leave first 3 mappings (ROM and RAM) in place,
-	 * copy in remaining
-	 */
-	for(idx=0, n=3; idx<NELEMENTS(initial_mappings); idx++, n++)
-	{
-		tlbentry ent = initial_mappings[idx];
-		ent.mas0 |= MAS0_ENT(n);
-		tlb_update(&ent);
-	}
-	/* disable remaining entries */
-	disabled.mas0 = disabled.mas1 = disabled.mas2 = disabled.mas3 = 0;
-	for(;n<16;n++)
-	{
-		disabled.mas0 |= MAS0_ENT(n);
-		tlb_update(&disabled);
-	}
+    unsigned idx, way;
+    for(idx=0; idx<256; idx++) {
+        for(way=0; way<2; way++) {
+            tlbentry ent = {0,0,0,0};
+            ent.mas0 = MAS0_TLB0|MAS0_ENT(way);
+            ent.mas1 = MAS2_EPN(idx<<12);
+            tlb_update(&ent);
+        }
+    }
 }
 
 static

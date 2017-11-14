@@ -31,6 +31,12 @@
 #define MAS2_DEVICE (MAS2_I|MAS2_M|MAS2_G)
 
 #define MAS3_RPN(ADR) ((ADR)&0xfffff000)
+#define MAS3_UX (1<<(63-58))
+#define MAS3_SX (1<<(63-59))
+#define MAS3_UW (1<<(63-60))
+#define MAS3_SW (1<<(63-61))
+#define MAS3_UR (1<<(63-62))
+#define MAS3_SR (1<<(63-63))
 /* All RWX */
 #define MAS3_RAM 0x3f
 /* All RX, no write */

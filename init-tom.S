@@ -8,61 +8,92 @@
  * The mvme3100 programers reference states that the initial
  * mappings cover the whole ROM and CCSR.
  *
- * We take a conservative approach and assume only the high 4KB,
- * which contains only .text.early and .text.init, are accessible.
- * Impose the _tlb_data_early mappings before entering C code.
+ * We setup TLB1 based on observed MOTLoad behavior.
+ * Fill each of 16 entries with a 256MB mapping.
+ * Covers entire address space.
  */
 .section .text.early
 
-
-/* TLB0 provies 2 entires, TLB1 provides 16 entries.
- * Each with a max. size of 256MB (16*256MB=4GB)
- */
-
 _tlb_data_early:
-/* early boot TLB configuration.
- * access to RAM, ROM and CCSR w/ TLB1
- * clear TLB0.
- *
- * Map the ROM first as this is where we execute from.
- */
 .long MAS0_TLB1|MAS0_ENT(0)
-.long MAS1_V|MAS1_TSIZE(0x6) /* 4 MB */
-.long MAS2_EPN(0xffc00000)|MAS2_ROM
-.long MAS3_RPN(0xffc00000)|MAS3_ROM
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xf0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xf0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
 .long MAS0_TLB1|MAS0_ENT(1)
-.long MAS1_V|MAS1_TSIZE(0x6) /* 4 MB */
-.long MAS2_EPN(0xff800000)|MAS2_ROM
-.long MAS3_RPN(0xff800000)|MAS3_ROM
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xe0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xe0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-/* RAM
- * Linux expects IPROT
- */
 .long MAS0_TLB1|MAS0_ENT(2)
 .long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
-.long MAS2_EPN(0)|MAS2_RAM
-.long MAS3_RPN(0)|MAS3_RAM
+.long MAS2_EPN(0xd0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xd0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-/* CCSR before relocation */
 .long MAS0_TLB1|MAS0_ENT(3)
-.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
-.long MAS2_EPN(0xff700000)|MAS2_DEVICE
-.long MAS3_RPN(0xff700000)|MAS3_DEVICE
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xc0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xc0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-/* CCSR after relocation */
 .long MAS0_TLB1|MAS0_ENT(4)
-.long MAS1_V|MAS1_TSIZE(0x5) /* 1 MB */
-.long MAS2_EPN(0xe1000000)|MAS2_DEVICE
-.long MAS3_RPN(0xe1000000)|MAS3_DEVICE
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xb0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xb0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-/* Disable TLB0 */
+.long MAS0_TLB1|MAS0_ENT(5)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0xa0000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0xa0000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-.long MAS0_TLB0|MAS0_ENT(0)
-.long 0, 0, 0
+.long MAS0_TLB1|MAS0_ENT(6)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x90000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x90000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
-.long MAS0_TLB0|MAS0_ENT(1)
-.long 0, 0, 0
+.long MAS0_TLB1|MAS0_ENT(7)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x80000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x80000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(8)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x70000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x70000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(9)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x60000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x60000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(10)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x50000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x50000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(11)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x40000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x40000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(12)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x30000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x30000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(13)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x20000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x20000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(14)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x10000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x10000000)|MAS3_SR|MAS3_SW|MAS3_SX
+
+.long MAS0_TLB1|MAS0_ENT(15)
+.long MAS1_V|MAS1_IPROT|MAS1_TSIZE(0x9) /* 256 MB */
+.long MAS2_EPN(0x00000000)|MAS2_I|MAS2_G
+.long MAS3_RPN(0x00000000)|MAS3_SR|MAS3_SW|MAS3_SX
 
 _tlb_data_early_end:
 
