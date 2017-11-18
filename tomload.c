@@ -120,6 +120,57 @@ void load_eeprom_defaults(void)
     i2c_stop();
 }
 
+static
+void process_fw_cfg(void)
+{
+    uint32_t size;
+
+    uint32_t pos=0;
+    unsigned maccnt = 0;
+
+    if(fw_cfg_show() || fw_cfg_open("tomload/vpd", &size)) {
+        printk("No FW Info found\n");
+        return;
+    }
+
+    {
+        char buf[9];
+
+        fw_cfg_readmore(buf, 8);
+        buf[8] = '\0';
+        size-=8;
+
+        if(strcmp(buf, "MOTOROLA")!=0) {
+            printk("Bad VPD\n");
+            return;
+        }
+    }
+
+    while(pos<size) {
+        uint8_t id = fw_cfg_readbyte(),
+                len= fw_cfg_readbyte();
+        pos += 2;
+        if(id==0xff || id==0)
+            break;
+        if(id==8 && len>=6 && maccnt++==0) {
+            // MAC Address
+            unsigned i;
+            for(i=0; i<6; i++) {
+                macaddr[i] = fw_cfg_readbyte();
+            }
+            for(; i<len; i++)
+                fw_cfg_readbyte();
+
+        } else {
+            for(;len; len--) {
+                fw_cfg_readbyte();
+                pos++;
+            }
+        }
+    }
+
+}
+
 static __attribute__((unused))
 void show_fw_cfg(void)
 {
@@ -158,7 +209,6 @@ void show_fw_cfg(void)
         } else {
             uint32_t pos=0;
             char prev='\0';
-            unsigned maccnt = 0;
 
             while(pos<size) {
                 uint8_t id = fw_cfg_readbyte(),
@@ -166,24 +216,13 @@ void show_fw_cfg(void)
                 pos += 2;
                 if(id==0xff || id==0)
                     break;
-                if(id==8 && len>=6 && maccnt++==0) {
-                    // MAC Address
-                    unsigned i;
-                    for(i=0; i<6; i++) {
-                        macaddr[i] = fw_cfg_readbyte();
-                    }
-                    for(; i<len; i++)
-                        fw_cfg_readbyte();
-                    printk("VPD Mac 0\n");
 
-                } else {
-                    printk("VPD %02x (%u) \"", id, len);
-                    for(;len; len--) {
-                        putc_escape(fw_cfg_readbyte());
-                        pos++;
-                    }
-                    printk("\"\n");
+                printk("VPD %02x (%u) \"", id, len);
+                for(;len; len--) {
+                    putc_escape(fw_cfg_readbyte());
+                    pos++;
                 }
+                printk("\"\n");
             }
             while(pos<0x10f0) {
                 fw_cfg_readbyte();
@@ -385,6 +424,7 @@ void Init(void)
 
 	setup_tlb(); /* PCI memory regions now accessible */
     printk("TOMLOAD\n");
+    process_fw_cfg();
     //show_fw_cfg();
 
     setup_pci_host();
