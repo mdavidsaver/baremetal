@@ -40,6 +40,87 @@ void setup_i2c(void)
 }
 
 static
+uint8_t i2c_in(void)
+{
+    while((in8x(CCSRBASE, 0x300c)&0x02)==0) {}
+    return in8x(CCSRBASE, 0x3010);
+}
+
+static
+void i2c_start(uint8_t addr, unsigned iswrite)
+{
+    uint8_t ctrl = 0xa0;
+
+    addr &= 0xfe;
+
+    if(iswrite)
+        ctrl |= 0x10;
+    else
+        addr |= 0x01;
+
+    out8x(CCSRBASE, 0x3008, ctrl);
+    out8x(CCSRBASE, 0x3010, addr);
+
+    /* reads are "pipelined" so the initial value is junk */
+    if(!iswrite)
+        i2c_in();
+}
+
+static
+void i2c_stop(void)
+{
+    out8x(CCSRBASE, 0x3008, 0x80);
+}
+
+static
+void i2c_out(uint8_t v)
+{
+    out8x(CCSRBASE, 0x3010, v);
+    while((in8x(CCSRBASE, 0x300c)&0x02)==0) {}
+}
+
+static
+void load_eeprom_defaults(void)
+{
+    char buf[9];
+    uint32_t size;
+    unsigned i;
+
+    i2c_start(0xa8, 1);
+    // address
+    i2c_out(0);
+    i2c_out(0);
+    i2c_stop();
+
+    i2c_start(0xa8, 0);
+
+    for(i=0; i<8; i++)
+        buf[i] = i2c_in();
+    buf[8] = '\0';
+
+    i2c_stop();
+
+    if(strcmp(buf, "MOTOROLA")==0)
+        return; // already configured
+
+    if(fw_cfg_open("tomload/vpd", &size)) {
+        printk("Warning: Unable to load EEPROM defaults\n");
+        return;
+    }
+
+    i2c_start(0xa8, 1);
+    // address
+    i2c_out(0);
+    i2c_out(0);
+
+    while(size--) {
+        i2c_out(fw_cfg_readbyte());
+    }
+
+    i2c_stop();
+}
+
+static __attribute__((unused))
 void show_fw_cfg(void)
 {
     uint32_t size;
@@ -295,6 +376,8 @@ void Init(void)
     setup_uart(0);
     setup_uart(1);
 
+    load_eeprom_defaults();
+
 	uint16_t vend = pci_in16(0,0,0,0),
 	         device = pci_in16(0,0,0,2);
 	if(vend!=0x1957 || device!=0x30)
@@ -302,7 +385,7 @@ void Init(void)
 
 	setup_tlb(); /* PCI memory regions now accessible */
     printk("TOMLOAD\n");
-    show_fw_cfg();
+    //show_fw_cfg();
 
     setup_pci_host();
 
