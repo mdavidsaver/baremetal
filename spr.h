@@ -43,6 +43,7 @@
 
 #define SPR_HID0 1008
 #define SPR_HID1 1009
+#define SPR_MMUCSR0 1012
 #define SPR_MMUCFG 1015
 
 #define SPR_TLB0CFG 688

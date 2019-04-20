@@ -149,10 +149,15 @@ void Init(void)
         printk("\ne500 core detected\n");
         uint32_t svr = SHOW_SPR(SPR_SVR);
 
+        SHOW_SPR(SPR_PID0);
+        SHOW_SPR(SPR_PID1);
+        SHOW_SPR(SPR_PID2);
+
         if((svr&0xffff0000)==0x80300000) {
             printk("\nmpc8540 detected\n");
             SHOW_SPR(SPR_HID0);
             SHOW_SPR(SPR_HID1);
+            SHOW_SPR(SPR_MMUCSR0);
             SHOW_SPR(SPR_MMUCFG);
 
             show_tlb0();
