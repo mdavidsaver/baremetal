@@ -29,9 +29,6 @@ startx:
 
   sub. %r26, %r0, %r1 /* actual - desired, aka.  src - dest */
 
-  mfspr %r25, SPR_L1CFG0
-  andi. %r25, %r25, L1CFG0_CSIZE /* L1 cache line size (power of 2) */
-
   /* we are in one of 5 possible arrangements
    * 1. already in right place
    *     |--- dest ---|
@@ -64,11 +61,15 @@ startx:
   add %r5, %r5, %r26 /* src+size */
 usedest:
 
+  mfspr %r25, SPR_L1CFG0
+  andi. %r25, %r25, L1CFG0_CSIZE /* L1 cache line size (power of 2) */
+
   /* skip to start of next cache line */
   subi %r3, %r25, 1
   or %r5, %r5, %r3
   addi %r5, %r5, 1
 
+  /* codemove copies itself */
   load_const %r3, codemove
   add %r3, %r3, %r26 /* actual codemove */
 
@@ -162,7 +163,7 @@ relcd:
   mr %r5, %r7       /* dest */
 
 iline:
-  dcbst 0, %r5 /* force d-cache write back */
+  dcbf 0, %r5 /* force d-cache write back */
   sync
   icbi 0, %r5  /* invalidate i-cache */
   isync
