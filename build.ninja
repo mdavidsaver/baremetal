@@ -1,0 +1,6 @@
+ninja_required_version = 1.6
+
+builddir = build
+
+subninja build-host.ninja
+subninja build-cross.ninja

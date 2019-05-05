@@ -1,0 +1,23 @@
+
+compiler = gcc
+linker = gcc
+cflags = -DHOST_BUILD -g -Wall -Wextra -I.
+
+include build-common.ninja
+
+build $builddir/host/test-ell.o : cc test/test-ell.c
+build $builddir/host/test-printk.o : cc test/test-printk.c
+
+build $builddir/host/ell.o : cc ell.c
+build $builddir/host/printk.o : cc printk.c
+
+build test-ell : link $
+    $builddir/host/test-ell.o $
+    $builddir/host/ell.o
+
+build test-printk : link $
+    $builddir/host/test-printk.o $
+    $builddir/host/printk.o
+
+default test-ell
+default test-printk

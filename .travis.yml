@@ -1,9 +1,10 @@
 sudo: false
-dist: trusty
+dist: xenial
 language: c
 addons:
   apt:
     packages:
     - gcc-powerpc-linux-gnu
+    - ninja-build
 script:
-  - make
+  - ninja -v

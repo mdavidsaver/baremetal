@@ -1,0 +1,8 @@
+
+rule cc
+  deps = gcc
+  depfile = $out.d
+  command = $compiler -MMD -MF $out.d -c $in $cflags -o $out
+
+rule link
+  command = $linker -o $out $ldflags $in $ldadd

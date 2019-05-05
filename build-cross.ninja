@@ -1,0 +1,74 @@
+
+toolchain = powerpc-linux-gnu-
+
+compiler = ${toolchain}gcc
+linker = ${toolchain}gcc
+
+ldadd = -lgcc
+
+freestand=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+
+cflags  = $freestand $
+          -mcpu=8540 -msoft-float $
+          -Wall -Wextra -Werror $
+          -Os
+
+ldflags = $freestand -static
+
+# newer ld will allow us to complain instead of just
+# dumping orphaned sections somewhere unexpected
+#ldflags = $ldflags -Wl,--orphan-handling=error
+
+include build-common.ninja
+
+rule munch
+  command = ${toolchain}objcopy -O binary $in $out
+
+build $builddir/cross/init.o : cc init.S
+build $builddir/cross/init-tom.o : cc init-tom.S
+build $builddir/cross/init-reloc.o : cc init-reloc.S
+build $builddir/cross/bootos.o : cc bootos.S
+
+build $builddir/cross/investigate.o : cc investigate.c
+build $builddir/cross/eabi.o : cc eabi.c
+build $builddir/cross/common.o : cc common.c
+build $builddir/cross/uart.o : cc uart.c
+build $builddir/cross/printk.o : cc printk.c
+build $builddir/cross/tomload.o : cc tomload.c
+build $builddir/cross/fw_cfg.o : cc fw_cfg.c
+build $builddir/cross/pci.o : cc pci.c
+build $builddir/cross/ell.o : cc ell.c
+
+build investigate.elf $
+      | $builddir/cross/investigate.map: link $
+    $builddir/cross/init.o $
+    $builddir/cross/init-reloc.o $
+    $builddir/cross/investigate.o $
+    $builddir/cross/eabi.o $
+    $builddir/cross/common.o $
+    $builddir/cross/uart.o $
+    $builddir/cross/printk.o $
+    | os.ld
+  ldflags = -Tos.ld -Wl,-Map=$builddir/cross/investigate.map $ldflags
+
+build tomload.elf $
+      | $builddir/cross/tomload.map: link $
+    $builddir/cross/init.o $
+    $builddir/cross/init-tom.o $
+    $builddir/cross/bootos.o $
+    $builddir/cross/tomload.o $
+    $builddir/cross/eabi.o $
+    $builddir/cross/common.o $
+    $builddir/cross/uart.o $
+    $builddir/cross/printk.o $
+    $builddir/cross/fw_cfg.o $
+    $builddir/cross/pci.o $
+    $builddir/cross/ell.o $
+    | tomload.ld
+  ldflags = -Ttomload.ld -Wl,-Map=$builddir/cross/tomload.map $ldflags
+
+build investigate.bin : munch investigate.elf
+build tomload.bin : munch tomload.elf
+
+default investigate.bin
+default tomload.bin
