@@ -4,7 +4,8 @@
 #include "mmio.h"
 
 uint32_t ccsr_base = 0xe1000000;
-#define UART (ccsr_base+0x4500)
+uint32_t uart_base = 0xe1000000 + 0x4500;
+#define UART uart_base
 
 static
 void uart_tx(char c)

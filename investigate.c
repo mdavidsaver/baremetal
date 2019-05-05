@@ -59,9 +59,8 @@ void show_tlb1(void)
 
 /* DUART is 16550 compatible */
 static
-void show_uart(unsigned n)
+void show_uart(uint32_t base)
 {
-    uint32_t base = CCSRBASE + (n==0 ? 0x4500 : 0x4600);
     uint8_t lcr, mcr, scratch;
     uint16_t div;
 
@@ -76,8 +75,8 @@ void show_uart(unsigned n)
 
     out8x(base, 3, lcr); // restore DLAB
 
-    printk("UART%u LCR=%02x MCR=%02x UD=%04x scratch=%02x\n",
-           n, lcr, mcr, div, scratch);
+    printk("UART@%x LCR=%02x MCR=%02x UD=%04x scratch=%02x\n",
+           (unsigned)base, lcr, mcr, div, scratch);
     printk(" Format %u%c%u\n",
            5+(lcr&3),
            (lcr&0x10) ? ((lcr&0x80) ? 'E' : 'O') : 'N',
@@ -103,8 +102,8 @@ void show_ccsr(void)
     printk("PVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a0));
     printk("SVR %08x\n", (unsigned)in32x(CCSRBASE, 0xe00a4));
 
-    show_uart(0);
-    show_uart(1);
+    show_uart(CCSRBASE + 0x4500);
+    show_uart(CCSRBASE + 0x4600);
 
     for(i=0; i<8; i++) {
         printk("LAWBAR%u %08x\n", i, (unsigned)in32x(CCSRBASE+0xc08, 0x20*i));
@@ -140,21 +139,21 @@ void Init(void)
 {
     /* Short special registers */
     uint32_t msr, pvr;
+    pvr = READ_SPR(SPR_PVR);
     __asm__ ("mfmsr %0" : "=r"(msr));
-    printk("MSR %08x\n", (unsigned)msr);
-    SHOW_SPR(SPR_IVPR);
-    pvr = SHOW_SPR(SPR_PVR);
 
     if((pvr&0xffff0000)==0x80200000) {
-        printk("\ne500 core detected\n");
-        uint32_t svr = SHOW_SPR(SPR_SVR);
-
-        SHOW_SPR(SPR_PID0);
-        SHOW_SPR(SPR_PID1);
-        SHOW_SPR(SPR_PID2);
+        uint32_t svr = READ_SPR(SPR_SVR);
 
         if((svr&0xffff0000)==0x80300000) {
-            printk("\nmpc8540 detected\n");
+            ccsr_base = 0xe1000000;
+            uart_base = 0xe1000000 + 0x4500;
+
+            printk("\nmpc8540 detected (aka. mvme3100)\n");
+            printk("MSR %08x\n", (unsigned)msr);
+            SHOW_SPR(SPR_PVR);
+            SHOW_SPR(SPR_SVR);
+            SHOW_SPR(SPR_IVPR);
             SHOW_SPR(SPR_HID0);
             SHOW_SPR(SPR_HID1);
             SHOW_SPR(SPR_MMUCSR0);
@@ -170,8 +169,30 @@ void Init(void)
             out8x(0xe2000000, 1, in8x(0xe2000000, 1) | 0xa0);
         }
 
+        SHOW_SPR(SPR_PID0);
+        SHOW_SPR(SPR_PID1);
+        SHOW_SPR(SPR_PID2);
+
+    } else if((pvr&0xffff0000)==0x80010000) {
+        ccsr_base = 0; /* has no equivlent */
+        uart_base = 0xf1100000 + 0x20000;
+
+        printk("mpc7455/mpc7445 detected (aka. mvme5500)\n");
+        printk("MSR %08x\n", (unsigned)msr);
+        SHOW_SPR(SPR_PVR);
+        SHOW_SPR(SPR_IVPR);
+        SHOW_SPR(SPR_HID0);
+        SHOW_SPR(SPR_HID1);
+        SHOW_SPR(SPR_MSSCR0);
+        SHOW_SPR(SPR_MSSSR0);
+        SHOW_SPR(SPR_L2CR);
+        SHOW_SPR(SPR_L3CR);
+
+        /* assume mvme5500 */
+        show_uart(uart_base);
+
     } else {
-        printk("Unknown PPC core\n");
+        printk("Unknown PPC core %08x\n", (unsigned)pvr);
     }
     printk("Done\n");
     while(1) {}

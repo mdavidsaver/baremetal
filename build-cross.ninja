@@ -9,7 +9,7 @@ ldadd = -lgcc
 freestand=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
 
 cflags  = $freestand $
-          -mcpu=8540 -msoft-float $
+          -mcpu=powerpc -msoft-float $
           -Wall -Wextra -Werror $
           -Os
 

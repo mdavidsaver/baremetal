@@ -80,6 +80,13 @@
 
 #define SPR_USPRG0 256
 
+
+/* mpc7455 specific */
+#define SPR_MSSCR0 1014
+#define SPR_MSSSR0 1015
+#define SPR_L2CR 1017
+#define SPR_L3CR 1018
+
 #ifndef __ASSEMBLER__
 
 #define READ_SPRx(NUM) ({uint32_t val; \

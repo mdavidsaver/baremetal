@@ -13,6 +13,8 @@ int strcmp(const char *lhs, const char *rhs);
 void printk(const char *fmt, ...) __attribute__((format(__printf__,1,2)));
 void vprintk(const char *fmt, va_list) __attribute__((format(__printf__,1,0)));
 
+extern uint32_t uart_base;
+
 void putc(char c);
 void putc_escape(char c);
 void puts(const char *s);
