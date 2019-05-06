@@ -1,10 +1,15 @@
-sudo: false
 dist: xenial
 language: c
 addons:
   apt:
+    sources:
+    - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial multiverse"
+    - sourceline: "deb http://archive.ubuntu.com/ubuntu/ xenial-backports universe"
     packages:
     - gcc-powerpc-linux-gnu
     - ninja-build
+install:
+  - sudo apt-get install -t xenial-backports ninja-build
 script:
+  - ninja --version
   - ninja -v
